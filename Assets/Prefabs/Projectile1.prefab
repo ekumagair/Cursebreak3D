@@ -193,4 +193,6 @@ MonoBehaviour:
   speed: 20
   damage: 15
   ignoreTag: 
-  createObjectOnHit: {fileID: 8661592347238051789, guid: 5be442a4bc26cd142868947efbac51d4, type: 3}
+  createObjectOnHit:
+  - {fileID: 8661592347238051789, guid: 5be442a4bc26cd142868947efbac51d4, type: 3}
+  - {fileID: 7073382011647977794, guid: d7d4ca8935f3c18459c2cc23f444b1c0, type: 3}

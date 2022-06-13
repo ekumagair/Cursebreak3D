@@ -207,6 +207,7 @@ public class Enemy : MonoBehaviour
             inPain = true;
 
             StopCoroutine(Attack());
+            ResetAttackTime();
 
             if (painAnim != "")
             {
@@ -226,16 +227,24 @@ public class Enemy : MonoBehaviour
     public bool CanSee(GameObject which, float dist)
     {
         Vector3 dir;
+        bool hasPath = false;
 
         dir = (which.transform.position - transform.position).normalized;
         dir.y = 0;
         transform.forward = dir;
 
+        if (agent.enabled == true)
+        {
+            NavMeshPath seePath = new NavMeshPath();
+            hasPath = agent.CalculatePath(which.transform.position, seePath);
+        }
+
         RaycastHit hit;
         if (Physics.Raycast(transform.position, dir, out hit, dist, sightMask))
         {
-            if (hit.collider.gameObject == which)
+            if (hit.collider.gameObject == which && hasPath)
             {
+                Debug.Log(gameObject + " saw " + which);
                 Debug.DrawRay(transform.position, dir * hit.distance, Color.green);
                 return true;
             }
@@ -244,6 +253,26 @@ public class Enemy : MonoBehaviour
                 Debug.DrawRay(transform.position, dir * 1000, Color.red);
                 return false;
             }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public bool CanHear(GameObject which, float dist)
+    {
+        NavMeshPath hearPath = new NavMeshPath();
+
+        if (agent.enabled == true)
+        {
+            agent.CalculatePath(which.transform.position, hearPath);
+        }
+
+        if (Vector3.Distance(transform.position, which.transform.position) < dist && hearPath.status == NavMeshPathStatus.PathComplete)
+        {
+            Debug.Log(gameObject + " can hear " + which);
+            return true;
         }
         else
         {

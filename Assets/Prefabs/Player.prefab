@@ -210,7 +210,7 @@ MonoBehaviour:
     m_Bits: 64
   useMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 129
   isGrounded: 0
   isMoving: 0
   steps: []
@@ -231,7 +231,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentWeapon: 0
   weaponsUnlocked: 01010000000000
-  weaponType: 000000000100000000000000
+  weaponType: ffffffff0100000000000000
   weaponRayRange:
   - 0
   - 3
@@ -248,13 +248,21 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 9116008725644934739, guid: 585928db8ef9b4f4994180504ac4183a, type: 3}
+  weaponSound:
+  - {fileID: 0}
+  - {fileID: 7073382011647977794, guid: 4892750055e150d49b764e9746becabf, type: 3}
+  - {fileID: 7073382011647977794, guid: ef4e2b93f3259f0409d0cfdb61591f2d, type: 3}
+  weaponSound2:
+  - {fileID: 0}
+  - {fileID: 7073382011647977794, guid: e4f6bd1fc72b6bf4d83f08c0f5a00902, type: 3}
+  - {fileID: 0}
   weaponAmmoType: 000000000000000000000000
   weaponAmmoCost: 000000000000000001000000
   ammo: 00000000
+  keys: 01000000
   attackRayMask:
     serializedVersion: 2
     m_Bits: 723
-  soundSwoosh: {fileID: 7073382011647977794, guid: 4892750055e150d49b764e9746becabf, type: 3}
 --- !u!114 &-1980402611779862909
 MonoBehaviour:
   m_ObjectHideFlags: 0

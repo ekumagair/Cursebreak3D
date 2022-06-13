@@ -7,7 +7,7 @@ public class Projectile : MonoBehaviour
     public float speed;
     public int damage;
     public string ignoreTag = "";
-    public GameObject createObjectOnHit;
+    public GameObject[] createObjectOnHit;
 
     void Update()
     {
@@ -25,9 +25,15 @@ public class Projectile : MonoBehaviour
                 hitObj.GetComponent<Health>().TakeDamage(damage, false);
             }
 
-            if (createObjectOnHit != null)
+            if (createObjectOnHit.Length > 0)
             {
-                Instantiate(createObjectOnHit, transform.position, transform.rotation);
+                foreach (GameObject obj in createObjectOnHit)
+                {
+                    if (obj != null)
+                    {
+                        Instantiate(obj, transform.position, transform.rotation);
+                    }
+                }
             }
 
             Destroy(gameObject);

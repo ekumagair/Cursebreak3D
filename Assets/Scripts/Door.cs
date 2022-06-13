@@ -8,6 +8,8 @@ public class Door : MonoBehaviour
     public Vector3 openPosition;
     public int doorState;
     public GameObject soundObject;
+    public GameObject soundObjectLocked;
+    public int key = 0;
 
     void Start()
     {
@@ -32,16 +34,33 @@ public class Door : MonoBehaviour
 
     public IEnumerator OpenDoor()
     {
-        StartCoroutine(MoveDoor(closedPosition + openPosition));
+        GameObject user = GameObject.FindGameObjectWithTag("Player");
 
-        yield return new WaitForSeconds(8f);
+        if (user.GetComponent<Player>().keys[key] == true)
+        {
+            StartCoroutine(MoveDoor(closedPosition + openPosition));
 
-        StartCoroutine(MoveDoor(closedPosition));
+            yield return new WaitForSeconds(8f);
+
+            StartCoroutine(MoveDoor(closedPosition));
+        }
+        else
+        {
+            Debug.Log("Door locked!");
+
+            if (soundObjectLocked != null)
+            {
+                Instantiate(soundObjectLocked, transform.position, transform.rotation);
+            }
+        }
     }
 
     IEnumerator MoveDoor(Vector3 target)
     {
-        Instantiate(soundObject, transform.position, transform.rotation);
+        if (soundObject != null)
+        {
+            Instantiate(soundObject, transform.position, transform.rotation);
+        }
 
         while (Vector3.Distance(transform.position, target) > 0.001f)
         {

@@ -11,12 +11,15 @@ public class Player : MonoBehaviour
     public float[] weaponDelaysDefault;
     public float[] weaponDelaysCurrent;
     public GameObject[] weaponProjectile;
+    public GameObject[] weaponSound;
+    public GameObject[] weaponSound2;
     public int[] weaponAmmoType;
     public int[] weaponAmmoCost;
     public int[] ammo;
+    public bool[] keys;
     public LayerMask attackRayMask;
 
-    public GameObject soundSwoosh;
+    public static int score = 0;
 
     Health healthScript;
     GameObject gameCanvas;
@@ -27,11 +30,19 @@ public class Player : MonoBehaviour
     // 2 = Magic Blade
     // 3 = Fire Ring
 
+    // Key list
+    // 0 = Can always open
+    // 1 = Bronze key
+    // 2 = Silver key
+    // 3 = Gold key
+
     void Start()
     {
         healthScript = GetComponent<Health>();
         gameCanvas = GameObject.FindGameObjectWithTag("Canvas");
         weaponsUnlocked[0] = true;
+
+        StartCoroutine(CheckEnemyVision());
     }
 
     void Update()
@@ -63,14 +74,13 @@ public class Player : MonoBehaviour
                 {
                     GameObject.Find("WoodenStaff").GetComponent<Animator>().Play("WoodenStaffSwing");
                     rayDamage = 20;
-                    Instantiate(soundSwoosh, transform.position, transform.rotation);
                 }
 
                 RaycastHit hit;
                 if (Physics.Raycast(transform.position, transform.forward, out hit, weaponRayRange[currentWeapon], attackRayMask))
                 {
                     Debug.DrawRay(transform.position, transform.forward * hit.distance, Color.green, weaponRayRange[currentWeapon]);
-                    Debug.Log("Hit " + hit.collider.name);
+                    Debug.Log("Player Hit " + hit.collider.name);
 
                     if (hit.collider.gameObject != null)
                     {
@@ -78,13 +88,36 @@ public class Player : MonoBehaviour
 
                         if(hitObject.tag == "Enemy")
                         {
-                            if (currentWeapon == 1)
-                            {
-                                hitObject.GetComponent<Health>().TakeDamage(rayDamage, false);
-                            }
+                            hitObject.GetComponent<Health>().TakeDamage(rayDamage, false);
+                        }
+
+                        if (weaponSound2[currentWeapon] != null)
+                        {
+                            Instantiate(weaponSound2[currentWeapon], transform.position, transform.rotation);
                         }
                     }
                 }
+            }
+
+            if(weaponType[currentWeapon] != -1)
+            {
+                GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+                foreach (GameObject en in enemies)
+                {
+                    if (en.GetComponent<Enemy>() != null)
+                    {
+                        if (en.GetComponent<Enemy>().CanHear(gameObject, 600f))
+                        {
+                            en.GetComponent<Enemy>().target = gameObject;
+                        }
+                    }
+                }
+            }
+
+            if (weaponSound[currentWeapon] != null)
+            {
+                Instantiate(weaponSound[currentWeapon], transform.position, transform.rotation);
             }
 
             ammo[weaponAmmoType[currentWeapon]] -= weaponAmmoCost[currentWeapon];
@@ -112,6 +145,7 @@ public class Player : MonoBehaviour
             else
             {
                 currentWeapon = 1;
+                weaponDelaysCurrent[1] = weaponDelaysDefault[1];
             }
         }
 
@@ -129,32 +163,79 @@ public class Player : MonoBehaviour
         {
             Item itemScript = otherObject.GetComponent<Item>();
 
-            if(itemScript.giveHealth != 0)
+            if ((itemScript.giveHealth > 0 && healthScript.health < 100) || itemScript.giveHealth <= 0)
             {
-                healthScript.health += itemScript.giveHealth;
-            }
-
-            if(itemScript.giveWeapon >= 0)
-            {
-                weaponsUnlocked[itemScript.giveWeapon] = true;
-                
-                if(currentWeapon == 0)
+                if (itemScript.giveHealth != 0)
                 {
-                    currentWeapon = itemScript.giveWeapon;
+                    healthScript.health += itemScript.giveHealth;
+                }
+
+                if (healthScript.health > 100)
+                {
+                    healthScript.health = 100;
+                }
+
+                if (itemScript.giveWeapon >= 0)
+                {
+                    weaponsUnlocked[itemScript.giveWeapon] = true;
+
+                    if (currentWeapon == 0)
+                    {
+                        currentWeapon = itemScript.giveWeapon;
+                    }
+                }
+
+                if (itemScript.giveAmmo > 0 && itemScript.giveAmmoType != -1)
+                {
+                    ammo[itemScript.giveAmmoType] += itemScript.giveAmmo;
+                }
+
+                if (itemScript.giveScore != 0)
+                {
+                    score += itemScript.giveScore;
+                }
+
+                if (itemScript.giveKey >= 0)
+                {
+                    keys[itemScript.giveKey] = true;
+                }
+
+                if (itemScript.createOnCollect != null)
+                {
+                    Instantiate(itemScript.createOnCollect, gameCanvas.transform);
+                }
+
+                if (itemScript.createOnCollectGameWorld != null)
+                {
+                    Instantiate(itemScript.createOnCollectGameWorld, transform.position, transform.rotation);
+                }
+
+                Destroy(other.gameObject);
+            }
+        }
+    }
+
+    IEnumerator CheckEnemyVision()
+    {
+        yield return new WaitForSeconds(0.2f);
+
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+        if (enemies.Length > 0)
+        {
+            foreach (GameObject en in enemies)
+            {
+                if (en.GetComponent<Enemy>() != null)
+                {
+                    Enemy enemyScript = en.GetComponent<Enemy>();
+                    if (enemyScript.CanSee(gameObject, 200f))
+                    {
+                        enemyScript.target = gameObject;
+                    }
                 }
             }
-
-            if(itemScript.giveAmmo > 0 && itemScript.giveAmmoType != -1)
-            {
-                ammo[itemScript.giveAmmoType] += itemScript.giveAmmo;
-            }
-
-            if(itemScript.createOnCollect != null)
-            {
-                Instantiate(itemScript.createOnCollect, gameCanvas.transform);
-            }
-
-            Destroy(other.gameObject);
         }
+
+        StartCoroutine(CheckEnemyVision());
     }
 }

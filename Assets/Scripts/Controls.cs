@@ -92,12 +92,21 @@ public class Controls : MonoBehaviour
                     if (hit.collider.gameObject.GetComponent<Door>() != null)
                     {
                         Debug.Log("Used door");
-
                         Door doorScript = hit.collider.gameObject.GetComponent<Door>();
 
                         if (doorScript.doorState == 0)
                         {
                             StartCoroutine(doorScript.OpenDoor());
+                        }
+                    }
+                    if (hit.collider.gameObject.GetComponent<MovingWall>() != null)
+                    {
+                        Debug.Log("Used moving wall");
+                        MovingWall wallScript = hit.collider.gameObject.GetComponent<MovingWall>();
+
+                        if (wallScript.wallState == 0)
+                        {
+                            StartCoroutine(wallScript.MoveWall());
                         }
                     }
                 }
@@ -129,9 +138,10 @@ public class Controls : MonoBehaviour
         {
             if (en.GetComponent<Enemy>() != null)
             {
-                if (en.GetComponent<Enemy>().CanSee(gameObject, 30f))
+                Enemy enemyScript = en.GetComponent<Enemy>();
+                if (enemyScript.CanHear(gameObject, 3.9f))
                 {
-                    en.GetComponent<Enemy>().target = gameObject;
+                    enemyScript.target = gameObject;
                 }
             }
         }

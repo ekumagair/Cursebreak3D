@@ -60,7 +60,7 @@ NavMeshObstacle:
   m_Shape: 1
   m_Extents: {x: 1, y: 1, z: 0.25}
   m_MoveThreshold: 0.1
-  m_Carve: 0
+  m_Carve: 1
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 1, z: 0}
   m_TimeToStationary: 0.5
@@ -79,6 +79,8 @@ MonoBehaviour:
   openPosition: {x: 3.9, y: 0, z: 0}
   doorState: 0
   soundObject: {fileID: 7073382011647977794, guid: 499a2934b6b902e428eec1161499518f, type: 3}
+  soundObjectLocked: {fileID: 0}
+  key: 0
 --- !u!1 &5130199272919907955
 GameObject:
   m_ObjectHideFlags: 0

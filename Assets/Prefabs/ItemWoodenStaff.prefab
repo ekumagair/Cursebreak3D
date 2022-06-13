@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 312470476599851431}
   - component: {fileID: 312470476599851428}
   - component: {fileID: 312470476599851429}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 312470476599851427}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 2, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children: []
   m_Father: {fileID: 312470476780538222}
@@ -106,7 +106,7 @@ GameObject:
   - component: {fileID: 312470476780538222}
   - component: {fileID: 312470476780538223}
   - component: {fileID: 312470476780538220}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: ItemWoodenStaff
   m_TagString: Item
   m_Icon: {fileID: 0}
@@ -121,7 +121,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 312470476780538221}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 14, y: 2, z: 26}
+  m_LocalPosition: {x: 14, y: 0, z: 26}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 312470476599851426}
@@ -139,8 +139,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 2, y: 4, z: 2}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 4, y: 4, z: 4}
+  m_Center: {x: 0, y: 2, z: 0}
 --- !u!114 &312470476780538220
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -155,4 +155,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   giveHealth: 0
   giveWeapon: 1
+  giveAmmo: 0
+  giveAmmoType: 0
+  giveScore: 1000
   createOnCollect: {fileID: 1665016438080051992, guid: 7704073fdb1aa424aa5260b9ab0fb16d, type: 3}
+  createOnCollectGameWorld: {fileID: 0}
