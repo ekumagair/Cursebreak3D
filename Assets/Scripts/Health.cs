@@ -40,31 +40,34 @@ public class Health : MonoBehaviour
 
     public void TakeDamage(int amount, bool ignoreArmor)
     {
-        if (ignoreArmor == false && armor > 0)
+        if (StaticClass.gameState == 0)
         {
-            int armorDamage = Mathf.RoundToInt(amount * (1 - armorMult));
-            health -= Mathf.RoundToInt(amount * armorMult);
-
-            for (int i = 0; i < armorDamage; i++)
+            if (ignoreArmor == false && armor > 0)
             {
-                if(armor > 0)
+                int armorDamage = Mathf.RoundToInt(amount * (1 - armorMult));
+                health -= Mathf.RoundToInt(amount * armorMult);
+
+                for (int i = 0; i < armorDamage; i++)
                 {
-                    armor--;
-                }
-                else
-                {
-                    health--;
+                    if (armor > 0)
+                    {
+                        armor--;
+                    }
+                    else
+                    {
+                        health--;
+                    }
                 }
             }
-        }
-        else
-        {
-            health -= amount;
-        }
+            else
+            {
+                health -= amount;
+            }
 
-        if(GetComponent<Enemy>() != null)
-        {
-            StartCoroutine(GetComponent<Enemy>().Pain());
+            if (GetComponent<Enemy>() != null)
+            {
+                StartCoroutine(GetComponent<Enemy>().Pain());
+            }
         }
     }
 }

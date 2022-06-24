@@ -8,6 +8,7 @@ public class HUD : MonoBehaviour
     public Text hpText;
     public Text armorText;
     public Text ammoText;
+    public Text ammo1Text;
 
     public Image weaponImage;
     public Sprite[] weaponSprites;
@@ -31,6 +32,7 @@ public class HUD : MonoBehaviour
     {
         hpText.text = targetHealth.health.ToString();
         armorText.text = targetHealth.armor.ToString();
+        ammo1Text.text = "Plasma: " + targetPlayer.ammo[0].ToString() + " / " + targetPlayer.ammoLimit[0].ToString();
         weaponImage.sprite = weaponSprites[targetPlayer.currentWeapon];
 
         if (targetPlayer.weaponAmmoCost[targetPlayer.currentWeapon] > 0)

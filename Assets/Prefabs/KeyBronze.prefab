@@ -15,7 +15,7 @@ GameObject:
   m_Layer: 2
   m_Name: Sprite
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 8418204508859773708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -157,6 +157,8 @@ MonoBehaviour:
   giveWeapon: -1
   giveAmmo: 0
   giveAmmoType: 0
+  giveArmor: 0
+  giveArmorMult: 0
   giveScore: 0
   giveKey: 1
   createOnCollect: {fileID: 1665016438080051992, guid: 7704073fdb1aa424aa5260b9ab0fb16d, type: 3}

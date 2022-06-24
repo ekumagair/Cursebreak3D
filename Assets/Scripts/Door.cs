@@ -10,20 +10,24 @@ public class Door : MonoBehaviour
     public GameObject soundObject;
     public GameObject soundObjectLocked;
     public int key = 0;
+    public bool canUse = true;
 
     void Start()
     {
         closedPosition = transform.position;
+        canUse = true;
     }
 
     void Update()
     {
         if(transform.position == closedPosition)
         {
+            StopCoroutine(MoveDoor(closedPosition));
             doorState = 0;
         }
         else if (transform.position == openPosition)
         {
+            StopCoroutine(MoveDoor(closedPosition + openPosition));
             doorState = 2;
         }
         else
@@ -34,41 +38,50 @@ public class Door : MonoBehaviour
 
     public IEnumerator OpenDoor()
     {
-        GameObject user = GameObject.FindGameObjectWithTag("Player");
-
-        if (user.GetComponent<Player>().keys[key] == true)
+        if (doorState == 0 && canUse == true)
         {
-            StartCoroutine(MoveDoor(closedPosition + openPosition));
+            GameObject user = GameObject.FindGameObjectWithTag("Player");
 
-            yield return new WaitForSeconds(8f);
-
-            StartCoroutine(MoveDoor(closedPosition));
-        }
-        else
-        {
-            Debug.Log("Door locked!");
-
-            if (soundObjectLocked != null)
+            if (user.GetComponent<Player>().keys[key] == true)
             {
-                Instantiate(soundObjectLocked, transform.position, transform.rotation);
+                StartCoroutine(MoveDoor(closedPosition + openPosition));
+
+                yield return new WaitForSeconds(8f);
+
+                StartCoroutine(MoveDoor(closedPosition));
+            }
+            else
+            {
+                Debug.Log("Door locked!");
+
+                if (soundObjectLocked != null)
+                {
+                    Instantiate(soundObjectLocked, transform.position, transform.rotation);
+                }
             }
         }
     }
 
     IEnumerator MoveDoor(Vector3 target)
     {
+        canUse = false;
+
         if (soundObject != null)
         {
             Instantiate(soundObject, transform.position, transform.rotation);
         }
 
-        while (Vector3.Distance(transform.position, target) > 0.001f)
+        while (Vector3.Distance(transform.position, target) > 0.01f)
         {
-            transform.position = Vector3.MoveTowards(transform.position, target, 200f * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, target, 0.75f);
 
-            yield return new WaitForSeconds(0.05f);
+            yield return new WaitForSeconds(0.1f);
         }
 
         transform.position = target;
+
+        yield return new WaitForSeconds(0.4f);
+
+        canUse = true;
     }
 }

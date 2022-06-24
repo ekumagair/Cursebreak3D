@@ -96,7 +96,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 0}
+  m_TargetTexture: {fileID: 8400000, guid: 4098ca2a3bb4c0c4cbef9b6b9e94e8ae, type: 2}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 0
@@ -239,7 +239,7 @@ MonoBehaviour:
   weaponDelaysDefault:
   - 0
   - 0.5
-  - 0.4
+  - 0.55
   weaponDelaysCurrent:
   - 0
   - 0
@@ -259,6 +259,7 @@ MonoBehaviour:
   weaponAmmoType: 000000000000000000000000
   weaponAmmoCost: 000000000000000001000000
   ammo: 00000000
+  ammoLimit: 64000000
   keys: 01000000
   attackRayMask:
     serializedVersion: 2
@@ -278,7 +279,7 @@ MonoBehaviour:
   health: 100
   isDead: 0
   armor: 0
-  armorMult: 0
+  armorMult: 1
 --- !u!82 &1686189749075883665
 AudioSource:
   m_ObjectHideFlags: 0

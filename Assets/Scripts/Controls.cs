@@ -65,6 +65,8 @@ public class Controls : MonoBehaviour
             controller.Move(move * vel * Time.deltaTime);
         }
 
+        // Jump
+
         if (Input.GetButtonDown("Jump") && isGrounded && canJump)
         {
             velocityV3.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
@@ -94,7 +96,7 @@ public class Controls : MonoBehaviour
                         Debug.Log("Used door");
                         Door doorScript = hit.collider.gameObject.GetComponent<Door>();
 
-                        if (doorScript.doorState == 0)
+                        if (doorScript.doorState == 0 && doorScript.canUse == true)
                         {
                             StartCoroutine(doorScript.OpenDoor());
                         }
@@ -108,6 +110,11 @@ public class Controls : MonoBehaviour
                         {
                             StartCoroutine(wallScript.MoveWall());
                         }
+                    }
+                    if (hit.collider.gameObject.GetComponent<Exit>() != null)
+                    {
+                        Debug.Log("Used exit");
+                        StartCoroutine(GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().Exit(hit.collider.gameObject.GetComponent<Exit>().fade));
                     }
                 }
                 else

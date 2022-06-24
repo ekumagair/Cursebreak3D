@@ -8,6 +8,10 @@ public class Enemy : MonoBehaviour
     public GameObject sprite;
     public GameObject target;
 
+    // Score
+
+    public int giveScoreOnDeath = 0;
+
     // Ranged attack
 
     public float attackTimeDefault;
@@ -16,6 +20,7 @@ public class Enemy : MonoBehaviour
     public string attackAnim;
     public float attackShotDelay = 0;
     public float attackTotalDuration;
+    public GameObject attackSound;
 
     // Melee attack
 
@@ -24,6 +29,7 @@ public class Enemy : MonoBehaviour
     public float meleeRange;
     public float meleeStartDelay;
     public float meleeDuration;
+    public GameObject meleeSound;
 
     // Attack types
 
@@ -49,6 +55,11 @@ public class Enemy : MonoBehaviour
     // 2 = 33% chance
     // 3+ = Smaller chance
 
+    public int previousPositionsItem = 0;
+    public int previousPositionSelected = 0;
+    public Vector3[] previousPositions = new Vector3[10];
+    public bool goingToPreviousPosition = false;
+
     Vector3 dir;
     NavMeshAgent agent;
     Health health;
@@ -63,17 +74,48 @@ public class Enemy : MonoBehaviour
         died = false;
         inPain = false;
         ResetAttackTime();
+        StartCoroutine(AddPositionToList());
     }
 
     void Update()
     {
-        // FOLLOW TARGET OR STAND STILL
+        // Follow target or stand still
 
         if (agent.enabled == true)
         {
-            if (health.isDead == false && attacking == false && inPain == false && target != null)
+            if (health.isDead == false && attacking == false && inPain == false && target != null && agent.path != null)
             {
-                agent.destination = target.transform.position;
+                if (hasMeleeAttack == false)
+                {
+                    if (Vector3.Distance(transform.position, target.transform.position) > agent.stoppingDistance * 2f && goingToPreviousPosition == false)
+                    {
+                        agent.destination = target.transform.position;
+                    }
+
+                    if (Vector3.Distance(transform.position, target.transform.position) > agent.stoppingDistance * 2f && goingToPreviousPosition == true)
+                    {
+                        agent.destination = previousPositions[previousPositionSelected];
+                    }
+
+                    if (Vector3.Distance(transform.position, target.transform.position) >= agent.stoppingDistance * 4f && goingToPreviousPosition == true)
+                    {
+                        goingToPreviousPosition = false;
+                    }
+
+                    if (Vector3.Distance(transform.position, target.transform.position) <= agent.stoppingDistance * 2f && goingToPreviousPosition == true)
+                    {
+                        goingToPreviousPosition = false;
+                    }
+
+                    if (Vector3.Distance(transform.position, target.transform.position) <= agent.stoppingDistance * 2f && goingToPreviousPosition == false)
+                    {
+                        goingToPreviousPosition = true;
+                    }
+                }
+                else
+                {
+                    agent.destination = target.transform.position;
+                }
                 animator.SetBool("Walking", true);
             }
             else
@@ -85,13 +127,13 @@ public class Enemy : MonoBehaviour
 
         if (target != null && health.isDead == false)
         {
-            // ROTATE TOWARDS TARGET
+            // Rotate towards target
             dir = (target.transform.position - transform.position).normalized;
             dir.y = 0;
             transform.forward = dir;
 
 
-            // REDUCE ATTACK TIME
+            // Reduce attack time
             if (CanSee(target, Mathf.Infinity))
             {
                 if (hasRangedAttack == true)
@@ -104,7 +146,7 @@ public class Enemy : MonoBehaviour
             }
         }
 
-        // ATTACKS
+        // Attacks
 
         if (health.isDead == false && attacking == false && inPain == false && target != null)
         {
@@ -119,7 +161,7 @@ public class Enemy : MonoBehaviour
             }
         }
 
-        // CHECK DEATH
+        // Check death
 
         if(health.isDead == true && died == false)
         {
@@ -133,7 +175,12 @@ public class Enemy : MonoBehaviour
     {
         attacking = true;
 
-        if(attackAnim != "")
+        if (attackSound != null)
+        {
+            Instantiate(attackSound, transform.position, transform.rotation);
+        }
+
+        if (attackAnim != "")
         {
             animator.Play(attackAnim);
         }
@@ -157,6 +204,11 @@ public class Enemy : MonoBehaviour
     public IEnumerator AttackMelee()
     {
         attacking = true;
+
+        if (meleeSound != null)
+        {
+            Instantiate(meleeSound, transform.position, transform.rotation);
+        }
 
         if (meleeAnim != "")
         {
@@ -224,6 +276,29 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    IEnumerator AddPositionToList()
+    {
+        yield return new WaitForSeconds(5f);
+
+        if (health.isDead == false && target != null)
+        {
+            previousPositions[previousPositionsItem] = transform.position;
+            previousPositionsItem++;
+        }
+
+        if(previousPositionsItem >= previousPositions.Length)
+        {
+            previousPositionsItem = 0;
+        }
+
+        if(Random.Range(0, 3) == 0)
+        {
+            previousPositionSelected = Random.Range(0, previousPositions.Length);
+        }
+
+        StartCoroutine(AddPositionToList());
+    }
+
     public bool CanSee(GameObject which, float dist)
     {
         Vector3 dir;
@@ -284,6 +359,7 @@ public class Enemy : MonoBehaviour
     {
         GetComponent<Collider>().enabled = false;
         GetComponent<NavMeshAgent>().enabled = false;
+        Player.score += giveScoreOnDeath;
         animator.Play(deathAnim);
     }
 }

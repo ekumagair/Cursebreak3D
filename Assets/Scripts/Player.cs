@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class Player : MonoBehaviour
     public int[] weaponAmmoType;
     public int[] weaponAmmoCost;
     public int[] ammo;
+    public int[] ammoLimit;
     public bool[] keys;
     public LayerMask attackRayMask;
 
@@ -41,6 +43,7 @@ public class Player : MonoBehaviour
         healthScript = GetComponent<Health>();
         gameCanvas = GameObject.FindGameObjectWithTag("Canvas");
         weaponsUnlocked[0] = true;
+        StaticClass.gameState = 0;
 
         StartCoroutine(CheckEnemyVision());
     }
@@ -59,7 +62,7 @@ public class Player : MonoBehaviour
 
         // Attack
 
-        if (Input.GetMouseButton(0) && weaponDelaysCurrent[currentWeapon] == 0 && (ammo[weaponAmmoType[currentWeapon]] >= weaponAmmoCost[currentWeapon] || weaponAmmoType[currentWeapon] == -1) && healthScript.isDead == false)
+        if (Input.GetMouseButton(0) && weaponDelaysCurrent[currentWeapon] == 0 && (ammo[weaponAmmoType[currentWeapon]] >= weaponAmmoCost[currentWeapon] || weaponAmmoType[currentWeapon] == -1) && healthScript.isDead == false && StaticClass.gameState == 0)
         {
             if (weaponType[currentWeapon] == 0 && weaponProjectile[currentWeapon] != null)
             {
@@ -136,6 +139,8 @@ public class Player : MonoBehaviour
             }
         }
 
+        // Change to melee if ran out of ammo
+
         if(weaponsUnlocked[currentWeapon] == false || ammo[weaponAmmoType[currentWeapon]] < weaponAmmoCost[currentWeapon])
         {
             if(weaponsUnlocked[1] == false)
@@ -149,9 +154,36 @@ public class Player : MonoBehaviour
             }
         }
 
+        // Change to staff if your hand is empty
+
         if(weaponsUnlocked[1] == true && currentWeapon == 0)
         {
             currentWeapon = 1;
+        }
+
+        // Ammo limits
+
+        for (int i = 0; i < ammoLimit.Length; i++)
+        {
+            if(ammo[i] > ammoLimit[i])
+            {
+                ammo[i] = ammoLimit[i];
+            }
+        }
+
+        // Armor limits
+
+        if(healthScript.armor < 0)
+        {
+            healthScript.armor = 0;
+        }
+        if(healthScript.armor == 0)
+        {
+            healthScript.armorMult = 1;
+        }
+        if (healthScript.armor > 100)
+        {
+            healthScript.armor = 100;
         }
     }
 
@@ -163,7 +195,7 @@ public class Player : MonoBehaviour
         {
             Item itemScript = otherObject.GetComponent<Item>();
 
-            if ((itemScript.giveHealth > 0 && healthScript.health < 100) || itemScript.giveHealth <= 0)
+            if ((itemScript.giveHealth > 0 && healthScript.health < 100) || (itemScript.giveArmor > 0 && healthScript.armor < 100) || (itemScript.giveAmmo > 0 && ammo[itemScript.giveAmmoType] < ammoLimit[itemScript.giveAmmoType]) || itemScript.giveHealth <= 0)
             {
                 if (itemScript.giveHealth != 0)
                 {
@@ -188,6 +220,16 @@ public class Player : MonoBehaviour
                 if (itemScript.giveAmmo > 0 && itemScript.giveAmmoType != -1)
                 {
                     ammo[itemScript.giveAmmoType] += itemScript.giveAmmo;
+                }
+
+                if (itemScript.giveArmor != 0)
+                {
+                    healthScript.armor += itemScript.giveArmor;
+
+                    if(itemScript.giveArmorMult < healthScript.armorMult)
+                    {
+                        healthScript.armorMult = itemScript.giveArmorMult;
+                    }
                 }
 
                 if (itemScript.giveScore != 0)
@@ -215,7 +257,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    IEnumerator CheckEnemyVision()
+    public IEnumerator CheckEnemyVision()
     {
         yield return new WaitForSeconds(0.2f);
 
@@ -237,5 +279,19 @@ public class Player : MonoBehaviour
         }
 
         StartCoroutine(CheckEnemyVision());
+    }
+
+    public IEnumerator Exit(GameObject fade)
+    {
+        StaticClass.gameState = 1;
+        GetComponent<CharacterController>().enabled = false;
+        GetComponent<Controls>().enabled = false;
+        Camera.main.GetComponent<MouseLook>().enabled = false;
+        Instantiate(fade, gameCanvas.transform);
+
+        yield return new WaitForSeconds(1.2f);
+
+        //SceneManager.LoadScene("C" + StaticClass.chapterReadOnly + "M" + (StaticClass.mapReadOnly + 1));
+        SceneManager.LoadScene("Intermission");
     }
 }

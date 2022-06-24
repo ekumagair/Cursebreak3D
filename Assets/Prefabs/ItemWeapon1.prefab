@@ -62,7 +62,10 @@ MonoBehaviour:
   giveWeapon: 2
   giveAmmo: 10
   giveAmmoType: 0
+  giveArmor: 0
+  giveArmorMult: 0
   giveScore: 1000
+  giveKey: -1
   createOnCollect: {fileID: 1665016438080051992, guid: 7704073fdb1aa424aa5260b9ab0fb16d, type: 3}
   createOnCollectGameWorld: {fileID: 0}
 --- !u!1 &5885094664875255987
@@ -80,7 +83,7 @@ GameObject:
   m_Layer: 2
   m_Name: Sprite
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
