@@ -46,8 +46,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   clips:
   - {fileID: 8300000, guid: cc3455e6338c36b4cbd52056e7a80693, type: 3}
-  pitchMultMin: 0.9
-  pitchMultMax: 1.1
+  pitchMultMin: 0.8
+  pitchMultMax: 1.2
 --- !u!82 &7073382011647977795
 AudioSource:
   m_ObjectHideFlags: 0

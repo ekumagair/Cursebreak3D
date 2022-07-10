@@ -17,6 +17,7 @@ public class Enemy : MonoBehaviour
     public float attackTimeDefault;
     public float attackTime = 0;
     public GameObject attackProjectile;
+    public int attackType = 0;
     public string attackAnim;
     public float attackShotDelay = 0;
     public float attackTotalDuration;
@@ -40,7 +41,13 @@ public class Enemy : MonoBehaviour
     bool attacking = false;
     bool died = false;
 
+    // Sight
+
     public LayerMask sightMask;
+
+    // Drop item
+
+    public GameObject dropItem;
 
     // Pain
 
@@ -53,12 +60,13 @@ public class Enemy : MonoBehaviour
     // 0 = Always
     // 1 = 50% chance
     // 2 = 33% chance
-    // 3+ = Smaller chance
+    // 3 = 25% chance
+    // 4+ = Smaller chance
 
-    public int previousPositionsItem = 0;
-    public int previousPositionSelected = 0;
-    public Vector3[] previousPositions = new Vector3[10];
-    public bool goingToPreviousPosition = false;
+    int previousPositionsItem = 0;
+    int previousPositionSelected = 0;
+    Vector3[] previousPositions = new Vector3[10];
+    bool goingToPreviousPosition = false;
 
     Vector3 dir;
     NavMeshAgent agent;
@@ -73,6 +81,22 @@ public class Enemy : MonoBehaviour
         attacking = false;
         died = false;
         inPain = false;
+
+        StaticClass.enemiesTotal++;
+
+        if (StaticClass.difficulty == 2)
+        {
+            agent.speed *= 1.1f;
+            attackTimeDefault *= 0.9f;
+        }
+        else if (StaticClass.difficulty == 3)
+        {
+            health.health = Mathf.RoundToInt(health.health * 1.25f);
+            agent.speed *= 1.5f;
+            attackTimeDefault *= 0.5f;
+            painChance += 1;
+        }
+
         ResetAttackTime();
         StartCoroutine(AddPositionToList());
     }
@@ -148,7 +172,7 @@ public class Enemy : MonoBehaviour
 
         // Attacks
 
-        if (health.isDead == false && attacking == false && inPain == false && target != null)
+        if (health.isDead == false && attacking == false && inPain == false && target != null && StaticClass.gameState == 0)
         {
             if (attackTime <= 0 && hasRangedAttack == true)
             {
@@ -163,11 +187,20 @@ public class Enemy : MonoBehaviour
 
         // Check death
 
-        if(health.isDead == true && died == false)
+        if(health.isDead == true && died == false && StaticClass.gameState == 0)
         {
             died = true;
             StopAllCoroutines();
             Death();
+        }
+
+        // Check if state changed
+
+        if(StaticClass.gameState != 0)
+        {
+            StopAllCoroutines();
+            agent.enabled = false;
+            target = null;
         }
     }
 
@@ -189,9 +222,26 @@ public class Enemy : MonoBehaviour
 
         if (attackProjectile != null)
         {
-            var p = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
-            p.GetComponent<Projectile>().ignoreTag = tag;
-            p.transform.forward = dir;
+            if (attackType == 0)
+            {
+                var p = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
+                p.GetComponent<Projectile>().ignoreTag = tag;
+                p.transform.forward = dir;
+            }
+            else if (attackType == 1)
+            {
+                var p1 = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
+                p1.GetComponent<Projectile>().ignoreTag = tag;
+                p1.transform.forward = dir;
+
+                var p2 = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
+                p2.GetComponent<Projectile>().ignoreTag = tag;
+                p2.transform.forward = (transform.forward + transform.right / 3).normalized;
+
+                var p3 = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
+                p3.GetComponent<Projectile>().ignoreTag = tag;
+                p3.transform.forward = (transform.forward + -transform.right / 3).normalized;
+            }
         }
 
         yield return new WaitForSeconds(attackTotalDuration - attackShotDelay);
@@ -278,11 +328,11 @@ public class Enemy : MonoBehaviour
 
     IEnumerator AddPositionToList()
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(3f);
 
-        if (health.isDead == false && target != null)
+        if (health.isDead == false)
         {
-            previousPositions[previousPositionsItem] = transform.position;
+            previousPositions[previousPositionsItem] = new Vector3(transform.position.x * Random.Range(0.75f, 1.25f), transform.position.y, transform.position.z * Random.Range(0.75f, 1.25f));
             previousPositionsItem++;
         }
 
@@ -291,7 +341,7 @@ public class Enemy : MonoBehaviour
             previousPositionsItem = 0;
         }
 
-        if(Random.Range(0, 3) == 0)
+        if(Random.Range(0, 1) == 0)
         {
             previousPositionSelected = Random.Range(0, previousPositions.Length);
         }
@@ -360,6 +410,12 @@ public class Enemy : MonoBehaviour
         GetComponent<Collider>().enabled = false;
         GetComponent<NavMeshAgent>().enabled = false;
         Player.score += giveScoreOnDeath;
+        StaticClass.enemiesKilled++;
         animator.Play(deathAnim);
+
+        if(dropItem != null)
+        {
+            Instantiate(dropItem, transform.position - (transform.up * 2), transform.rotation);
+        }
     }
 }

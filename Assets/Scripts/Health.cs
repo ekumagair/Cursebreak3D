@@ -8,6 +8,7 @@ public class Health : MonoBehaviour
     public bool isDead = false;
     public int armor = 0;
     public float armorMult = 0f;
+    public float overallDamageMult = 1f;
 
     Collider col;
 
@@ -18,6 +19,11 @@ public class Health : MonoBehaviour
 
     void Update()
     {
+        if(health < 0)
+        {
+            health = 0;
+        }
+
         if(health <= 0)
         {
             isDead = true;
@@ -42,6 +48,8 @@ public class Health : MonoBehaviour
     {
         if (StaticClass.gameState == 0)
         {
+            amount = Mathf.RoundToInt(amount * overallDamageMult);
+
             if (ignoreArmor == false && armor > 0)
             {
                 int armorDamage = Mathf.RoundToInt(amount * (1 - armorMult));

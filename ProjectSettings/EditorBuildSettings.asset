@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/LevelSelect.unity
     guid: 7827fad103d9a1f45a1c55904e597fa9
   - enabled: 1
+    path: Assets/Scenes/TitleScreen.unity
+    guid: 8060b91551dc97f4b924b74510f02e68
+  - enabled: 1
     path: Assets/Scenes/Intermission.unity
     guid: faf9f48fc016ea24dbd1cff664d5ea9c
   - enabled: 1
@@ -20,4 +23,16 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/C1M2.unity
     guid: d4edef3c91d956444bc84b5b5671e6e8
+  - enabled: 1
+    path: Assets/Scenes/C1M3.unity
+    guid: 84b64e2622e9bc34381e6b2a81a250bc
+  - enabled: 1
+    path: Assets/Scenes/C1M4.unity
+    guid: 9b8cd1d162c78c74bae01c94d7386a24
+  - enabled: 1
+    path: Assets/Scenes/C1M5.unity
+    guid: e1b305806dbacd84caa2d019b3ce9ef7
+  - enabled: 1
+    path: Assets/Scenes/C2M1.unity
+    guid: 76a0da649353bb141a71b3300eb79452
   m_configObjects: {}

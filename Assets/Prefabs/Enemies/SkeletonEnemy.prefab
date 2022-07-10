@@ -28,8 +28,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7235027793559568546}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 4, y: 4, z: 4}
+  m_LocalPosition: {x: 0, y: -0.1, z: 0}
+  m_LocalScale: {x: 3.8, y: 3.8, z: 3.8}
   m_Children: []
   m_Father: {fileID: 7235027794245079011}
   m_RootOrder: 0
@@ -128,6 +128,7 @@ GameObject:
   - component: {fileID: 7235027794245079009}
   - component: {fileID: 7235027794245079006}
   - component: {fileID: 7235027794245079007}
+  - component: {fileID: 5459484734067410844}
   m_Layer: 9
   m_Name: SkeletonEnemy
   m_TagString: Enemy
@@ -198,10 +199,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9147871d047eb714c8baf564543864e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 50
+  health: 45
   isDead: 0
   armor: 0
   armorMult: 0
+  overallDamageMult: 1
 --- !u!114 &7235027794245079007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,6 +222,7 @@ MonoBehaviour:
   attackTimeDefault: 0
   attackTime: 0
   attackProjectile: {fileID: 0}
+  attackType: 0
   attackAnim: 
   attackShotDelay: 0
   attackTotalDuration: 0
@@ -229,13 +232,27 @@ MonoBehaviour:
   meleeRange: 3.5
   meleeStartDelay: 0.35
   meleeDuration: 0.75
-  meleeSound: {fileID: 0}
+  meleeSound: {fileID: 7073382011647977794, guid: 0bfedfe9ed709cf4db2c6f33a9f9b0a2, type: 3}
   hasRangedAttack: 0
   hasMeleeAttack: 1
   deathAnim: SkeletonEnemyDie
   sightMask:
     serializedVersion: 2
     m_Bits: 467
+  dropItem: {fileID: 0}
   painTime: 0.3
   painChance: 0
   painAnim: 
+--- !u!114 &5459484734067410844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7235027794245079004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ccef66117689204781a0575de5df0d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  difficulty: 01010101

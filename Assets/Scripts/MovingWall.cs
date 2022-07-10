@@ -8,10 +8,16 @@ public class MovingWall : MonoBehaviour
     public Vector3 openPosition;
     public int wallState;
     public GameObject soundOnMove;
+    public bool isSecret = true;
 
     void Start()
     {
         defaultPosition = transform.position;
+
+        if(isSecret)
+        {
+            StaticClass.secretsTotal++;
+        }
     }
 
     void Update()
@@ -33,6 +39,11 @@ public class MovingWall : MonoBehaviour
     public IEnumerator MoveWall()
     {
         Vector3 targetPos = defaultPosition + openPosition;
+
+        if (isSecret)
+        {
+            StaticClass.secretsDiscovered++;
+        }
 
         if (soundOnMove != null)
         {

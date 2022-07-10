@@ -20,8 +20,16 @@ public class Player : MonoBehaviour
     public int[] ammoLimit;
     public bool[] keys;
     public LayerMask attackRayMask;
+    public GameObject deathFadeObject;
 
     public static int score = 0;
+    public static int timeSeconds = 0;
+    public static int timeMinutes = 0;
+    public static int savedHealth = 100;
+    public static int savedArmor = 100;
+    public static float savedArmorMult = 1f;
+    public static bool[] savedWeaponsUnlocked = new bool[7];
+    public static int[] savedAmmo = new int[2];
 
     Health healthScript;
     GameObject gameCanvas;
@@ -29,7 +37,7 @@ public class Player : MonoBehaviour
     // Weapon list
     // 0 = Empty hand
     // 1 = Wooden Staff
-    // 2 = Magic Blade
+    // 2 = Plasma Blade
     // 3 = Fire Ring
 
     // Key list
@@ -43,9 +51,49 @@ public class Player : MonoBehaviour
         healthScript = GetComponent<Health>();
         gameCanvas = GameObject.FindGameObjectWithTag("Canvas");
         weaponsUnlocked[0] = true;
+        timeSeconds = 0;
+        timeMinutes = 0;
         StaticClass.gameState = 0;
+        StaticClass.secretsDiscovered = 0;
+
+        if(StaticClass.loadSavedPlayerInfo == true)
+        {
+            healthScript.health = savedHealth;
+            healthScript.armor = savedArmor;
+            healthScript.armorMult = savedArmorMult;
+
+            for (int i = 0; i < savedAmmo.Length; i++)
+            {
+                ammo[i] = savedAmmo[i];
+            }
+
+            for (int i = 0; i < savedWeaponsUnlocked.Length; i++)
+            {
+                weaponsUnlocked[i] = savedWeaponsUnlocked[i];
+            }
+
+            StaticClass.loadSavedPlayerInfo = false;
+        }
+
+        if(StaticClass.difficulty == 0) // Easy
+        {
+            healthScript.overallDamageMult = 0.5f;
+        }
+        else if (StaticClass.difficulty == 1) // Normal
+        {
+            healthScript.overallDamageMult = 1.0f;
+        }
+        else if (StaticClass.difficulty == 2) // Hard
+        {
+            healthScript.overallDamageMult = 1.5f;
+        }
+        else if (StaticClass.difficulty == 3) // Very hard
+        {
+            healthScript.overallDamageMult = 2.0f;
+        }
 
         StartCoroutine(CheckEnemyVision());
+        StartCoroutine(Timer());
     }
 
     void Update()
@@ -53,10 +101,24 @@ public class Player : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Alpha1) && weaponsUnlocked[1])
         {
             currentWeapon = 1;
+            weaponDelaysCurrent[4] = weaponDelaysDefault[4];
         }
         if (Input.GetKeyDown(KeyCode.Alpha2) && weaponsUnlocked[2])
         {
             currentWeapon = 2;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3) && weaponsUnlocked[3])
+        {
+            currentWeapon = 3;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4) && weaponsUnlocked[4])
+        {
+            currentWeapon = 4;
+            weaponDelaysCurrent[1] = weaponDelaysDefault[1];
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha5) && weaponsUnlocked[5])
+        {
+            currentWeapon = 5;
         }
         //Debug.Log("Current weapon: " + currentWeapon);
 
@@ -68,6 +130,17 @@ public class Player : MonoBehaviour
             {
                 var p = Instantiate(weaponProjectile[currentWeapon], transform.position + transform.forward, transform.rotation);
                 p.GetComponent<Projectile>().ignoreTag = tag;
+
+                if(currentWeapon == 3)
+                {
+                    var p2 = Instantiate(weaponProjectile[currentWeapon], transform.position + transform.forward, transform.rotation);
+                    p2.GetComponent<Projectile>().ignoreTag = tag;
+                    p2.transform.forward = (transform.forward + transform.right / 5).normalized;
+
+                    var p3 = Instantiate(weaponProjectile[currentWeapon], transform.position + transform.forward, transform.rotation);
+                    p3.GetComponent<Projectile>().ignoreTag = tag;
+                    p3.transform.forward = (transform.forward + -transform.right / 5).normalized;
+                }
             }
             else if (weaponType[currentWeapon] == 1)
             {
@@ -77,6 +150,11 @@ public class Player : MonoBehaviour
                 {
                     GameObject.Find("WoodenStaff").GetComponent<Animator>().Play("WoodenStaffSwing");
                     rayDamage = 20;
+                }
+                else if (currentWeapon == 4)
+                {
+                    GameObject.Find("Sword").GetComponent<Animator>().Play("SwordSwing");
+                    rayDamage = 40;
                 }
 
                 RaycastHit hit;
@@ -185,6 +263,14 @@ public class Player : MonoBehaviour
         {
             healthScript.armor = 100;
         }
+
+        // Death
+
+        if(healthScript.isDead == true && StaticClass.gameState == 0)
+        {
+            StaticClass.gameState = 2;
+            StartCoroutine(PlayerDeath());
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -195,7 +281,7 @@ public class Player : MonoBehaviour
         {
             Item itemScript = otherObject.GetComponent<Item>();
 
-            if ((itemScript.giveHealth > 0 && healthScript.health < 100) || (itemScript.giveArmor > 0 && healthScript.armor < 100) || (itemScript.giveAmmo > 0 && ammo[itemScript.giveAmmoType] < ammoLimit[itemScript.giveAmmoType]) || itemScript.giveHealth <= 0)
+            if ((itemScript.giveHealth > 0 && healthScript.health < 100) || (itemScript.giveArmor > 0 && healthScript.armor < 100) || (itemScript.giveAmmo > 0 && ammo[itemScript.giveAmmoType] < ammoLimit[itemScript.giveAmmoType]) || itemScript.giveWeapon != -1 || itemScript.giveKey != -1 || itemScript.canAlwaysCollect == true)
             {
                 if (itemScript.giveHealth != 0)
                 {
@@ -281,6 +367,31 @@ public class Player : MonoBehaviour
         StartCoroutine(CheckEnemyVision());
     }
 
+    public IEnumerator Timer()
+    {
+        yield return new WaitForSeconds(1);
+
+        timeSeconds++;
+
+        if(timeSeconds >= 60)
+        {
+            timeSeconds = 0;
+            timeMinutes++;
+        }
+
+        StartCoroutine(Timer());
+    }
+
+    IEnumerator PlayerDeath()
+    {
+        GetComponent<CharacterController>().enabled = false;
+        GetComponent<Controls>().enabled = false;
+        Camera.main.GetComponent<MouseLook>().enabled = false;
+        Instantiate(deathFadeObject, gameCanvas.transform);
+        yield return new WaitForSeconds(4f);
+        SceneManager.LoadScene("C" + StaticClass.chapterReadOnly + "M" + StaticClass.mapReadOnly);
+    }
+
     public IEnumerator Exit(GameObject fade)
     {
         StaticClass.gameState = 1;
@@ -288,6 +399,22 @@ public class Player : MonoBehaviour
         GetComponent<Controls>().enabled = false;
         Camera.main.GetComponent<MouseLook>().enabled = false;
         Instantiate(fade, gameCanvas.transform);
+
+        savedHealth = healthScript.health;
+        savedArmor = healthScript.armor;
+        savedArmorMult = healthScript.armorMult;
+
+        for (int i = 0; i < ammo.Length; i++)
+        {
+            savedAmmo[i] = ammo[i];
+        }
+
+        for (int i = 0; i < weaponsUnlocked.Length; i++)
+        {
+            savedWeaponsUnlocked[i] = weaponsUnlocked[i];
+        }
+
+        StaticClass.loadSavedPlayerInfo = true;
 
         yield return new WaitForSeconds(1.2f);
 

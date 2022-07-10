@@ -14,4 +14,5 @@ public class Item : MonoBehaviour
     public int giveKey = -1;
     public GameObject createOnCollect;
     public GameObject createOnCollectGameWorld;
+    public bool canAlwaysCollect = false;
 }

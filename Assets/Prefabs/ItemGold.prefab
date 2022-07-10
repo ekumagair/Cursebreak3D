@@ -163,3 +163,4 @@ MonoBehaviour:
   giveKey: -1
   createOnCollect: {fileID: 1665016438080051992, guid: 7704073fdb1aa424aa5260b9ab0fb16d, type: 3}
   createOnCollectGameWorld: {fileID: 7073382011647977794, guid: 0d7f719cad65b3b4d924f2f664b7ba92, type: 3}
+  canAlwaysCollect: 1
