@@ -12,6 +12,13 @@ public class Health : MonoBehaviour
 
     Collider col;
 
+    // Armor multiplier examples:
+    // 0.0 = Armor has no effect.
+    // 0.1 = Armor takes 90% of the damage. Character takes 10%.
+    // 0.5 = Armor takes 50% of the damage. Character takes 50%.
+    // 0.75 = Armor takes 25% of the damage. Character takes 75%.
+    // 1.0 = Armor takes 100% of the damage.
+
     void Start()
     {
         col = GetComponent<Collider>();
@@ -19,6 +26,8 @@ public class Health : MonoBehaviour
 
     void Update()
     {
+        // Health minimum
+
         if(health < 0)
         {
             health = 0;
@@ -37,6 +46,8 @@ public class Health : MonoBehaviour
         {
             col.enabled = false;
         }
+
+        // Armor minimum
 
         if(armor < 0)
         {
@@ -71,6 +82,8 @@ public class Health : MonoBehaviour
             {
                 health -= amount;
             }
+
+            // If this character is an enemy, start its pain coroutine
 
             if (GetComponent<Enemy>() != null)
             {

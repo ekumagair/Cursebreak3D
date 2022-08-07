@@ -12,6 +12,8 @@ public class Item : MonoBehaviour
     public float giveArmorMult = 0;
     public int giveScore = 0;
     public int giveKey = -1;
+    public int giveCondition = -1;
+    public int giveConditionTimer = 0;
     public GameObject createOnCollect;
     public GameObject createOnCollectGameWorld;
     public bool canAlwaysCollect = false;

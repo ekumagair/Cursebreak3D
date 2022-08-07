@@ -46,8 +46,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   clips:
   - {fileID: 8300000, guid: f160c6d757eb60b4095e397701faafa8, type: 3}
-  pitchMin: 1
-  pitchMax: 1
+  pitchMultMin: 1
+  pitchMultMax: 1
 --- !u!82 &7073382011647977795
 AudioSource:
   m_ObjectHideFlags: 0
@@ -60,7 +60,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.75
+  m_Volume: 0.6
   m_Pitch: 1
   Loop: 0
   Mute: 0

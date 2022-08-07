@@ -337,10 +337,13 @@ MonoBehaviour:
   ammo: 0000000000000000
   ammoLimit: 640000005a000000
   keys: 01000000
+  conditionTimer:
+  - 0
   attackRayMask:
     serializedVersion: 2
     m_Bits: 723
   deathFadeObject: {fileID: 1665016438080051992, guid: 18000859b58cbbf4399f6f5390ade0a5, type: 3}
+  isInvisible: 0
 --- !u!114 &-1980402611779862909
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -12,6 +12,7 @@ public class HUD : MonoBehaviour
     public Text ammo2Text;
 
     public Image weaponImage;
+    public Image invisOverlay;
     public Sprite[] weaponSprites;
 
     GameObject statTarget;

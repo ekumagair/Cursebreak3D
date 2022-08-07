@@ -8,6 +8,7 @@ public class IntermissionScreen : MonoBehaviour
 {
     public GameObject fadeFrom;
     public Text score;
+    public Text scoreTotal;
     public Text secrets;
     public Text enemies;
     public Text time;
@@ -15,12 +16,13 @@ public class IntermissionScreen : MonoBehaviour
     void Start()
     {
         Instantiate(fadeFrom, gameObject.transform);
-        score.text = "SCORE: " + Player.score.ToString();
+        score.text = "SCORE: " + Player.scoreThisLevel.ToString();
         secrets.text = "SECRETS: " + StaticClass.secretsDiscovered.ToString() + " / " + StaticClass.secretsTotal.ToString();
         enemies.text = "FOES: " + StaticClass.enemiesKilled.ToString() + " / " + StaticClass.enemiesTotal.ToString();
         time.text = "TIME: " + Player.timeMinutes.ToString() + " : ";
-        
-        if(Player.timeSeconds > 9)
+        scoreTotal.text = "TOTAL SCORE: " + Player.score.ToString();
+
+        if (Player.timeSeconds > 9)
         {
             time.text += Player.timeSeconds.ToString();
         }
@@ -31,6 +33,7 @@ public class IntermissionScreen : MonoBehaviour
 
         // Reset variables after displaying text
 
+        Player.scoreThisLevel = 0;
         StaticClass.secretsDiscovered = 0;
         StaticClass.secretsTotal = 0;
         StaticClass.enemiesTotal = 0;

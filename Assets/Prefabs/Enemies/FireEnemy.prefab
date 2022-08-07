@@ -113,7 +113,7 @@ MonoBehaviour:
   attackTotalDuration: 0.8
   attackSound: {fileID: 7073382011647977794, guid: ef4e2b93f3259f0409d0cfdb61591f2d, type: 3}
   meleeAnim: FireEnemyAttack
-  meleeDamage: 30
+  meleeDamage: 40
   meleeRange: 3.5
   meleeStartDelay: 0.3
   meleeDuration: 0.8

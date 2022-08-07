@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -19,10 +20,13 @@ public class Player : MonoBehaviour
     public int[] ammo;
     public int[] ammoLimit;
     public bool[] keys;
+    public float[] conditionTimer;
     public LayerMask attackRayMask;
     public GameObject deathFadeObject;
+    public bool isInvisible = false;
 
     public static int score = 0;
+    public static int scoreThisLevel = 0;
     public static int timeSeconds = 0;
     public static int timeMinutes = 0;
     public static int savedHealth = 100;
@@ -33,23 +37,37 @@ public class Player : MonoBehaviour
 
     Health healthScript;
     GameObject gameCanvas;
+    Image invisOverlay;
+    Animator invisOverlayAnimator;
 
     // Weapon list
     // 0 = Empty hand
     // 1 = Wooden Staff
     // 2 = Plasma Blade
     // 3 = Fire Ring
+    // 4 = Sword
+    // 5 = Rapid Fire Plasma
+
+    // Ammo types
+    // 0 = Plasma
+    // 1 = Fire
 
     // Key list
-    // 0 = Can always open
+    // 0 = None, can always open
     // 1 = Bronze key
     // 2 = Silver key
     // 3 = Gold key
+
+    // Condition List
+    // 0 = Invisible
 
     void Start()
     {
         healthScript = GetComponent<Health>();
         gameCanvas = GameObject.FindGameObjectWithTag("Canvas");
+        invisOverlay = gameCanvas.GetComponent<HUD>().invisOverlay.GetComponent<Image>();
+        invisOverlayAnimator = gameCanvas.GetComponent<HUD>().invisOverlay.GetComponent<Animator>();
+        isInvisible = false;
         weaponsUnlocked[0] = true;
         timeSeconds = 0;
         timeMinutes = 0;
@@ -271,6 +289,40 @@ public class Player : MonoBehaviour
             StaticClass.gameState = 2;
             StartCoroutine(PlayerDeath());
         }
+
+        // Conditions
+
+        if (conditionTimer[0] > 0)
+        {
+            isInvisible = true;
+            invisOverlay.enabled = true;
+
+            if (conditionTimer[0] > 3)
+            {
+                invisOverlayAnimator.Play("FlashImageShow");
+            }
+            else
+            {
+                invisOverlayAnimator.Play("FlashImage");
+            }
+        }
+        else
+        {
+            isInvisible = false;
+            invisOverlay.enabled = false;
+        }
+
+        for (int i = 0; i < conditionTimer.Length; i++)
+        {
+            if (conditionTimer[i] > 0)
+            {
+                conditionTimer[i] -= Time.deltaTime;
+            }
+            if (conditionTimer[i] < 0)
+            {
+                conditionTimer[i] = 0;
+            }
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -321,11 +373,17 @@ public class Player : MonoBehaviour
                 if (itemScript.giveScore != 0)
                 {
                     score += itemScript.giveScore;
+                    scoreThisLevel += itemScript.giveScore;
                 }
 
                 if (itemScript.giveKey >= 0)
                 {
                     keys[itemScript.giveKey] = true;
+                }
+
+                if(itemScript.giveCondition > -1)
+                {
+                    conditionTimer[itemScript.giveCondition] = itemScript.giveConditionTimer;
                 }
 
                 if (itemScript.createOnCollect != null)

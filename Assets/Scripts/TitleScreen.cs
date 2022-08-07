@@ -13,10 +13,19 @@ public class TitleScreen : MonoBehaviour
 
     void Start()
     {
+        Player.scoreThisLevel = 0;
         StaticClass.chapterReadOnly = 1;
         StaticClass.mapReadOnly = 1;
         versionText.text = "v " + Application.version.ToString();
         SectionStart();
+    }
+
+    void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
     }
 
     public void SectionStart()

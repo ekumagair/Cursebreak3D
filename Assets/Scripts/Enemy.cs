@@ -227,6 +227,14 @@ public class Enemy : MonoBehaviour
                 var p = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
                 p.GetComponent<Projectile>().ignoreTag = tag;
                 p.transform.forward = dir;
+
+                if(target.GetComponent<Player>() != null)
+                {
+                    if(target.GetComponent<Player>().isInvisible)
+                    {
+                        p.transform.forward = (transform.forward + transform.right / Random.Range(-4f, 4f)).normalized;
+                    }
+                }
             }
             else if (attackType == 1)
             {
@@ -241,6 +249,16 @@ public class Enemy : MonoBehaviour
                 var p3 = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
                 p3.GetComponent<Projectile>().ignoreTag = tag;
                 p3.transform.forward = (transform.forward + -transform.right / 3).normalized;
+
+                if (target.GetComponent<Player>() != null)
+                {
+                    if (target.GetComponent<Player>().isInvisible)
+                    {
+                        p1.transform.forward = (transform.forward + transform.right / Random.Range(-4f, 4f)).normalized;
+                        p2.transform.forward = (transform.forward + transform.right / Random.Range(4f, 6f)).normalized;
+                        p2.transform.forward = (transform.forward + -transform.right / Random.Range(4f, 6f)).normalized;
+                    }
+                }
             }
         }
 
@@ -367,7 +385,9 @@ public class Enemy : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(transform.position, dir, out hit, dist, sightMask))
         {
-            if (hit.collider.gameObject == which && hasPath)
+            var hitObj = hit.collider.gameObject;
+
+            if (hitObj == which && hasPath && (hitObj.GetComponent<Player>() == null || hitObj.GetComponent<Player>().isInvisible == false) || hitObj == target)
             {
                 Debug.Log(gameObject + " saw " + which);
                 Debug.DrawRay(transform.position, dir * hit.distance, Color.green);
@@ -410,6 +430,7 @@ public class Enemy : MonoBehaviour
         GetComponent<Collider>().enabled = false;
         GetComponent<NavMeshAgent>().enabled = false;
         Player.score += giveScoreOnDeath;
+        Player.scoreThisLevel += giveScoreOnDeath;
         StaticClass.enemiesKilled++;
         animator.Play(deathAnim);
 

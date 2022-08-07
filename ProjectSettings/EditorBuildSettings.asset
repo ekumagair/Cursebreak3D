@@ -35,4 +35,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/C2M1.unity
     guid: 76a0da649353bb141a71b3300eb79452
+  - enabled: 1
+    path: Assets/Scenes/C2M2.unity
+    guid: 43e7bb9736344874cb4d838a37d72bee
   m_configObjects: {}
