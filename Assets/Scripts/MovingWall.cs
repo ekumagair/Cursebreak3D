@@ -47,7 +47,8 @@ public class MovingWall : MonoBehaviour
 
         if (soundOnMove != null)
         {
-            Instantiate(soundOnMove, transform.position, transform.rotation);
+            var createdSound = Instantiate(soundOnMove, transform.position, transform.rotation);
+            createdSound.transform.parent = transform.parent;
         }
 
         while (Vector3.Distance(transform.position, targetPos) > 0.001f)

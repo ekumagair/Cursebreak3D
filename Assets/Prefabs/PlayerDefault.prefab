@@ -191,7 +191,7 @@ GameObject:
   m_Component:
   - component: {fileID: 373758800873319131}
   - component: {fileID: 373758800873319128}
-  - component: {fileID: 373758800873319130}
+  - component: {fileID: 8656066442474338507}
   - component: {fileID: 373758800873319141}
   m_Layer: 0
   m_Name: PlayerDefault
@@ -235,7 +235,7 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &373758800873319130
+--- !u!114 &8656066442474338507
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -244,11 +244,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 373758800873319129}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cba3fe818866f824a98179237395e2d1, type: 3}
+  m_Script: {fileID: 11500000, guid: 6adfc0ddf662df542b365bda89179b9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 373758800873319128}
-  vel: 7
+  vel: 12
   gravity: -9.81
   jumpHeight: 3
   canJump: 1
@@ -256,10 +256,10 @@ MonoBehaviour:
   groundDistance: 0.2
   solidMask:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 1
   useMask:
     serializedVersion: 2
-    m_Bits: 129
+    m_Bits: 1
   isGrounded: 0
   isMoving: 0
   steps:

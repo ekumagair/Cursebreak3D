@@ -179,7 +179,7 @@ NavMeshAgent:
   m_Acceleration: 10
   avoidancePriority: 50
   m_AngularSpeed: 400
-  m_StoppingDistance: 3
+  m_StoppingDistance: 2
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -222,17 +222,20 @@ MonoBehaviour:
   attackTimeDefault: 1.15
   attackTime: 0
   attackProjectile: {fileID: 9116008725644934739, guid: fac82f72741c7dd45b0bb5ae7ae6f16b, type: 3}
-  attackType: 0
-  attackAnim: CloakEnemyAttack
+  attackDamage: 0
+  attackAnim: RootvisAttack
   attackShotDelay: 0.3
-  attackTotalDuration: 0.45
+  attackTotalDuration: 0.8
   attackSound: {fileID: 7073382011647977794, guid: d1cf22b3d8fa8804e924e9966932c41d, type: 3}
-  meleeAnim: 
+  attackExtraObject: []
+  attackType: 0
+  meleeAnim: RootvisAttack
   meleeDamage: 20
   meleeRange: 3.5
-  meleeStartDelay: 0.35
-  meleeDuration: 0.75
+  meleeStartDelay: 0.5
+  meleeDuration: 0.8
   meleeSound: {fileID: 0}
+  meleeSoundHit: {fileID: 7073382011647977794, guid: add27be737d907543be3c8a9fd81cbde, type: 3}
   hasRangedAttack: 1
   hasMeleeAttack: 1
   deathAnim: CloakEnemyDie
@@ -243,6 +246,9 @@ MonoBehaviour:
   painTime: 0.25
   painChance: 3
   painAnim: CloakEnemyPain
+  hiddenWhileWaiting: 0
+  wakeUpTimer: 0
+  wakeUpAnim: 
 --- !u!114 &3368057994646024819
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -29,7 +29,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1686189749075883695}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4505737172867113320
 MonoBehaviour:
@@ -46,7 +46,10 @@ MonoBehaviour:
   giveWeapon: 0
   giveArmor: 0
   giveArmorMult: 0.5
+  giveKey: 0
   giveFullAmmo: 1
+  giveLevelWin: 0
+  goToScene: 
   once: 0
   playSound: 0
   buttons: 6300000068000000650000006100000074000000670000006900000076000000650000006d00000065000000610000006d0000006d0000006f000000
@@ -177,7 +180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f08cbe8fdf48e054fb4b6deb3ffa4ebe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseS: 1000
+  mouseS: 1500
   playerBody: {fileID: 1686189749075883695}
   lookX: 1
   lookY: 0
@@ -218,11 +221,16 @@ Transform:
   - {fileID: 1686189748706310743}
   - {fileID: 3311534823666348959}
   - {fileID: 3042730666910368449}
+  - {fileID: 3774632973530303387}
   - {fileID: 4134986045973769134}
+  - {fileID: 4132544154144114650}
+  - {fileID: 5115039890950911760}
+  - {fileID: 5238971065482999817}
   - {fileID: 8061881165629478447}
   - {fileID: 2794291886455950003}
   - {fileID: 3467455452649852808}
   - {fileID: 8926178379454789575}
+  - {fileID: 910690405350561904}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -258,9 +266,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controller: {fileID: 1686189749075883692}
   vel: 8
+  velSprintMult: 1.5
   gravity: -20
   jumpHeight: 3
   canJump: 0
+  sprintKeyCode: 304
+  isSprinting: 0
   groundCheck: {fileID: 1686189748706310743}
   groundDistance: 0.2
   solidMask:
@@ -274,7 +285,7 @@ MonoBehaviour:
   steps: []
   hasStepSFX: 0
   useKey: 32
-  cantUse: {fileID: 0}
+  cantUse: {fileID: 8300000, guid: 7da726be544e8df45b2b94b5a73f19c6, type: 3}
 --- !u!114 &3236426144556185477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289,7 +300,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentWeapon: 0
   weaponsUnlocked: 01010000000000
-  weaponType: ffffffff0100000000000000000000000100000000000000
+  weaponType: ffffffff010000000000000000000000010000000000000001000000
   weaponRayRange:
   - 0
   - 3
@@ -297,14 +308,17 @@ MonoBehaviour:
   - 0
   - 4
   - 0
+  - 1000
   weaponDelaysDefault:
   - 0
   - 0.5
-  - 0.55
-  - 0.8
+  - 0.5
+  - 0.65
   - 0.6
-  - 0.3
+  - 0.25
+  - 0.2
   weaponDelaysCurrent:
+  - 0
   - 0
   - 0
   - 0
@@ -318,13 +332,23 @@ MonoBehaviour:
   - {fileID: 9116008725644934739, guid: 6b10c520e702134428cce7b8051991ae, type: 3}
   - {fileID: 0}
   - {fileID: 9116008725644934739, guid: 63e8a40b2792dd14eac6c0fe38520932, type: 3}
+  - {fileID: 0}
+  weaponRayObjOnHit:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 8661592347238051789, guid: 4b81cdf5fe0da99418138fddb45d8fd1, type: 3}
   weaponSound:
   - {fileID: 0}
   - {fileID: 7073382011647977794, guid: 4892750055e150d49b764e9746becabf, type: 3}
   - {fileID: 7073382011647977794, guid: ef4e2b93f3259f0409d0cfdb61591f2d, type: 3}
-  - {fileID: 7073382011647977794, guid: ef4e2b93f3259f0409d0cfdb61591f2d, type: 3}
+  - {fileID: 7073382011647977794, guid: 41b1ce8237bced54c9dd108e01679360, type: 3}
   - {fileID: 7073382011647977794, guid: 4892750055e150d49b764e9746becabf, type: 3}
   - {fileID: 7073382011647977794, guid: ef4e2b93f3259f0409d0cfdb61591f2d, type: 3}
+  - {fileID: 7073382011647977794, guid: daad56f77d23e0b41a87ce460916bd34, type: 3}
   weaponSound2:
   - {fileID: 0}
   - {fileID: 7073382011647977794, guid: e4f6bd1fc72b6bf4d83f08c0f5a00902, type: 3}
@@ -332,17 +356,23 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 7073382011647977794, guid: 0bfedfe9ed709cf4db2c6f33a9f9b0a2, type: 3}
   - {fileID: 0}
-  weaponAmmoType: 000000000000000000000000010000000000000000000000
-  weaponAmmoCost: 000000000000000001000000030000000000000001000000
-  ammo: 0000000000000000
-  ammoLimit: 640000005a000000
+  - {fileID: 7073382011647977794, guid: 376c8ad9614b9b045bb5f1e51a1b44c3, type: 3}
+  weaponAmmoType: 00000000000000000000000001000000000000000000000002000000
+  weaponAmmoCost: 00000000000000000100000003000000000000000100000001000000
+  ammo: 000000000000000000000000
+  ammoLimit: 640000005a00000032000000
   keys: 01000000
   conditionTimer:
+  - 0
+  - 0.5
+  - 0
+  - 0
   - 0
   attackRayMask:
     serializedVersion: 2
     m_Bits: 723
   deathFadeObject: {fileID: 1665016438080051992, guid: 18000859b58cbbf4399f6f5390ade0a5, type: 3}
+  damageOverlayObject: {fileID: 1665016438080051992, guid: 9a5b661e974475b4ab4440deafa464b3, type: 3}
   isInvisible: 0
 --- !u!114 &-1980402611779862909
 MonoBehaviour:
@@ -538,6 +568,60 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &2632224022679612151
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3774632973530303387}
+  - component: {fileID: 5769457121648030856}
+  m_Layer: 0
+  m_Name: CheatGetKeys
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3774632973530303387
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2632224022679612151}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1686189749075883695}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5769457121648030856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2632224022679612151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 535d55e769295c34980a7d6ced83d469, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  giveWeapon: 0
+  giveArmor: 0
+  giveArmorMult: 0
+  giveKey: -1
+  giveFullAmmo: 0
+  giveLevelWin: 0
+  goToScene: 
+  once: 1
+  playSound: 0
+  buttons: 6300000068000000650000006100000074000000670000006900000076000000650000006d000000650000006b000000650000007900000073000000
+  currentButton: 0
 --- !u!1 &3202646033449925060
 GameObject:
   m_ObjectHideFlags: 0
@@ -581,6 +665,168 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e9f83ef8ccac3947a084047e447397e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &3611586930874827542
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 910690405350561904}
+  - component: {fileID: 8855272254093424395}
+  m_Layer: 0
+  m_Name: CheatGetWeapon6
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &910690405350561904
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3611586930874827542}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1686189749075883695}
+  m_RootOrder: 14
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8855272254093424395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3611586930874827542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 535d55e769295c34980a7d6ced83d469, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  giveWeapon: 6
+  giveArmor: 0
+  giveArmorMult: 0.5
+  giveKey: 0
+  giveFullAmmo: 0
+  giveLevelWin: 0
+  goToScene: 
+  once: 0
+  playSound: 0
+  buttons: 6300000068000000650000006100000074000000670000006900000076000000650000006d0000006500000036000000
+  currentButton: 0
+--- !u!1 &5731662010293083548
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4132544154144114650}
+  - component: {fileID: 5644006497748208746}
+  m_Layer: 0
+  m_Name: CheatWinLevel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4132544154144114650
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5731662010293083548}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1686189749075883695}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5644006497748208746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5731662010293083548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 535d55e769295c34980a7d6ced83d469, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  giveWeapon: 0
+  giveArmor: 0
+  giveArmorMult: 0.5
+  giveKey: 0
+  giveFullAmmo: 0
+  giveLevelWin: 1
+  goToScene: 
+  once: 1
+  playSound: 0
+  buttons: 6300000068000000650000006100000074000000760000006900000063000000740000006f0000007200000079000000
+  currentButton: 0
+--- !u!1 &6333414136380303449
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5115039890950911760}
+  - component: {fileID: 5869709346193424282}
+  m_Layer: 0
+  m_Name: CheatSelectLevel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5115039890950911760
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6333414136380303449}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1686189749075883695}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5869709346193424282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6333414136380303449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 535d55e769295c34980a7d6ced83d469, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  giveWeapon: 0
+  giveArmor: 0
+  giveArmorMult: 0.5
+  giveKey: 0
+  giveFullAmmo: 0
+  giveLevelWin: 0
+  goToScene: LevelSelect
+  once: 1
+  playSound: 0
+  buttons: 630000006800000065000000610000007400000073000000650000006c0000006500000063000000740000006c0000006500000076000000650000006c000000
+  currentButton: 0
 --- !u!1 &6363036684268254976
 GameObject:
   m_ObjectHideFlags: 0
@@ -610,7 +856,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1686189749075883695}
-  m_RootOrder: 7
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5940695373984044302
 MonoBehaviour:
@@ -627,7 +873,10 @@ MonoBehaviour:
   giveWeapon: 3
   giveArmor: 0
   giveArmorMult: 0.5
+  giveKey: 0
   giveFullAmmo: 0
+  giveLevelWin: 0
+  goToScene: 
   once: 0
   playSound: 0
   buttons: 6300000068000000650000006100000074000000670000006900000076000000650000006d0000006500000033000000
@@ -661,7 +910,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1686189749075883695}
-  m_RootOrder: 6
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7203246912220946132
 MonoBehaviour:
@@ -678,7 +927,10 @@ MonoBehaviour:
   giveWeapon: 2
   giveArmor: 0
   giveArmorMult: 0.5
+  giveKey: 0
   giveFullAmmo: 0
+  giveLevelWin: 0
+  goToScene: 
   once: 0
   playSound: 0
   buttons: 6300000068000000650000006100000074000000670000006900000076000000650000006d0000006500000032000000
@@ -712,7 +964,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1686189749075883695}
-  m_RootOrder: 8
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7137914297638546325
 MonoBehaviour:
@@ -729,10 +981,67 @@ MonoBehaviour:
   giveWeapon: 4
   giveArmor: 0
   giveArmorMult: 0.5
+  giveKey: 0
   giveFullAmmo: 0
+  giveLevelWin: 0
+  goToScene: 
   once: 0
   playSound: 0
   buttons: 6300000068000000650000006100000074000000670000006900000076000000650000006d0000006500000034000000
+  currentButton: 0
+--- !u!1 &7831817987259349646
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5238971065482999817}
+  - component: {fileID: 3446207189192369040}
+  m_Layer: 0
+  m_Name: CheatGetAllWeapons
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5238971065482999817
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7831817987259349646}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1686189749075883695}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3446207189192369040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7831817987259349646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 535d55e769295c34980a7d6ced83d469, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  giveWeapon: -1
+  giveArmor: 25
+  giveArmorMult: 0.75
+  giveKey: 0
+  giveFullAmmo: 1
+  giveLevelWin: 0
+  goToScene: 
+  once: 0
+  playSound: 0
+  buttons: 6300000068000000650000006100000074000000670000006900000076000000650000006d00000065000000610000006c0000006c000000
   currentButton: 0
 --- !u!1 &7858750061340838346
 GameObject:
@@ -780,10 +1089,13 @@ MonoBehaviour:
   giveWeapon: 0
   giveArmor: 100
   giveArmorMult: 0.1
+  giveKey: 0
   giveFullAmmo: 0
+  giveLevelWin: 0
+  goToScene: 
   once: 0
   playSound: 0
-  buttons: 630000006800000065000000610000007400000070000000720000006f00000074000000650000006300000074000000700000006c00000073000000
+  buttons: 630000006800000065000000610000007400000070000000720000006f00000074000000650000006300000074000000
   currentButton: 0
 --- !u!1 &7988956269773017403
 GameObject:
@@ -814,7 +1126,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1686189749075883695}
-  m_RootOrder: 9
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7540403795456232427
 MonoBehaviour:
@@ -831,7 +1143,10 @@ MonoBehaviour:
   giveWeapon: 5
   giveArmor: 0
   giveArmorMult: 0.5
+  giveKey: 0
   giveFullAmmo: 0
+  giveLevelWin: 0
+  goToScene: 
   once: 0
   playSound: 0
   buttons: 6300000068000000650000006100000074000000670000006900000076000000650000006d0000006500000035000000

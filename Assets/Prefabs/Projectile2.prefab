@@ -190,8 +190,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 185ad8bf249ecd048a963e73bbbea9ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 25
-  damage: 10
+  speed: 35
+  damage: 15
   ignoreTag: 
   createObjectOnHit:
   - {fileID: 8661592347238051789, guid: 96d9910516a868f46bff0fa0d8004e44, type: 3}

@@ -7,38 +7,51 @@ public class Controls : MonoBehaviour
     public CharacterController controller;
     Camera mainCam;
 
+    [Header("Physics")]
     public float vel = 12f;
+    public float velSprintMult = 1.6f;
     public float gravity = -9.81f;
     public float jumpHeight = 3f;
     public bool canJump = true;
+    public KeyCode sprintKeyCode;
+    public bool isSprinting = false;
 
+    [Header("Collision")]
     public Transform groundCheck;
     public float groundDistance = 0.4f;
     public LayerMask solidMask;
     public LayerMask useMask;
-
     Vector3 velocityV3;
+
+    [Header("Checks")]
     public bool isGrounded;
     public bool isMoving;
 
-    AudioSource audioSource;
+    [Header("Footstep Sounds")]
     public AudioClip[] steps;
     public bool hasStepSFX = true;
+    AudioSource audioSource;
 
+    [Header("Use")]
     public KeyCode useKey;
     public AudioClip cantUse;
+
+    HUD hudScript;
+    Player playerScript;
 
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+        hudScript = GameObject.FindGameObjectWithTag("Canvas").GetComponent<HUD>();
+        playerScript = GetComponent<Player>();
+        isSprinting = false;
         StartCoroutine(Footstep());
     }
 
     void Update()
     {
         // Movement
-
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, solidMask);
 
         if (isGrounded && velocityV3.y < 0)
@@ -60,13 +73,24 @@ public class Controls : MonoBehaviour
 
         Vector3 move = transform.right * x + transform.forward * z;
 
-        if (controller.enabled == true)
+        // Sprint
+        if (Input.GetKey(sprintKeyCode) && playerScript.conditionTimer[2] <= 0)
+        {
+            move *= velSprintMult;
+            isSprinting = true;
+        }
+        else
+        {
+            isSprinting = false;
+        }
+
+        // Execute movement
+        if (controller.enabled == true && HUD.mapEnabled == false && playerScript.conditionTimer[1] <= 0)
         {
             controller.Move(move * vel * Time.deltaTime);
         }
 
         // Jump
-
         if (Input.GetButtonDown("Jump") && isGrounded && canJump)
         {
             velocityV3.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
@@ -81,7 +105,6 @@ public class Controls : MonoBehaviour
         }
 
         // Use
-
         if (Input.GetKeyDown(useKey))
         {
             Debug.DrawRay(transform.position, mainCam.transform.forward * 4, Color.white, 5f);
@@ -99,6 +122,22 @@ public class Controls : MonoBehaviour
                         if (doorScript.doorState == 0 && doorScript.canUse == true)
                         {
                             StartCoroutine(doorScript.OpenDoor());
+
+                            if (playerScript.keys[doorScript.key] == false)
+                            {
+                                if(doorScript.key == 1)
+                                {
+                                    hudScript.HudMessage("You need a bronze key to open this door", 3f);
+                                }
+                                else if (doorScript.key == 2)
+                                {
+                                    hudScript.HudMessage("You need a silver key to open this door", 3f);
+                                }
+                                else if (doorScript.key == 3)
+                                {
+                                    hudScript.HudMessage("You need a golden key to open this door", 3f);
+                                }
+                            }
                         }
                     }
                     if (hit.collider.gameObject.GetComponent<MovingWall>() != null)
@@ -114,6 +153,7 @@ public class Controls : MonoBehaviour
                     if (hit.collider.gameObject.GetComponent<Exit>() != null)
                     {
                         Debug.Log("Used exit");
+                        hit.collider.gameObject.GetComponent<Exit>().UsedExit();
                         StartCoroutine(GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().Exit(hit.collider.gameObject.GetComponent<Exit>().fade));
                     }
                 }
@@ -145,8 +185,18 @@ public class Controls : MonoBehaviour
         {
             if (en.GetComponent<Enemy>() != null)
             {
+                float hearDistance;
+                if(isSprinting)
+                {
+                    hearDistance = 100f;
+                }
+                else
+                {
+                    hearDistance = 8f;
+                }
+
                 Enemy enemyScript = en.GetComponent<Enemy>();
-                if (enemyScript.CanHear(gameObject, 3.9f))
+                if (enemyScript.CanHear(gameObject, hearDistance))
                 {
                     enemyScript.target = gameObject;
                 }

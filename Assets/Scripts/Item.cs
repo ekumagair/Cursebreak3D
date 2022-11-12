@@ -14,6 +14,7 @@ public class Item : MonoBehaviour
     public int giveKey = -1;
     public int giveCondition = -1;
     public int giveConditionTimer = 0;
+    public string logMessageOnCollect = "";
     public GameObject createOnCollect;
     public GameObject createOnCollectGameWorld;
     public bool canAlwaysCollect = false;

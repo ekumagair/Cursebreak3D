@@ -27,7 +27,6 @@ public class Health : MonoBehaviour
     void Update()
     {
         // Health minimum
-
         if(health < 0)
         {
             health = 0;
@@ -48,7 +47,6 @@ public class Health : MonoBehaviour
         }
 
         // Armor minimum
-
         if(armor < 0)
         {
             armor = 0;
@@ -84,10 +82,15 @@ public class Health : MonoBehaviour
             }
 
             // If this character is an enemy, start its pain coroutine
-
             if (GetComponent<Enemy>() != null)
             {
                 StartCoroutine(GetComponent<Enemy>().Pain());
+            }
+
+            // If this character is a player, start its pain coroutine
+            if (GetComponent<Player>() != null)
+            {
+                GetComponent<Player>().PlayerPain();
             }
         }
     }

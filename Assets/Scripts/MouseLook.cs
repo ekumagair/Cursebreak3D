@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MouseLook : MonoBehaviour
 {
-    public float mouseS = 100f;
+    public float mouseS = 1000f;
     float mouseX, mouseY;
 
     public Transform playerBody;
@@ -25,7 +25,6 @@ public class MouseLook : MonoBehaviour
         {
             mouseX = Input.GetAxis("Mouse X") * mouseS * Time.deltaTime;
         }
-
         if (lookY)
         {
             mouseY = Input.GetAxis("Mouse Y") * mouseS * Time.deltaTime;

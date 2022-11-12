@@ -32,7 +32,6 @@ public class IntermissionScreen : MonoBehaviour
         }
 
         // Reset variables after displaying text
-
         Player.scoreThisLevel = 0;
         StaticClass.secretsDiscovered = 0;
         StaticClass.secretsTotal = 0;
@@ -41,11 +40,10 @@ public class IntermissionScreen : MonoBehaviour
         Player.timeMinutes = 0;
 
         // Completed a chapter. Each chapter has 5 maps
-
-        if(StaticClass.mapReadOnly >= 5)
+        if(StaticClass.currentMap >= 5)
         {
-            StaticClass.chapterReadOnly++;
-            StaticClass.mapReadOnly = 0;
+            StaticClass.currentChapter++;
+            StaticClass.currentMap = 0;
         }
     }
 
@@ -53,7 +51,7 @@ public class IntermissionScreen : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
         {
-            SceneManager.LoadScene("C" + StaticClass.chapterReadOnly + "M" + (StaticClass.mapReadOnly + 1));
+            SceneManager.LoadScene("C" + StaticClass.currentChapter + "M" + (StaticClass.currentMap + 1));
         }
     }
 }

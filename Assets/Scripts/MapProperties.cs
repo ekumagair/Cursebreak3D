@@ -9,7 +9,7 @@ public class MapProperties : MonoBehaviour
 
     private void Start()
     {
-        StaticClass.chapterReadOnly = chapter;
-        StaticClass.mapReadOnly = map;
+        StaticClass.currentChapter = chapter;
+        StaticClass.currentMap = map;
     }
 }

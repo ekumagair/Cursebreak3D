@@ -157,10 +157,13 @@ MonoBehaviour:
   giveWeapon: -1
   giveAmmo: 0
   giveAmmoType: 0
-  giveArmor: 50
+  giveArmor: 25
   giveArmorMult: 0.5
   giveScore: 0
   giveKey: -1
+  giveCondition: -1
+  giveConditionTimer: 0
+  logMessageOnCollect: Collected golden armor
   createOnCollect: {fileID: 1665016438080051992, guid: 7704073fdb1aa424aa5260b9ab0fb16d, type: 3}
   createOnCollectGameWorld: {fileID: 7073382011647977794, guid: 75388c7814bf47b44bc798dbe05c49f5, type: 3}
   canAlwaysCollect: 0

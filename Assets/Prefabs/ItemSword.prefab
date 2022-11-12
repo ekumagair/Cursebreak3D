@@ -161,5 +161,9 @@ MonoBehaviour:
   giveArmorMult: 0
   giveScore: 1000
   giveKey: -1
+  giveCondition: -1
+  giveConditionTimer: 0
+  logMessageOnCollect: You got the sword!
   createOnCollect: {fileID: 1665016438080051992, guid: 7704073fdb1aa424aa5260b9ab0fb16d, type: 3}
   createOnCollectGameWorld: {fileID: 0}
+  canAlwaysCollect: 0

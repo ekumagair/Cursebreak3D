@@ -9,60 +9,83 @@ public class Enemy : MonoBehaviour
     public GameObject target;
 
     // Score
-
     public int giveScoreOnDeath = 0;
 
     // Ranged attack
-
+    [Header("Ranged Attack")]
     public float attackTimeDefault;
     public float attackTime = 0;
     public GameObject attackProjectile;
-    public int attackType = 0;
+    [Tooltip("Necessary for raycast attacks. Optional for projectiles. (If not 0, overrides the projectile damage)")]
+    public int attackDamage;
     public string attackAnim;
     public float attackShotDelay = 0;
     public float attackTotalDuration;
     public GameObject attackSound;
+    public GameObject[] attackExtraObject;
+    float projectileSpeedMult = 1.0f;
+
+    public enum RangedAttackType
+    {
+        OneObjectForwardAccurate,
+        ThreeObjectsForwardSpread,
+        OneRayForwardAccurate,
+        OneRayForwardSpread
+    }
+    public RangedAttackType attackType = 0;
 
     // Melee attack
-
+    [Header("Melee Attack")]
     public string meleeAnim;
     public int meleeDamage;
     public float meleeRange;
     public float meleeStartDelay;
     public float meleeDuration;
     public GameObject meleeSound;
+    public GameObject meleeSoundHit;
 
     // Attack types
-
+    [Header("Attack Types")]
     public bool hasRangedAttack = true;
     public bool hasMeleeAttack = false;
 
+    // Death
+    [Header("Death")]
     public string deathAnim;
+    public GameObject deathSound;
     bool attacking = false;
     bool died = false;
 
     // Sight
-
+    [Header("Sight")]
     public LayerMask sightMask;
 
     // Drop item
-
+    [Header("Item Drop")]
     public GameObject dropItem;
 
     // Pain
-
     bool inPain = false;
+    [Header("Pain")]
     public float painTime = 0.5f;
     public int painChance = 0;
     public string painAnim;
 
     // Pain chance
-    // 0 = Always
-    // 1 = 50% chance
-    // 2 = 33% chance
-    // 3 = 25% chance
-    // 4+ = Smaller chance
+    // 1 = Always
+    // 2 = 50% chance
+    // 3 = 33% chance
+    // 4 = 25% chance
+    // 5+ = Smaller chance
 
+    // Wake Up Animation
+    [Header("Wake Up Animation")]
+    public bool hiddenWhileWaiting = false;
+    public float wakeUpTimer = 0f;
+    public string wakeUpAnim = "";
+    bool wokeUp = false;
+
+    // Previous position
     int previousPositionsItem = 0;
     int previousPositionSelected = 0;
     Vector3[] previousPositions = new Vector3[10];
@@ -70,13 +93,13 @@ public class Enemy : MonoBehaviour
 
     Vector3 dir;
     NavMeshAgent agent;
-    Health health;
+    Health healthScript;
     Animator animator;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        health = GetComponent<Health>();
+        healthScript = GetComponent<Health>();
         animator = sprite.GetComponent<Animator>();
         attacking = false;
         died = false;
@@ -84,17 +107,39 @@ public class Enemy : MonoBehaviour
 
         StaticClass.enemiesTotal++;
 
-        if (StaticClass.difficulty == 2)
+        if(painChance < 1)
         {
+            painChance = 1;
+        }
+
+        if (StaticClass.difficulty <= 0)
+        {
+            projectileSpeedMult = 0.9f;
+        }
+        else if (StaticClass.difficulty == 1)
+        {
+            projectileSpeedMult = 1.0f;
+        }
+        else if (StaticClass.difficulty == 2)
+        {
+            projectileSpeedMult = 1.1f;
+            healthScript.health = Mathf.RoundToInt(healthScript.health * 1.1f);
             agent.speed *= 1.1f;
             attackTimeDefault *= 0.9f;
         }
-        else if (StaticClass.difficulty == 3)
+        else if (StaticClass.difficulty >= 3)
         {
-            health.health = Mathf.RoundToInt(health.health * 1.25f);
-            agent.speed *= 1.5f;
+            projectileSpeedMult = 1.25f;
+            healthScript.health = Mathf.RoundToInt(healthScript.health * 1.25f);
+            agent.speed *= 1.75f;
             attackTimeDefault *= 0.5f;
             painChance += 1;
+
+            // Make enemy ray attack more accurate if on Very Hard.
+            if(attackType == RangedAttackType.OneRayForwardSpread)
+            {
+                attackType = RangedAttackType.OneRayForwardAccurate;
+            }
         }
 
         ResetAttackTime();
@@ -103,11 +148,10 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        // Follow target or stand still
-
+        // Follow target or stand still.
         if (agent.enabled == true)
         {
-            if (health.isDead == false && attacking == false && inPain == false && target != null && agent.path != null)
+            if (healthScript.isDead == false && attacking == false && inPain == false && wakeUpTimer <= 0f && target != null && agent.path != null)
             {
                 if (hasMeleeAttack == false)
                 {
@@ -131,6 +175,7 @@ public class Enemy : MonoBehaviour
                         goingToPreviousPosition = false;
                     }
 
+                    // If this enemy is very close to the player, go back to previous locations.
                     if (Vector3.Distance(transform.position, target.transform.position) <= agent.stoppingDistance * 2f && goingToPreviousPosition == false)
                     {
                         goingToPreviousPosition = true;
@@ -149,7 +194,7 @@ public class Enemy : MonoBehaviour
             }
         }
 
-        if (target != null && health.isDead == false)
+        if (target != null && healthScript.isDead == false)
         {
             // Rotate towards target
             dir = (target.transform.position - transform.position).normalized;
@@ -165,14 +210,69 @@ public class Enemy : MonoBehaviour
                     if (attacking == false && inPain == false)
                     {
                         attackTime -= Time.deltaTime;
+
+                        // If this enemy is very close to the player, attack faster.
+                        if (Vector3.Distance(transform.position, target.transform.position) <= agent.stoppingDistance * 2f)
+                        {
+                            attackTime -= Time.deltaTime;
+
+                            // If you are playing on Very Hard difficulty, this makes the attack even faster.
+                            if(StaticClass.difficulty >= 3)
+                            {
+                                attackTime -= Time.deltaTime * 2;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Reduce wake up animation time
+            if(wokeUp == false && animator.enabled == true && sprite.activeSelf == true)
+            {
+                wokeUp = true;
+                animator.Play(wakeUpAnim);
+            }
+            if (wakeUpTimer > 0f)
+            {
+                wakeUpTimer -= Time.deltaTime;
+            }
+            if(wakeUpTimer < 0f)
+            {
+                wakeUpTimer = 0f;
+            }
+
+            // Open doors
+            RaycastHit doorHit;
+            if (Physics.Raycast(transform.position, transform.forward, out doorHit, 4f, sightMask))
+            {
+                if (doorHit.collider.gameObject.GetComponent<Door>() != null)
+                {
+                    Door doorScript = doorHit.collider.gameObject.GetComponent<Door>();
+                    bool canOpen = true;
+
+                    // If the enemy is targeting the player, it can only open the door if the player can too.
+                    if (target.GetComponent<Player>() != null)
+                    {
+                        if (target.GetComponent<Player>().keys[doorScript.key])
+                        {
+                            canOpen = true;
+                        }
+                        else
+                        {
+                            canOpen = false;
+                        }
+                    }
+
+                    if (doorScript.doorState == 0 && doorScript.canUse == true && canOpen == true)
+                    {
+                        StartCoroutine(doorScript.OpenDoor());
                     }
                 }
             }
         }
 
         // Attacks
-
-        if (health.isDead == false && attacking == false && inPain == false && target != null && StaticClass.gameState == 0)
+        if (healthScript.isDead == false && attacking == false && inPain == false && target != null && wakeUpTimer <= 0f && StaticClass.gameState == 0)
         {
             if (attackTime <= 0 && hasRangedAttack == true)
             {
@@ -186,8 +286,7 @@ public class Enemy : MonoBehaviour
         }
 
         // Check death
-
-        if(health.isDead == true && died == false && StaticClass.gameState == 0)
+        if(healthScript.isDead == true && died == false && StaticClass.gameState == 0)
         {
             died = true;
             StopAllCoroutines();
@@ -195,12 +294,25 @@ public class Enemy : MonoBehaviour
         }
 
         // Check if state changed
-
-        if(StaticClass.gameState != 0)
+        // Disable this enemy if the player completed the current level or died
+        if(StaticClass.gameState == 1 || StaticClass.gameState == 2)
         {
             StopAllCoroutines();
             agent.enabled = false;
             target = null;
+        }
+
+        // Hidden while waiting
+        if(hiddenWhileWaiting)
+        {
+            if(target == null && wakeUpTimer > 0f)
+            {
+                sprite.SetActive(false);
+            }
+            else
+            {
+                sprite.SetActive(true);
+            }
         }
     }
 
@@ -220,15 +332,21 @@ public class Enemy : MonoBehaviour
 
         yield return new WaitForSeconds(attackShotDelay);
 
-        if (attackProjectile != null)
+        if ((attackProjectile != null || attackDamage != 0) && inPain == false)
         {
-            if (attackType == 0)
+            if (attackType == RangedAttackType.OneObjectForwardAccurate)
             {
                 var p = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
                 p.GetComponent<Projectile>().ignoreTag = tag;
+                p.GetComponent<Projectile>().speed *= projectileSpeedMult;
                 p.transform.forward = dir;
 
-                if(target.GetComponent<Player>() != null)
+                if (attackDamage != 0)
+                {
+                    p.GetComponent<Projectile>().damage = attackDamage;
+                }
+
+                if (target.GetComponent<Player>() != null)
                 {
                     if(target.GetComponent<Player>().isInvisible)
                     {
@@ -236,19 +354,29 @@ public class Enemy : MonoBehaviour
                     }
                 }
             }
-            else if (attackType == 1)
+            else if (attackType == RangedAttackType.ThreeObjectsForwardSpread)
             {
                 var p1 = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
                 p1.GetComponent<Projectile>().ignoreTag = tag;
+                p1.GetComponent<Projectile>().speed *= projectileSpeedMult;
                 p1.transform.forward = dir;
 
                 var p2 = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
                 p2.GetComponent<Projectile>().ignoreTag = tag;
+                p2.GetComponent<Projectile>().speed *= projectileSpeedMult;
                 p2.transform.forward = (transform.forward + transform.right / 3).normalized;
 
                 var p3 = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
                 p3.GetComponent<Projectile>().ignoreTag = tag;
+                p3.GetComponent<Projectile>().speed *= projectileSpeedMult;
                 p3.transform.forward = (transform.forward + -transform.right / 3).normalized;
+
+                if(attackDamage != 0)
+                {
+                    p1.GetComponent<Projectile>().damage = attackDamage;
+                    p2.GetComponent<Projectile>().damage = attackDamage;
+                    p3.GetComponent<Projectile>().damage = attackDamage;
+                }
 
                 if (target.GetComponent<Player>() != null)
                 {
@@ -259,6 +387,14 @@ public class Enemy : MonoBehaviour
                         p2.transform.forward = (transform.forward + -transform.right / Random.Range(4f, 6f)).normalized;
                     }
                 }
+            }
+            else if(attackType == RangedAttackType.OneRayForwardAccurate)
+            {
+                RangedRayAttack(0f, false);
+            }
+            else if (attackType == RangedAttackType.OneRayForwardSpread)
+            {
+                RangedRayAttack(Random.Range(-0.03f, 0.03f), false);
             }
         }
 
@@ -285,19 +421,27 @@ public class Enemy : MonoBehaviour
 
         yield return new WaitForSeconds(meleeStartDelay);
 
-        RaycastHit hitMelee;
-        if (Physics.Raycast(transform.position, transform.forward, out hitMelee, meleeRange * 1.25f, sightMask))
+        if (inPain == false)
         {
-            Debug.DrawRay(transform.position, transform.forward * hitMelee.distance, Color.yellow, meleeRange);
-            Debug.Log("Enemy Hit " + hitMelee.collider.name);
-
-            if (hitMelee.collider.gameObject != null)
+            RaycastHit hitMelee;
+            if (Physics.Raycast(transform.position, transform.forward, out hitMelee, meleeRange * 1.25f, sightMask))
             {
-                GameObject hitObject = hitMelee.collider.gameObject;
+                Debug.DrawRay(transform.position, transform.forward * hitMelee.distance, Color.yellow, 5f);
+                Debug.Log("Enemy Melee Hit " + hitMelee.collider.name);
 
-                if (hitObject.tag == "Player")
+                if (hitMelee.collider.gameObject != null)
                 {
-                    hitObject.GetComponent<Health>().TakeDamage(meleeDamage, false);
+                    GameObject hitObject = hitMelee.collider.gameObject;
+
+                    if (hitObject.tag == "Player")
+                    {
+                        hitObject.GetComponent<Health>().TakeDamage(meleeDamage, false);
+                    }
+
+                    if (meleeSoundHit != null)
+                    {
+                        Instantiate(meleeSoundHit, transform.position, transform.rotation);
+                    }
                 }
             }
         }
@@ -314,6 +458,47 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    void RangedRayAttack(float maxSpread, bool ignoreInvisibility)
+    {
+        if(target.GetComponent<Player>() != null && ignoreInvisibility == false)
+        {
+            if (target.GetComponent<Player>().isInvisible == true)
+            {
+                maxSpread *= 4f;
+            }
+        }
+
+        RaycastHit hitRanged;
+        if (Physics.Raycast(transform.position, (transform.forward + (transform.right * maxSpread)), out hitRanged, 1000f, sightMask))
+        {
+            Debug.DrawRay(transform.position, (transform.forward + (transform.right * maxSpread)) * hitRanged.distance, Color.cyan, 5f);
+            Debug.Log("Enemy Ranged Hit " + hitRanged.collider.name);
+
+            if (hitRanged.collider.gameObject != null)
+            {
+                GameObject hitObject = hitRanged.collider.gameObject;
+
+                if (hitObject.tag == "Player")
+                {
+                    hitObject.GetComponent<Health>().TakeDamage(attackDamage, false);
+                }
+
+                if (attackExtraObject[0] != null)
+                {
+                    Instantiate(attackExtraObject[0], transform.position, transform.rotation);
+                }
+                if (attackExtraObject[1] != null)
+                {
+                    Instantiate(attackExtraObject[1], hitRanged.point - transform.forward, transform.rotation);
+                }
+                if (attackExtraObject[2] != null)
+                {
+                    Instantiate(attackExtraObject[2], hitRanged.point - transform.forward, transform.rotation);
+                }
+            }
+        }
+    }
+
     public void ResetAttackTime()
     {
         attackTime = attackTimeDefault * Random.Range(0.8f, 1.2f);
@@ -327,7 +512,12 @@ public class Enemy : MonoBehaviour
             inPain = true;
 
             StopCoroutine(Attack());
-            ResetAttackTime();
+            StopCoroutine(AttackMelee());
+
+            if (StaticClass.difficulty <= 0)
+            {
+                ResetAttackTime();
+            }
 
             if (painAnim != "")
             {
@@ -346,9 +536,9 @@ public class Enemy : MonoBehaviour
 
     IEnumerator AddPositionToList()
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(2f);
 
-        if (health.isDead == false)
+        if (healthScript.isDead == false)
         {
             previousPositions[previousPositionsItem] = new Vector3(transform.position.x * Random.Range(0.75f, 1.25f), transform.position.y, transform.position.z * Random.Range(0.75f, 1.25f));
             previousPositionsItem++;
@@ -436,7 +626,12 @@ public class Enemy : MonoBehaviour
 
         if(dropItem != null)
         {
-            Instantiate(dropItem, transform.position - (transform.up * 2), transform.rotation);
+            Instantiate(dropItem, transform.position - (transform.up * 2) + (transform.forward / 2), transform.rotation);
+        }
+
+        if(deathSound != null)
+        {
+            Instantiate(deathSound, transform.position, transform.rotation);
         }
     }
 }
