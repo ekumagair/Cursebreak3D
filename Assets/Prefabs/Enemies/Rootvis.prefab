@@ -218,7 +218,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sprite: {fileID: 5557292691027643533}
   target: {fileID: 0}
-  giveScoreOnDeath: 500
+  giveScoreOnDeath: 750
   attackTimeDefault: 1.15
   attackTime: 0
   attackProjectile: {fileID: 9116008725644934739, guid: fac82f72741c7dd45b0bb5ae7ae6f16b, type: 3}
@@ -239,13 +239,15 @@ MonoBehaviour:
   hasRangedAttack: 1
   hasMeleeAttack: 1
   deathAnim: CloakEnemyDie
+  deathSound: {fileID: 0}
   sightMask:
     serializedVersion: 2
     m_Bits: 467
   dropItem: {fileID: 0}
-  painTime: 0.25
+  painTime: 0.4
   painChance: 3
   painAnim: CloakEnemyPain
+  painSound: {fileID: 0}
   hiddenWhileWaiting: 0
   wakeUpTimer: 0
   wakeUpAnim: 

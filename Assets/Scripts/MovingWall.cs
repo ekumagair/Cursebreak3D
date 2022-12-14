@@ -43,6 +43,9 @@ public class MovingWall : MonoBehaviour
         if (isSecret)
         {
             StaticClass.secretsDiscovered++;
+            //Player.score += 3000;
+            Player.scoreThisLevel += 3000;
+            Player.gotScoreTimer = 4f;
         }
 
         if (soundOnMove != null)

@@ -9,6 +9,7 @@ public class CheatCode : MonoBehaviour
     public int giveWeapon = 0;
     public int giveArmor = 0;
     public float giveArmorMult = 0.5f;
+    public float giveOverallMult = 1.0f;
     public int giveKey = 0;
     public bool giveFullAmmo = false;
     public bool giveLevelWin = false;
@@ -90,7 +91,9 @@ public class CheatCode : MonoBehaviour
                         SceneManager.LoadScene(goToScene);
                     }
 
-                    if(playSound == true)
+                    playerScript.GetComponent<Health>().overallDamageMult = giveOverallMult;
+
+                    if (playSound == true)
                     {
                         GetComponent<AudioSource>().Play();
                     }

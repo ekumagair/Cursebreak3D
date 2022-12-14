@@ -84,11 +84,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9147871d047eb714c8baf564543864e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 100
+  health: 120
   isDead: 0
   armor: 0
   armorMult: 0
   overallDamageMult: 1
+  disableCollisionWhileDead: 0
+  startHealth: 0
 --- !u!114 &8251054914917704715
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -103,7 +105,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sprite: {fileID: 8251054915072446173}
   target: {fileID: 0}
-  giveScoreOnDeath: 750
+  giveScoreOnDeath: 1000
   attackTimeDefault: 1.1
   attackTime: 0
   attackProjectile: {fileID: 9116008725644934739, guid: 6b10c520e702134428cce7b8051991ae, type: 3}
@@ -114,6 +116,7 @@ MonoBehaviour:
   attackSound: {fileID: 7073382011647977794, guid: 48726f4fe6e0a934f8e04f17b0dfe675, type: 3}
   attackExtraObject: []
   attackType: 1
+  attackRefire: 0
   meleeAnim: FireEnemyAttack
   meleeDamage: 40
   meleeRange: 3.5
@@ -123,18 +126,21 @@ MonoBehaviour:
   meleeSoundHit: {fileID: 7073382011647977794, guid: d21c6381deec4be4b91710d0c5ccf3c3, type: 3}
   hasRangedAttack: 1
   hasMeleeAttack: 1
-  deathAnim: 
-  deathSound: {fileID: 0}
+  deathAnim: FireEnemyDie
+  deathSound: {fileID: 7073382011647977794, guid: 03f099a86069f5346b106983cc8dc81f, type: 3}
   sightMask:
     serializedVersion: 2
     m_Bits: 467
   dropItem: {fileID: 8565569619343638066, guid: 441e811ce55ffcf419494d164a1df7f8, type: 3}
-  painTime: 0.25
-  painChance: 6
-  painAnim: 
+  painTime: 0.5
+  painChance: 5
+  painAnim: FireEnemyPain
+  painSound: {fileID: 7073382011647977794, guid: cc155ee5eef9c0344be6578ed2973e68, type: 3}
   hiddenWhileWaiting: 0
   wakeUpTimer: 0
   wakeUpAnim: 
+  canBeHealed: 1
+  canBeRevived: 1
 --- !u!114 &892148938866425156
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -32,8 +32,11 @@ public static class StaticClass
 
     // Misc rules
     public static bool canPause = true;
+    public static bool debug = true;
 
-    public static int minimapType = 1;
+    // Minimap type
+    public static int minimapType = 2;
     // 0 = Minimap disabled
     // 1 = All revealed from the start
+    // 2 = Gradual reveal
 }

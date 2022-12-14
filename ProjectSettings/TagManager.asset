@@ -8,6 +8,8 @@ TagManager:
   - Enemy
   - Item
   - Canvas
+  - Teleporter
+  - ProjectileIgnores
   layers:
   - Default
   - TransparentFX
@@ -19,7 +21,7 @@ TagManager:
   - Use
   - Player
   - Enemy
-  - 
+  - UseIgnoreSight
   - 
   - 
   - 

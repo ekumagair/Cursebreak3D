@@ -191,7 +191,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 20
-  damage: 22
+  damage: 25
   ignoreTag: 
   createObjectOnHit:
   - {fileID: 8661592347238051789, guid: 7a15f82852da52c43ac26adcbb5b518d, type: 3}

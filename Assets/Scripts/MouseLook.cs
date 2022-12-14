@@ -8,6 +8,7 @@ public class MouseLook : MonoBehaviour
     float mouseX, mouseY;
 
     public Transform playerBody;
+    public Player playerScript;
     public bool lookX = true, lookY = true;
 
     float xRot = 0f;
@@ -21,11 +22,11 @@ public class MouseLook : MonoBehaviour
 
     void Update()
     {
-        if (lookX)
+        if (lookX && playerScript.conditionTimer[5] <= 0)
         {
             mouseX = Input.GetAxis("Mouse X") * mouseS * Time.deltaTime;
         }
-        if (lookY)
+        if (lookY && playerScript.conditionTimer[6] <= 0)
         {
             mouseY = Input.GetAxis("Mouse Y") * mouseS * Time.deltaTime;
         }
@@ -33,7 +34,10 @@ public class MouseLook : MonoBehaviour
         xRot -= mouseY;
         xRot = Mathf.Clamp(xRot, -90f, 90f);
 
-        transform.localRotation = Quaternion.Euler(xRot, 0f, 0f);
-        playerBody.Rotate(Vector3.up * mouseX);
+        if (HUD.mapEnabled == false)
+        {
+            transform.localRotation = Quaternion.Euler(xRot, 0f, 0f);
+            playerBody.Rotate(Vector3.up * mouseX);
+        }
     }
 }

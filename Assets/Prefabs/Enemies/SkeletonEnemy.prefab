@@ -218,7 +218,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sprite: {fileID: 7235027793559568546}
   target: {fileID: 0}
-  giveScoreOnDeath: 250
+  giveScoreOnDeath: 500
   attackTimeDefault: 0
   attackTime: 0
   attackProjectile: {fileID: 0}
@@ -247,6 +247,7 @@ MonoBehaviour:
   painTime: 0.5
   painChance: 1
   painAnim: SkeletonEnemyPain
+  painSound: {fileID: 0}
   hiddenWhileWaiting: 0
   wakeUpTimer: 0
   wakeUpAnim: 

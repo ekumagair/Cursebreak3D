@@ -18,7 +18,7 @@ public class Projectile : MonoBehaviour
     {
         GameObject hitObj = other.gameObject;
 
-        if (hitObj.tag != ignoreTag && hitObj.tag != "Projectile" && hitObj.tag != "Canvas" && hitObj.tag != "Item")
+        if (hitObj.tag != ignoreTag && hitObj.tag != "Projectile" && hitObj.tag != "Canvas" && hitObj.tag != "Item" && hitObj.tag != "Teleporter" && hitObj.tag != "ProjectileIgnores" && hitObj.tag != "EditorOnly")
         {
             if(hitObj.GetComponent<Health>() != null)
             {

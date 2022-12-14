@@ -26,6 +26,7 @@ public class Player : MonoBehaviour
     public GameObject deathFadeObject;
     public GameObject damageOverlayObject;
     public bool isInvisible = false;
+    public RenderTexture canvasTargetTexture;
 
     public static int score = 0;
     public static int scoreThisLevel = 0;
@@ -41,10 +42,8 @@ public class Player : MonoBehaviour
     Health healthScript;
     Controls controlsScript;
     GameObject gameCanvas;
-    Image invisOverlay;
-    Animator invisOverlayAnimator;
-    Image doubleDamageOverlay;
-    Animator doubleDamageOverlayAnimator;
+    HUD gameCanvasScript;
+    Minimap minimapScript;
 
     // Weapon list
     // 0 = Empty hand
@@ -77,26 +76,29 @@ public class Player : MonoBehaviour
     // 2 = Can't sprint
     // 3 = 2x Damage Multiplier
     // 4 = 4x Damage Multiplier
+    // 5 = Can't look horizontally
+    // 6 = Can't look vertically
 
     void Start()
     {
         healthScript = GetComponent<Health>();
         controlsScript = GetComponent<Controls>();
         gameCanvas = GameObject.FindGameObjectWithTag("Canvas");
-        invisOverlay = gameCanvas.GetComponent<HUD>().invisOverlay;
-        invisOverlayAnimator = gameCanvas.GetComponent<HUD>().invisOverlay.GetComponent<Animator>();
-        doubleDamageOverlay = gameCanvas.GetComponent<HUD>().doubleDamageOverlay;
-        doubleDamageOverlayAnimator = gameCanvas.GetComponent<HUD>().doubleDamageOverlay.GetComponent<Animator>();
+        gameCanvasScript = gameCanvas.GetComponent<HUD>();
+        minimapScript = gameCanvasScript.mapRoot.GetComponent<Minimap>();
+        Camera.main.targetTexture = canvasTargetTexture;
         isInvisible = false;
         weaponsUnlocked[0] = true;
         timeSeconds = 0;
         timeMinutes = 0;
+        scoreThisLevel = 0;
         StaticClass.gameState = 0;
         StaticClass.secretsDiscovered = 0;
         StaticClass.enemiesKilled = 0;
 
         if(StaticClass.loadSavedPlayerInfo == true)
         {
+            // Load player info.
             healthScript.health = savedHealth;
             healthScript.armor = savedArmor;
             healthScript.armorMult = savedArmorMult;
@@ -109,6 +111,12 @@ public class Player : MonoBehaviour
             for (int i = 0; i < savedWeaponsUnlocked.Length; i++)
             {
                 weaponsUnlocked[i] = savedWeaponsUnlocked[i];
+            }
+
+            // Fail-safe, in case the player's saved health is 0 or less.
+            if(healthScript.health <= 0)
+            {
+                healthScript.health = 1;
             }
 
             //StaticClass.loadSavedPlayerInfo = false;
@@ -163,6 +171,7 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha6) && CanSelectWeapon(6))
         {
             currentWeapon = 6;
+            weaponDelaysCurrent[6] = weaponDelaysDefault[6];
         }
 
         // Attack
@@ -203,7 +212,8 @@ public class Player : MonoBehaviour
                 }
                 else if (currentWeapon == 6)
                 {
-                    rayDamage = 35;
+                    GameObject.Find("ElectricFlash").GetComponent<Animator>().Play("ElectricFlash");
+                    rayDamage = 30;
                 }
 
                 rayDamage *= DamageMultiplier();
@@ -263,6 +273,7 @@ public class Player : MonoBehaviour
             weaponDelaysCurrent[currentWeapon] = weaponDelaysDefault[currentWeapon];
         }
 
+        // Weapon delays
         for (int i = 0; i < weaponDelaysDefault.Length; i++)
         {
             if(weaponDelaysCurrent[i] > 0 && currentWeapon == i)
@@ -329,37 +340,10 @@ public class Player : MonoBehaviour
         if (conditionTimer[0] > 0)
         {
             isInvisible = true;
-            invisOverlay.enabled = true;
-            if (conditionTimer[0] > 3)
-            {
-                invisOverlayAnimator.Play("FlashImageShow");
-            }
-            else
-            {
-                invisOverlayAnimator.Play("FlashImage");
-            }
         }
         else
         {
             isInvisible = false;
-            invisOverlay.enabled = false;
-        }
-
-        if(conditionTimer[3] > 0)
-        {
-            doubleDamageOverlay.enabled = true;
-            if (conditionTimer[3] > 3)
-            {
-                doubleDamageOverlayAnimator.Play("FlashImageShow");
-            }
-            else
-            {
-                doubleDamageOverlayAnimator.Play("FlashImage");
-            }
-        }
-        else
-        {
-            doubleDamageOverlay.enabled = false;
         }
 
         // Condition timers
@@ -369,20 +353,46 @@ public class Player : MonoBehaviour
             {
                 conditionTimer[i] -= Time.deltaTime;
 
-                // Invisibility runs out faster if sprinting.
-                if(i == 0 && controlsScript.isSprinting == true)
+                // Show condition overlay.
+                if (gameCanvasScript.conditionOverlays[i] != null)
                 {
-                    conditionTimer[i] -= Time.deltaTime * 2f;
+                    gameCanvasScript.conditionOverlays[i].enabled = true;
+
+                    if (gameCanvasScript.conditionOverlaysAnimators[i] != null)
+                    {
+                        if (conditionTimer[i] > 3)
+                        {
+                            gameCanvasScript.conditionOverlaysAnimators[i].Play("FlashImageShow");
+                        }
+                        else
+                        {
+                            gameCanvasScript.conditionOverlaysAnimators[i].Play("FlashImage");
+                        }
+                    }
+                }
+
+                // Invisibility runs out faster if sprinting.
+                if (i == 0 && controlsScript.isSprinting == true)
+                {
+                    conditionTimer[i] -= Time.deltaTime * 0.5f;
                 }
             }
             if (conditionTimer[i] < 0)
             {
                 conditionTimer[i] = 0;
             }
+            if (conditionTimer[i] <= 0)
+            {
+                // Hide condition overlay.
+                if (gameCanvasScript.conditionOverlays[i] != null)
+                {
+                    gameCanvasScript.conditionOverlays[i].enabled = false;
+                }
+            }
         }
 
         // Pause
-        if(Input.GetKeyDown(KeyCode.Escape) && StaticClass.canPause && StaticClass.gameState != 1 && StaticClass.gameState != 2)
+        if(Input.GetKeyDown(KeyCode.Escape) && !Input.GetKey(KeyCode.Alpha1) && StaticClass.canPause && StaticClass.gameState != 1 && StaticClass.gameState != 2)
         {
             if(Time.timeScale == 0.0f)
             {
@@ -402,6 +412,34 @@ public class Player : MonoBehaviour
         if (gotScoreTimer < 0)
         {
             gotScoreTimer = 0;
+        }
+
+        // Reveal walls on minimap
+        if (StaticClass.minimapType == 2 && HUD.mapEnabled == false)
+        {
+            for (float i = -1; i <= 1; i += 0.1f)
+            {
+                RevealMinimap(i);
+            }
+        }
+
+        // Debug
+        if(StaticClass.debug == true)
+        {
+            // Toggle canvas
+            if(Input.GetKeyDown(KeyCode.U))
+            {
+                gameCanvas.SetActive(!gameCanvas.activeSelf);
+
+                if (gameCanvas.activeSelf)
+                {
+                    Camera.main.targetTexture = canvasTargetTexture;
+                }
+                else
+                {
+                    Camera.main.targetTexture = null;
+                }
+            }
         }
     }
 
@@ -430,7 +468,7 @@ public class Player : MonoBehaviour
                     weaponsUnlocked[itemScript.giveWeapon] = true;
 
                     // Select new weapon if your hand is empty.
-                    if (currentWeapon == 0)
+                    if (currentWeapon == 0 && CanSelectWeapon(itemScript.giveWeapon))
                     {
                         currentWeapon = itemScript.giveWeapon;
                     }
@@ -454,7 +492,7 @@ public class Player : MonoBehaviour
 
                 if (itemScript.giveScore != 0)
                 {
-                    score += itemScript.giveScore;
+                    //score += itemScript.giveScore;
                     scoreThisLevel += itemScript.giveScore;
                     gotScoreTimer = 4f;
                 }
@@ -487,11 +525,20 @@ public class Player : MonoBehaviour
                 Destroy(other.gameObject);
             }
         }
+        else if (otherObject.tag == "Teleporter")
+        {
+            Teleporter teleScript = otherObject.GetComponent<Teleporter>();
+
+            if (teleScript.playerCanUse)
+            {
+                teleScript.Teleport(gameObject);
+            }
+        }
     }
 
     public IEnumerator CheckEnemyVision()
     {
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.05f);
 
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
@@ -502,7 +549,7 @@ public class Player : MonoBehaviour
                 if (en.GetComponent<Enemy>() != null)
                 {
                     Enemy enemyScript = en.GetComponent<Enemy>();
-                    if (enemyScript.CanSee(gameObject, 500f))
+                    if (enemyScript.CanSee(gameObject, 600f))
                     {
                         enemyScript.target = gameObject;
                     }
@@ -536,10 +583,14 @@ public class Player : MonoBehaviour
         gameCanvas.GetComponent<HUD>().SaveData(0);
     }
 
-    // When the player takes damage
-    public void PlayerPain()
+    // When the player takes damage.
+    public void PlayerPain(int amount)
     {
-        conditionTimer[2] = 1f;
+        if(StaticClass.difficulty > 0 && amount > 9)
+        {
+            // Don't let player sprint.
+            conditionTimer[2] = 1f;
+        }
 
         if(damageOverlayObject != null)
         {
@@ -547,7 +598,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    // When the player dies
+    // When the player dies.
     IEnumerator PlayerDeath()
     {
         GetComponent<CharacterController>().enabled = false;
@@ -566,6 +617,7 @@ public class Player : MonoBehaviour
         SceneManager.LoadScene("C" + StaticClass.currentChapter + "M" + StaticClass.currentMap);
     }
 
+    // Exit level.
     public IEnumerator Exit(GameObject fade)
     {
         StaticClass.gameState = 1;
@@ -580,6 +632,10 @@ public class Player : MonoBehaviour
             Instantiate(fade, gameCanvas.transform);
         }
 
+        // Add score from this level to chapter total.
+        score += scoreThisLevel;
+
+        // Save info.
         savedHealth = healthScript.health;
         savedArmor = healthScript.armor;
         savedArmorMult = healthScript.armorMult;
@@ -602,6 +658,7 @@ public class Player : MonoBehaviour
         SceneManager.LoadScene("Intermission");
     }
 
+    // Pause
     public void PauseStart()
     {
         Cursor.lockState = CursorLockMode.None;
@@ -611,6 +668,7 @@ public class Player : MonoBehaviour
         gameCanvas.GetComponent<HUD>().GoToPauseRoot();
     }
 
+    // Unpause
     public void PauseEnd()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -618,11 +676,13 @@ public class Player : MonoBehaviour
         Time.timeScale = 1.0f;
     }
 
+    // Check if a weapon can be selected.
     bool CanSelectWeapon(int w)
     {
-        return weaponsUnlocked[w] && ammo[weaponAmmoType[w]] >= weaponAmmoCost[w];
+        return currentWeapon != w && weaponsUnlocked[w] && ammo[weaponAmmoType[w]] >= weaponAmmoCost[w];
     }
 
+    // Multiply damage for the player's attacks, depending on certain conditions.
     int DamageMultiplier()
     {
         int mult = 1;
@@ -637,5 +697,17 @@ public class Player : MonoBehaviour
         }
 
         return mult;
+    }
+
+    void RevealMinimap(float spread)
+    {
+        RaycastHit minimapHit;
+        if (Physics.Raycast(transform.position, transform.forward + (spread * transform.right), out minimapHit, Mathf.Infinity, attackRayMask))
+        {
+            if (minimapHit.collider.gameObject != null && minimapHit.collider.gameObject.isStatic)
+            {
+                minimapScript.AddToMinimap(minimapHit.collider.gameObject);
+            }
+        }
     }
 }

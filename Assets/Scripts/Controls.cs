@@ -29,7 +29,8 @@ public class Controls : MonoBehaviour
 
     [Header("Footstep Sounds")]
     public AudioClip[] steps;
-    public bool hasStepSFX = true;
+    public bool hasWalkStepSFX = true;
+    public bool hasSprintStepSFX = true;
     AudioSource audioSource;
 
     [Header("Use")]
@@ -38,6 +39,7 @@ public class Controls : MonoBehaviour
 
     HUD hudScript;
     Player playerScript;
+    Health healthScript;
 
     private void Start()
     {
@@ -45,6 +47,7 @@ public class Controls : MonoBehaviour
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         hudScript = GameObject.FindGameObjectWithTag("Canvas").GetComponent<HUD>();
         playerScript = GetComponent<Player>();
+        healthScript = GetComponent<Health>();
         isSprinting = false;
         StartCoroutine(Footstep());
     }
@@ -94,7 +97,7 @@ public class Controls : MonoBehaviour
         if (Input.GetButtonDown("Jump") && isGrounded && canJump)
         {
             velocityV3.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            FootstepSFXChoose();
+            FootstepSFX();
         }
 
         velocityV3.y += gravity * Time.deltaTime;
@@ -156,6 +159,10 @@ public class Controls : MonoBehaviour
                         hit.collider.gameObject.GetComponent<Exit>().UsedExit();
                         StartCoroutine(GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().Exit(hit.collider.gameObject.GetComponent<Exit>().fade));
                     }
+                    if(hit.collider.gameObject.name == "HeartDoor")
+                    {
+                        hudScript.HudMessage("You need a heart to open this door", 3f);
+                    }
                 }
                 else
                 {
@@ -165,18 +172,18 @@ public class Controls : MonoBehaviour
             else
             {
                 Debug.Log("Can't use");
-                Sound(cantUse);
+                audioSource.PlayOneShot(cantUse);
             }
         }
     }
 
     IEnumerator Footstep()
     {
-        yield return new WaitForSeconds(0.45f);
+        yield return new WaitForSeconds(4f / GetCurrentVelocity());
 
         if (isMoving && isGrounded)
         {
-            FootstepSFXChoose();
+            FootstepSFX();
         }
 
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
@@ -206,21 +213,30 @@ public class Controls : MonoBehaviour
         StartCoroutine(Footstep());
     }
 
-    void FootstepSFXChoose()
+    float GetCurrentVelocity()
     {
-        if (hasStepSFX)
+        if(!isSprinting)
         {
-            Sound(steps[Random.Range(0, steps.Length)]);
+            return vel;
+        }
+        else
+        {
+            return vel * velSprintMult;
         }
     }
 
-    void Sound(AudioClip s)
+    void FootstepSFX()
     {
-        audioSource.clip = s;
-
-        if (s != null)
+        if (healthScript.health > 0 && StaticClass.gameState == 0)
         {
-            audioSource.PlayOneShot(audioSource.clip);
+            if (!isSprinting && hasWalkStepSFX)
+            {
+                audioSource.PlayOneShot(steps[Random.Range(0, steps.Length)], 0.5f);
+            }
+            if (isSprinting && hasSprintStepSFX)
+            {
+                audioSource.PlayOneShot(steps[Random.Range(0, steps.Length)], 0.7f);
+            }
         }
     }
 }

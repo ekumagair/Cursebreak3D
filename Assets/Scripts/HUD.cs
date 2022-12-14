@@ -27,15 +27,16 @@ public class HUD : MonoBehaviour
     [Header("Minimap")]
     public Text minimapMapNumberDisplay;
     public Text minimapEnemyText;
+    public Text minimapSecretsText;
     public Text minimapScoreText;
     public GameObject mapRoot;
 
     [Header("Weapons")]
     public Image weaponImage;
-    public Image invisOverlay;
-    public Image doubleDamageOverlay;
     public Sprite[] weaponSprites;
     public Image[] firstPersonSprites;
+    public Image[] conditionOverlays;
+    public Animator[] conditionOverlaysAnimators;
     public Color firstPersonSpritesInvisibleColor;
 
     public float messageTimer = 0f;
@@ -78,6 +79,7 @@ public class HUD : MonoBehaviour
         ammo3Text.text = "Electricity: " + targetPlayer.ammo[2].ToString() + "/" + targetPlayer.ammoLimit[2].ToString();
         minimapMapNumberDisplay.text = "Chapter " + StaticClass.currentChapter.ToString() + " - Map " + StaticClass.currentMap.ToString();
         minimapEnemyText.text = "Foes: " + StaticClass.enemiesKilled.ToString() + "/" + StaticClass.enemiesTotal.ToString();
+        minimapSecretsText.text = "Secrets: " + StaticClass.secretsDiscovered.ToString() + "/" + StaticClass.secretsTotal.ToString();
         minimapScoreText.text = "Score: " + Player.scoreThisLevel.ToString();
         weaponImage.sprite = weaponSprites[targetPlayer.currentWeapon];
 
@@ -122,15 +124,23 @@ public class HUD : MonoBehaviour
         // If player script is valid
         if(targetPlayer != null)
         {
+            // For every first person sprite
             for (int i = 0; i < firstPersonSprites.Length; i++)
             {
                 if (targetPlayer.conditionTimer[0] > 0)
                 {
+                    // Apply invisibility color
                     firstPersonSprites[i].color = firstPersonSpritesInvisibleColor;
                 }
                 else
                 {
                     firstPersonSprites[i].color = Color.white;
+                }
+
+                // Hide sprites if the player is dead
+                if(targetHealth.health <= 0)
+                {
+                    firstPersonSprites[i].enabled = false;
                 }
             }
         }

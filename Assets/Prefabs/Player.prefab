@@ -46,6 +46,7 @@ MonoBehaviour:
   giveWeapon: 0
   giveArmor: 0
   giveArmorMult: 0.5
+  giveOverallMult: 1
   giveKey: 0
   giveFullAmmo: 1
   giveLevelWin: 0
@@ -182,6 +183,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mouseS: 1500
   playerBody: {fileID: 1686189749075883695}
+  playerScript: {fileID: 3236426144556185477}
   lookX: 1
   lookY: 0
 --- !u!1 &1686189749075883693
@@ -225,12 +227,14 @@ Transform:
   - {fileID: 4134986045973769134}
   - {fileID: 4132544154144114650}
   - {fileID: 5115039890950911760}
+  - {fileID: 46855821778072053}
   - {fileID: 5238971065482999817}
   - {fileID: 8061881165629478447}
   - {fileID: 2794291886455950003}
   - {fileID: 3467455452649852808}
   - {fileID: 8926178379454789575}
   - {fileID: 910690405350561904}
+  - {fileID: 1664661662365308764}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -279,11 +283,17 @@ MonoBehaviour:
     m_Bits: 64
   useMask:
     serializedVersion: 2
-    m_Bits: 129
+    m_Bits: 1152
   isGrounded: 0
   isMoving: 0
-  steps: []
-  hasStepSFX: 0
+  steps:
+  - {fileID: 8300000, guid: e66a7c63189080044816fda39157d8f5, type: 3}
+  - {fileID: 8300000, guid: 3a8bce9112ad19e458b8a35411fa8da6, type: 3}
+  - {fileID: 8300000, guid: ca06c90447dcaa54d9d5b4c70bb19b63, type: 3}
+  - {fileID: 8300000, guid: e122aa118c3c16849b65118236e9d628, type: 3}
+  - {fileID: 8300000, guid: 92cdcc5fb048bd24e8e1e9e1fe5e6873, type: 3}
+  hasWalkStepSFX: 0
+  hasSprintStepSFX: 1
   useKey: 32
   cantUse: {fileID: 8300000, guid: 7da726be544e8df45b2b94b5a73f19c6, type: 3}
 --- !u!114 &3236426144556185477
@@ -368,12 +378,15 @@ MonoBehaviour:
   - 0
   - 0
   - 0
+  - 0.5
+  - 0.5
   attackRayMask:
     serializedVersion: 2
-    m_Bits: 723
+    m_Bits: 1747
   deathFadeObject: {fileID: 1665016438080051992, guid: 18000859b58cbbf4399f6f5390ade0a5, type: 3}
   damageOverlayObject: {fileID: 1665016438080051992, guid: 9a5b661e974475b4ab4440deafa464b3, type: 3}
   isInvisible: 0
+  canvasTargetTexture: {fileID: 8400000, guid: 4098ca2a3bb4c0c4cbef9b6b9e94e8ae, type: 2}
 --- !u!114 &-1980402611779862909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -391,6 +404,8 @@ MonoBehaviour:
   armor: 0
   armorMult: 1
   overallDamageMult: 1
+  disableCollisionWhileDead: 1
+  startHealth: 0
 --- !u!82 &1686189749075883665
 AudioSource:
   m_ObjectHideFlags: 0
@@ -498,7 +513,7 @@ GameObject:
   - component: {fileID: 1686189749223511972}
   - component: {fileID: 1686189749223511977}
   - component: {fileID: 1686189749223511974}
-  m_Layer: 8
+  m_Layer: 2
   m_Name: PlayerModel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -614,6 +629,7 @@ MonoBehaviour:
   giveWeapon: 0
   giveArmor: 0
   giveArmorMult: 0
+  giveOverallMult: 1
   giveKey: -1
   giveFullAmmo: 0
   giveLevelWin: 0
@@ -694,7 +710,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1686189749075883695}
-  m_RootOrder: 14
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8855272254093424395
 MonoBehaviour:
@@ -711,6 +727,7 @@ MonoBehaviour:
   giveWeapon: 6
   giveArmor: 0
   giveArmorMult: 0.5
+  giveOverallMult: 1
   giveKey: 0
   giveFullAmmo: 0
   giveLevelWin: 0
@@ -765,6 +782,7 @@ MonoBehaviour:
   giveWeapon: 0
   giveArmor: 0
   giveArmorMult: 0.5
+  giveOverallMult: 1
   giveKey: 0
   giveFullAmmo: 0
   giveLevelWin: 1
@@ -772,6 +790,61 @@ MonoBehaviour:
   once: 1
   playSound: 0
   buttons: 6300000068000000650000006100000074000000760000006900000063000000740000006f0000007200000079000000
+  currentButton: 0
+--- !u!1 &5856270533416444054
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 46855821778072053}
+  - component: {fileID: 6358035838175860521}
+  m_Layer: 0
+  m_Name: CheatDamageHeals
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &46855821778072053
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5856270533416444054}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1686189749075883695}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6358035838175860521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5856270533416444054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 535d55e769295c34980a7d6ced83d469, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  giveWeapon: 0
+  giveArmor: 0
+  giveArmorMult: 0.5
+  giveOverallMult: -1
+  giveKey: 0
+  giveFullAmmo: 0
+  giveLevelWin: 0
+  goToScene: 
+  once: 1
+  playSound: 0
+  buttons: 630000006800000065000000610000007400000064000000610000006d0000006100000067000000650000006800000065000000610000006c00000073000000
   currentButton: 0
 --- !u!1 &6333414136380303449
 GameObject:
@@ -819,6 +892,7 @@ MonoBehaviour:
   giveWeapon: 0
   giveArmor: 0
   giveArmorMult: 0.5
+  giveOverallMult: 1
   giveKey: 0
   giveFullAmmo: 0
   giveLevelWin: 0
@@ -856,7 +930,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1686189749075883695}
-  m_RootOrder: 11
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5940695373984044302
 MonoBehaviour:
@@ -873,6 +947,7 @@ MonoBehaviour:
   giveWeapon: 3
   giveArmor: 0
   giveArmorMult: 0.5
+  giveOverallMult: 1
   giveKey: 0
   giveFullAmmo: 0
   giveLevelWin: 0
@@ -910,7 +985,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1686189749075883695}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7203246912220946132
 MonoBehaviour:
@@ -927,6 +1002,7 @@ MonoBehaviour:
   giveWeapon: 2
   giveArmor: 0
   giveArmorMult: 0.5
+  giveOverallMult: 1
   giveKey: 0
   giveFullAmmo: 0
   giveLevelWin: 0
@@ -964,7 +1040,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1686189749075883695}
-  m_RootOrder: 12
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7137914297638546325
 MonoBehaviour:
@@ -981,6 +1057,7 @@ MonoBehaviour:
   giveWeapon: 4
   giveArmor: 0
   giveArmorMult: 0.5
+  giveOverallMult: 1
   giveKey: 0
   giveFullAmmo: 0
   giveLevelWin: 0
@@ -1018,7 +1095,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1686189749075883695}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3446207189192369040
 MonoBehaviour:
@@ -1035,6 +1112,7 @@ MonoBehaviour:
   giveWeapon: -1
   giveArmor: 25
   giveArmorMult: 0.75
+  giveOverallMult: 1
   giveKey: 0
   giveFullAmmo: 1
   giveLevelWin: 0
@@ -1089,6 +1167,7 @@ MonoBehaviour:
   giveWeapon: 0
   giveArmor: 100
   giveArmorMult: 0.1
+  giveOverallMult: 1
   giveKey: 0
   giveFullAmmo: 0
   giveLevelWin: 0
@@ -1126,7 +1205,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1686189749075883695}
-  m_RootOrder: 13
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7540403795456232427
 MonoBehaviour:
@@ -1143,6 +1222,7 @@ MonoBehaviour:
   giveWeapon: 5
   giveArmor: 0
   giveArmorMult: 0.5
+  giveOverallMult: 1
   giveKey: 0
   giveFullAmmo: 0
   giveLevelWin: 0
@@ -1151,3 +1231,77 @@ MonoBehaviour:
   playSound: 0
   buttons: 6300000068000000650000006100000074000000670000006900000076000000650000006d0000006500000035000000
   currentButton: 0
+--- !u!1 &8127838005437754481
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1664661662365308764}
+  - component: {fileID: 3616744535300833879}
+  - component: {fileID: 7901391009692648920}
+  - component: {fileID: 3033095398410181991}
+  m_Layer: 2
+  m_Name: RevealMinimapTrigger
+  m_TagString: ProjectileIgnores
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1664661662365308764
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127838005437754481}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1686189749075883695}
+  m_RootOrder: 16
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &3616744535300833879
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127838005437754481}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 112
+  m_CollisionDetection: 0
+--- !u!135 &7901391009692648920
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127838005437754481}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 3.5
+  m_Center: {x: 0, y: 2.5, z: 0}
+--- !u!114 &3033095398410181991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127838005437754481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d21f40880084bee4fb262b23f456d058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

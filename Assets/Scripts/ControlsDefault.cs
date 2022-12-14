@@ -14,6 +14,7 @@ public class ControlsDefault : MonoBehaviour
     public float jumpHeight = 3f;
     public bool canJump = true;
     public KeyCode sprintKeyCode;
+    public bool isSprinting = false;
 
     [Header("Collision")]
     public Transform groundCheck;
@@ -28,7 +29,8 @@ public class ControlsDefault : MonoBehaviour
 
     [Header("Footstep Sounds")]
     public AudioClip[] steps;
-    public bool hasStepSFX = true;
+    public bool hasWalkStepSFX = true;
+    public bool hasSprintStepSFX = true;
     AudioSource audioSource;
 
     [Header("Use")]
@@ -39,6 +41,7 @@ public class ControlsDefault : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+        isSprinting = false;
         StartCoroutine(Footstep());
     }
 
@@ -71,6 +74,11 @@ public class ControlsDefault : MonoBehaviour
         if (Input.GetKey(sprintKeyCode))
         {
             move *= velSprintMult;
+            isSprinting = true;
+        }
+        else
+        {
+            isSprinting = false;
         }
 
         if (controller.enabled == true)
@@ -83,7 +91,7 @@ public class ControlsDefault : MonoBehaviour
         if (Input.GetButtonDown("Jump") && isGrounded && canJump)
         {
             velocityV3.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            FootstepSFXChoose();
+            FootstepSFX();
         }
 
         velocityV3.y += gravity * Time.deltaTime;
@@ -114,38 +122,44 @@ public class ControlsDefault : MonoBehaviour
             else
             {
                 Debug.Log("Can't use");
-                Sound(cantUse);
+                audioSource.PlayOneShot(cantUse);
             }
         }
     }
 
     IEnumerator Footstep()
     {
-        yield return new WaitForSeconds(0.45f);
+        yield return new WaitForSeconds(3.6f / GetCurrentVelocity());
 
         if (isMoving && isGrounded)
         {
-            FootstepSFXChoose();
+            FootstepSFX();
         }
 
         StartCoroutine(Footstep());
     }
 
-    void FootstepSFXChoose()
+    float GetCurrentVelocity()
     {
-        if (hasStepSFX)
+        if (!isSprinting)
         {
-            Sound(steps[Random.Range(0, steps.Length)]);
+            return vel;
+        }
+        else
+        {
+            return vel * velSprintMult;
         }
     }
 
-    void Sound(AudioClip s)
+    void FootstepSFX()
     {
-        audioSource.clip = s;
-
-        if (s != null)
+        if (!isSprinting && hasWalkStepSFX)
         {
-            audioSource.PlayOneShot(audioSource.clip);
+            audioSource.PlayOneShot(steps[Random.Range(0, steps.Length)], 0.5f);
+        }
+        if (isSprinting && hasSprintStepSFX)
+        {
+            audioSource.PlayOneShot(steps[Random.Range(0, steps.Length)], 0.7f);
         }
     }
 }

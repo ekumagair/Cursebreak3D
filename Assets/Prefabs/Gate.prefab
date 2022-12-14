@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4767470601814894194}
   - component: {fileID: 4767470601814894195}
   - component: {fileID: 4767470601814894196}
-  m_Layer: 7
+  m_Layer: 10
   m_Name: Gate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57,11 +57,11 @@ NavMeshObstacle:
   m_Enabled: 1
   serializedVersion: 3
   m_Shape: 1
-  m_Extents: {x: 1, y: 1, z: 0.25}
+  m_Extents: {x: 1, y: 0.1, z: 0.25}
   m_MoveThreshold: 0.1
   m_Carve: 1
   m_CarveOnlyStationary: 1
-  m_Center: {x: 0, y: 1.1, z: 0}
+  m_Center: {x: 0, y: 2, z: 0}
   m_TimeToStationary: 0.5
 --- !u!114 &4767470601814894196
 MonoBehaviour:
@@ -75,10 +75,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b8cf209d34a1ab4c8dea6ac88a5a966, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  openPosition: {x: 0, y: 3.7, z: 0}
+  openPosition: {x: 0, y: 3.6, z: 0}
   doorState: 0
-  soundObject: {fileID: 7073382011647977794, guid: 499a2934b6b902e428eec1161499518f, type: 3}
-  soundObjectLocked: {fileID: 0}
+  soundObject: {fileID: 7073382011647977794, guid: 87569706ccf08694ea4a6b7fbaeb96fe, type: 3}
+  soundObjectLocked: {fileID: 7073382011647977794, guid: cfb9787228b453044ba324c453da84ca, type: 3}
   key: 0
   canUse: 1
 --- !u!1 &5130199272919907955
@@ -92,7 +92,7 @@ GameObject:
   - component: {fileID: 2050181849133182349}
   - component: {fileID: 8998542080529961371}
   - component: {fileID: 7288260679029051969}
-  m_Layer: 7
+  m_Layer: 10
   m_Name: pCube1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -92,7 +92,7 @@ GameObject:
   - component: {fileID: 373758800855072433}
   - component: {fileID: 373758800855072438}
   - component: {fileID: 373758800855072439}
-  - component: {fileID: 373758800855072432}
+  - component: {fileID: 2774353174777172412}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -165,7 +165,7 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 373758800855072436}
   m_Enabled: 1
---- !u!114 &373758800855072432
+--- !u!114 &2774353174777172412
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -174,13 +174,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 373758800855072436}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f08cbe8fdf48e054fb4b6deb3ffa4ebe, type: 3}
+  m_Script: {fileID: 11500000, guid: 67488f8215557b246ac5b68cc6cd6160, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   mouseS: 1500
   playerBody: {fileID: 373758800873319131}
   lookX: 1
-  lookY: 0
+  lookY: 1
 --- !u!1 &373758800873319129
 GameObject:
   m_ObjectHideFlags: 0
@@ -249,9 +249,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controller: {fileID: 373758800873319128}
   vel: 12
+  velSprintMult: 1.8
   gravity: -9.81
   jumpHeight: 3
   canJump: 1
+  sprintKeyCode: 0
   groundCheck: {fileID: 373758801039533603}
   groundDistance: 0.2
   solidMask:

@@ -9,8 +9,12 @@ public class Health : MonoBehaviour
     public int armor = 0;
     public float armorMult = 0f;
     public float overallDamageMult = 1f;
+    public bool disableCollisionWhileDead = false;
 
     Collider col;
+
+    [HideInInspector]
+    public int startHealth;
 
     // Armor multiplier examples:
     // 0.0 = Armor has no effect.
@@ -22,6 +26,7 @@ public class Health : MonoBehaviour
     void Start()
     {
         col = GetComponent<Collider>();
+        startHealth = health;
     }
 
     void Update()
@@ -41,7 +46,7 @@ public class Health : MonoBehaviour
             isDead = false;
         }
 
-        if(isDead == true)
+        if(isDead == true && disableCollisionWhileDead == true)
         {
             col.enabled = false;
         }
@@ -90,7 +95,7 @@ public class Health : MonoBehaviour
             // If this character is a player, start its pain coroutine
             if (GetComponent<Player>() != null)
             {
-                GetComponent<Player>().PlayerPain();
+                GetComponent<Player>().PlayerPain(amount);
             }
         }
     }

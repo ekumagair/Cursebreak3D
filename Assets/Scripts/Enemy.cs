@@ -30,9 +30,14 @@ public class Enemy : MonoBehaviour
         OneObjectForwardAccurate,
         ThreeObjectsForwardSpread,
         OneRayForwardAccurate,
-        OneRayForwardSpread
+        OneRayForwardSpreadSmall,
+        OneRayForwardSpreadMedium,
+        OneRayForwardSpreadLarge
     }
     public RangedAttackType attackType = 0;
+
+    public bool attackRefire = false;
+    Coroutine attackCoroutine;
 
     // Melee attack
     [Header("Melee Attack")]
@@ -43,6 +48,7 @@ public class Enemy : MonoBehaviour
     public float meleeDuration;
     public GameObject meleeSound;
     public GameObject meleeSoundHit;
+    Coroutine meleeCoroutine;
 
     // Attack types
     [Header("Attack Types")]
@@ -65,11 +71,12 @@ public class Enemy : MonoBehaviour
     public GameObject dropItem;
 
     // Pain
-    bool inPain = false;
     [Header("Pain")]
     public float painTime = 0.5f;
     public int painChance = 0;
     public string painAnim;
+    public GameObject painSound;
+    bool inPain = false;
 
     // Pain chance
     // 1 = Always
@@ -84,6 +91,12 @@ public class Enemy : MonoBehaviour
     public float wakeUpTimer = 0f;
     public string wakeUpAnim = "";
     bool wokeUp = false;
+
+    // Healing
+    [Header("Healing")]
+    public bool canBeHealed = true;
+    public bool canBeRevived = true;
+    bool revived = false;
 
     // Previous position
     int previousPositionsItem = 0;
@@ -104,6 +117,7 @@ public class Enemy : MonoBehaviour
         attacking = false;
         died = false;
         inPain = false;
+        revived = false;
 
         StaticClass.enemiesTotal++;
 
@@ -115,6 +129,12 @@ public class Enemy : MonoBehaviour
         if (StaticClass.difficulty <= 0)
         {
             projectileSpeedMult = 0.9f;
+
+            // Make enemy ray attack less accurate if on Easy.
+            if (attackType == RangedAttackType.OneRayForwardSpreadSmall)
+            {
+                attackType = RangedAttackType.OneRayForwardSpreadMedium;
+            }
         }
         else if (StaticClass.difficulty == 1)
         {
@@ -136,14 +156,19 @@ public class Enemy : MonoBehaviour
             painChance += 1;
 
             // Make enemy ray attack more accurate if on Very Hard.
-            if(attackType == RangedAttackType.OneRayForwardSpread)
+            if(attackType == RangedAttackType.OneRayForwardSpreadSmall)
             {
                 attackType = RangedAttackType.OneRayForwardAccurate;
             }
         }
 
         ResetAttackTime();
-        StartCoroutine(AddPositionToList());
+        StartCoroutine(AddPositionToListCoroutine());
+
+        for (int i = 0; i < previousPositions.Length; i++)
+        {
+            AddPositionToList();
+        }
     }
 
     void Update()
@@ -155,30 +180,49 @@ public class Enemy : MonoBehaviour
             {
                 if (hasMeleeAttack == false)
                 {
+                    // If far away from target and not going back to previous position, go to the target's position.
                     if (Vector3.Distance(transform.position, target.transform.position) > agent.stoppingDistance * 2f && goingToPreviousPosition == false)
                     {
                         agent.destination = target.transform.position;
                     }
 
+                    // Go back to previous locations.
                     if (Vector3.Distance(transform.position, target.transform.position) > agent.stoppingDistance * 2f && goingToPreviousPosition == true)
                     {
                         agent.destination = previousPositions[previousPositionSelected];
                     }
 
-                    if (Vector3.Distance(transform.position, target.transform.position) >= agent.stoppingDistance * 4f && goingToPreviousPosition == true)
+                    // If too far away from target, and has valid path, but still going back, stop.
+                    if (Vector3.Distance(transform.position, target.transform.position) >= agent.stoppingDistance * 4f && agent.pathStatus == NavMeshPathStatus.PathComplete && goingToPreviousPosition == true)
                     {
                         goingToPreviousPosition = false;
                     }
 
+                    // If too close to target and going back, stop going back.
+                    /*
                     if (Vector3.Distance(transform.position, target.transform.position) <= agent.stoppingDistance * 2f && goingToPreviousPosition == true)
                     {
                         goingToPreviousPosition = false;
-                    }
+                    }*/
 
-                    // If this enemy is very close to the player, go back to previous locations.
+                    // If this enemy is very close to the target, go back to previous locations.
                     if (Vector3.Distance(transform.position, target.transform.position) <= agent.stoppingDistance * 2f && goingToPreviousPosition == false)
                     {
                         goingToPreviousPosition = true;
+                    }
+
+                    // If this enemy can see the target but path is partial, go back to previous locations.
+                    if (agent.pathStatus == NavMeshPathStatus.PathPartial && goingToPreviousPosition == false)
+                    {
+                        goingToPreviousPosition = true;
+                        Debug.Log(gameObject + " can see the target but path is partial. Going back.");
+                    }
+
+                    // If this enemy can see the target but path is invalid.
+                    if (agent.pathStatus == NavMeshPathStatus.PathInvalid && goingToPreviousPosition == false)
+                    {
+                        goingToPreviousPosition = true;
+                        Debug.Log(gameObject + " can see the target but path is invalid. Going back.");
                     }
                 }
                 else
@@ -207,7 +251,7 @@ public class Enemy : MonoBehaviour
             {
                 if (hasRangedAttack == true)
                 {
-                    if (attacking == false && inPain == false)
+                    if (attacking == false && inPain == false && wakeUpTimer <= 0)
                     {
                         attackTime -= Time.deltaTime;
 
@@ -243,7 +287,7 @@ public class Enemy : MonoBehaviour
 
             // Open doors
             RaycastHit doorHit;
-            if (Physics.Raycast(transform.position, transform.forward, out doorHit, 4f, sightMask))
+            if (Physics.Raycast(transform.position, transform.forward, out doorHit, 4f))
             {
                 if (doorHit.collider.gameObject.GetComponent<Door>() != null)
                 {
@@ -265,7 +309,8 @@ public class Enemy : MonoBehaviour
 
                     if (doorScript.doorState == 0 && doorScript.canUse == true && canOpen == true)
                     {
-                        StartCoroutine(doorScript.OpenDoor());
+                        //StartCoroutine(doorScript.OpenDoor()); Glitched! If the enemy opens a door and then dies, the door will stay open forever.
+                        doorHit.collider.gameObject.GetComponent<Door>().StartCoroutine(doorScript.OpenDoor());
                     }
                 }
             }
@@ -276,12 +321,12 @@ public class Enemy : MonoBehaviour
         {
             if (attackTime <= 0 && hasRangedAttack == true)
             {
-                StartCoroutine(Attack());
+               attackCoroutine = StartCoroutine(Attack());
             }
 
             if (Vector3.Distance(transform.position, target.transform.position) < meleeRange && hasMeleeAttack == true)
             {
-                StartCoroutine(AttackMelee());
+                meleeCoroutine = StartCoroutine(AttackMelee());
             }
         }
 
@@ -392,17 +437,31 @@ public class Enemy : MonoBehaviour
             {
                 RangedRayAttack(0f, false);
             }
-            else if (attackType == RangedAttackType.OneRayForwardSpread)
+            else if (attackType == RangedAttackType.OneRayForwardSpreadSmall)
             {
                 RangedRayAttack(Random.Range(-0.03f, 0.03f), false);
+            }
+            else if (attackType == RangedAttackType.OneRayForwardSpreadMedium)
+            {
+                RangedRayAttack(Random.Range(-0.06f, 0.06f), false);
+            }
+            else if (attackType == RangedAttackType.OneRayForwardSpreadLarge)
+            {
+                RangedRayAttack(Random.Range(-0.12f, 0.12f), false);
             }
         }
 
         yield return new WaitForSeconds(attackTotalDuration - attackShotDelay);
 
-        ResetAttackTime();
-
-        attacking = false;
+        if(attackRefire == false || CanSee(target, 50f) == false || inPain == true)
+        {
+            ResetAttackTime();
+            attacking = false;
+        }
+        else
+        {
+            attackCoroutine = StartCoroutine(Attack());
+        }
     }
 
     public IEnumerator AttackMelee()
@@ -454,7 +513,7 @@ public class Enemy : MonoBehaviour
         }
         else
         {
-            StartCoroutine(AttackMelee());
+           meleeCoroutine = StartCoroutine(AttackMelee());
         }
     }
 
@@ -464,14 +523,14 @@ public class Enemy : MonoBehaviour
         {
             if (target.GetComponent<Player>().isInvisible == true)
             {
-                maxSpread *= 4f;
+                maxSpread *= 5f;
             }
         }
 
         RaycastHit hitRanged;
         if (Physics.Raycast(transform.position, (transform.forward + (transform.right * maxSpread)), out hitRanged, 1000f, sightMask))
         {
-            Debug.DrawRay(transform.position, (transform.forward + (transform.right * maxSpread)) * hitRanged.distance, Color.cyan, 5f);
+            Debug.DrawRay(transform.position, (transform.forward + (transform.right * maxSpread)) * hitRanged.distance, Color.cyan, 20f);
             Debug.Log("Enemy Ranged Hit " + hitRanged.collider.name);
 
             if (hitRanged.collider.gameObject != null)
@@ -511,50 +570,62 @@ public class Enemy : MonoBehaviour
         {
             inPain = true;
 
-            StopCoroutine(Attack());
-            StopCoroutine(AttackMelee());
+            if (attackCoroutine != null)
+            {
+                StopCoroutine(attackCoroutine);
+            }
+            if (meleeCoroutine != null)
+            {
+                StopCoroutine(meleeCoroutine);
+            }
 
             if (StaticClass.difficulty <= 0)
             {
                 ResetAttackTime();
             }
-
             if (painAnim != "")
             {
                 animator.Play(painAnim);
             }
+            if(painSound != null)
+            {
+                Instantiate(painSound, transform.position, transform.rotation);
+            }
 
             yield return new WaitForSeconds(painTime);
 
+            attacking = false;
             inPain = false;
-        }
+        }/*
         else
         {
             inPain = false;
-        }
+        }*/
     }
 
-    IEnumerator AddPositionToList()
+    IEnumerator AddPositionToListCoroutine()
     {
-        yield return new WaitForSeconds(2f);
+        AddPositionToList();
 
+        yield return new WaitForSeconds(1f);
+
+        StartCoroutine(AddPositionToListCoroutine());
+    }
+
+    void AddPositionToList()
+    {
         if (healthScript.isDead == false)
         {
-            previousPositions[previousPositionsItem] = new Vector3(transform.position.x * Random.Range(0.75f, 1.25f), transform.position.y, transform.position.z * Random.Range(0.75f, 1.25f));
+            previousPositions[previousPositionsItem] = new Vector3(transform.position.x + Random.Range(-8, 9), transform.position.y, transform.position.z + Random.Range(-8, 9));
             previousPositionsItem++;
         }
 
-        if(previousPositionsItem >= previousPositions.Length)
+        if (previousPositionsItem >= previousPositions.Length)
         {
             previousPositionsItem = 0;
         }
 
-        if(Random.Range(0, 1) == 0)
-        {
-            previousPositionSelected = Random.Range(0, previousPositions.Length);
-        }
-
-        StartCoroutine(AddPositionToList());
+        previousPositionSelected = Random.Range(0, previousPositions.Length);
     }
 
     public bool CanSee(GameObject which, float dist)
@@ -615,14 +686,63 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Teleporter")
+        {
+            Teleporter teleScript = other.gameObject.GetComponent<Teleporter>();
+
+            if (teleScript.enemyCanUse)
+            {
+                teleScript.Teleport(gameObject);
+            }
+        }
+    }
+
+    public void Revive()
+    {
+        healthScript.health = healthScript.startHealth;
+        healthScript.isDead = false;
+        attacking = false;
+        died = false;
+        inPain = false;
+        revived = true;
+        ResetAttackTime();
+
+        tag = "Enemy";
+        gameObject.layer = 9;
+        animator.Play(painAnim);
+
+        GetComponent<Collider>().isTrigger = false;
+        GetComponent<Collider>().enabled = true;
+        GetComponent<NavMeshAgent>().enabled = true;
+    }
+
     void Death()
     {
-        GetComponent<Collider>().enabled = false;
+        // Disable components.
+        //GetComponent<Collider>().enabled = false;
+        GetComponent<Collider>().isTrigger = true;
         GetComponent<NavMeshAgent>().enabled = false;
-        Player.score += giveScoreOnDeath;
+
+        // Give score.
+        //Player.score += giveScoreOnDeath;
         Player.scoreThisLevel += giveScoreOnDeath;
-        StaticClass.enemiesKilled++;
+
+        // Only count towards kill count once.
+        if (revived == false)
+        {
+            StaticClass.enemiesKilled++;
+        }
+
+        tag = "ProjectileIgnores";
+        gameObject.layer = 2;
         animator.Play(deathAnim);
+
+        if(canBeRevived == false)
+        {
+            Destroy(GetComponent<Collider>());
+        }
 
         if(dropItem != null)
         {

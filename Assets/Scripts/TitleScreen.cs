@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System;
+using UnityEngine.EventSystems;
 
 public class TitleScreen : MonoBehaviour
 {
@@ -31,18 +32,25 @@ public class TitleScreen : MonoBehaviour
         versionText.text = "v " + Application.version.ToString();
         SectionStart();
 
+        // Load slot text
         int i = 0;
         foreach (Text preview in loadGameSlotsText)
         {
+            Button slotButton = preview.transform.parent.gameObject.GetComponent<Button>();
+            EventTrigger eventTrigger = preview.transform.parent.gameObject.GetComponent<EventTrigger>();
             preview.text += " - ";
-
+            
             if (PlayerPrefs.HasKey("slot" + i.ToString() + "_scene_name"))
             {
                 preview.text += "(" + PlayerPrefs.GetString("slot" + i.ToString() + "_scene_name") + ", SCORE: " + PlayerPrefs.GetInt("slot" + i.ToString() + "_score").ToString() + ")";
+                slotButton.interactable = true;
+                eventTrigger.enabled = true;
             }
             else
             {
                 preview.text += "(EMPTY)";
+                slotButton.interactable = false;
+                eventTrigger.enabled = false;
             }
 
             i++;
@@ -63,7 +71,8 @@ public class TitleScreen : MonoBehaviour
         sectionChooseChapter.SetActive(false);
         sectionDifficulty.SetActive(false);
         sectionLoadGame.SetActive(false);
-        selectIcon.enabled = false;
+        StaticClass.loadSavedPlayerInfo = false;
+        SectionAny();
     }
 
     public void SectionChooseChapter()
@@ -72,7 +81,7 @@ public class TitleScreen : MonoBehaviour
         sectionChooseChapter.SetActive(true);
         sectionDifficulty.SetActive(false);
         sectionLoadGame.SetActive(false);
-        selectIcon.enabled = false;
+        SectionAny();
     }
 
     public void SectionDifficulty()
@@ -81,7 +90,7 @@ public class TitleScreen : MonoBehaviour
         sectionChooseChapter.SetActive(false);
         sectionDifficulty.SetActive(true);
         sectionLoadGame.SetActive(false);
-        selectIcon.enabled = false;
+        SectionAny();
     }
 
     public void SectionLoadGame()
@@ -90,6 +99,11 @@ public class TitleScreen : MonoBehaviour
         sectionChooseChapter.SetActive(false);
         sectionDifficulty.SetActive(false);
         sectionLoadGame.SetActive(true);
+        SectionAny();
+    }
+
+    void SectionAny()
+    {
         selectIcon.enabled = false;
     }
 
@@ -103,34 +117,60 @@ public class TitleScreen : MonoBehaviour
         StaticClass.difficulty = d;
     }
 
-    public void StartChapter()
+    public void StartChapter(bool story)
     {
-        SceneManager.LoadScene("C" + StaticClass.currentChapter.ToString() + "M1");
+        if (story == false)
+        {
+            SceneManager.LoadScene("C" + StaticClass.currentChapter.ToString() + "M1");
+        }
+        else
+        {
+            switch (StaticClass.currentChapter)
+            {
+                default:
+                    StoryScreen.whichText = 0;
+                    break;
+                case 1:
+                    StoryScreen.whichText = 0;
+                    break;
+                case 2:
+                    StoryScreen.whichText = 1;
+                    break;
+                case 3:
+                    StoryScreen.whichText = 2;
+                    break;
+            }
+            StoryScreen.goToTitle = false;
+            SceneManager.LoadScene("Story");
+        }
     }
 
     public void LoadGame(int slot)
     {
-        StaticClass.difficulty = PlayerPrefs.GetInt("slot" + slot.ToString() + "_difficulty");
-        Player.score = PlayerPrefs.GetInt("slot" + slot.ToString() + "_score");
-        Player.savedHealth = PlayerPrefs.GetInt("slot" + slot.ToString() + "_health");
-        Player.savedArmor = PlayerPrefs.GetInt("slot" + slot.ToString() + "_armor");
-        Player.savedArmorMult = PlayerPrefs.GetFloat("slot" + slot.ToString() + "_armor_mult");
-
-        for (int i = 0; i < Player.savedAmmo.Length; i++)
+        if (PlayerPrefs.HasKey("slot" + slot.ToString() + "_scene_name"))
         {
-            Player.savedAmmo[i] = PlayerPrefs.GetInt("slot" + slot.ToString() + "_ammo" + i.ToString());
+            StaticClass.difficulty = PlayerPrefs.GetInt("slot" + slot.ToString() + "_difficulty");
+            Player.score = PlayerPrefs.GetInt("slot" + slot.ToString() + "_score");
+            Player.savedHealth = PlayerPrefs.GetInt("slot" + slot.ToString() + "_health");
+            Player.savedArmor = PlayerPrefs.GetInt("slot" + slot.ToString() + "_armor");
+            Player.savedArmorMult = PlayerPrefs.GetFloat("slot" + slot.ToString() + "_armor_mult");
+
+            for (int i = 0; i < Player.savedAmmo.Length; i++)
+            {
+                Player.savedAmmo[i] = PlayerPrefs.GetInt("slot" + slot.ToString() + "_ammo" + i.ToString());
+            }
+
+            for (int i = 0; i < Player.savedWeaponsUnlocked.Length; i++)
+            {
+                Player.savedWeaponsUnlocked[i] = Convert.ToBoolean(PlayerPrefs.GetInt("slot" + slot.ToString() + "_weapon_unlocked" + i.ToString()));
+            }
+
+            Debug.Log("Loaded game on slot " + slot.ToString());
+
+            StaticClass.loadSavedPlayerInfo = true;
+
+            SceneManager.LoadScene(PlayerPrefs.GetString("slot" + slot.ToString() + "_scene_name"));
         }
-
-        for (int i = 0; i < Player.savedWeaponsUnlocked.Length; i++)
-        {
-            Player.savedWeaponsUnlocked[i] = Convert.ToBoolean(PlayerPrefs.GetInt("slot" + slot.ToString() + "_weapon_unlocked" + i.ToString()));
-        }
-
-        Debug.Log("Loaded game on slot " + slot.ToString());
-
-        StaticClass.loadSavedPlayerInfo = true;
-
-        SceneManager.LoadScene(PlayerPrefs.GetString("slot" + slot.ToString() + "_scene_name"));
     }
 
     public void DeleteSave(int slot)

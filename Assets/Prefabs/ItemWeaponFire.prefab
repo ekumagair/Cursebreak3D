@@ -70,7 +70,7 @@ MonoBehaviour:
   giveConditionTimer: 0
   logMessageOnCollect: You got the fire ring!
   createOnCollect: {fileID: 1665016438080051992, guid: 7704073fdb1aa424aa5260b9ab0fb16d, type: 3}
-  createOnCollectGameWorld: {fileID: 0}
+  createOnCollectGameWorld: {fileID: 7073382011647977794, guid: c81dddb581850c348a7fa5ed0498c0f5, type: 3}
   canAlwaysCollect: 0
 --- !u!1 &5885094664875255987
 GameObject:

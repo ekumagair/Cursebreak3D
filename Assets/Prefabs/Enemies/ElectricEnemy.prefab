@@ -148,6 +148,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1168564416231350780}
+  - {fileID: 8151684165659713359}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -175,7 +176,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 6
+  m_Speed: 7
   m_Acceleration: 10
   avoidancePriority: 50
   m_AngularSpeed: 400
@@ -204,6 +205,8 @@ MonoBehaviour:
   armor: 0
   armorMult: 0
   overallDamageMult: 1
+  disableCollisionWhileDead: 0
+  startHealth: 0
 --- !u!114 &1168564417033956031
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -218,20 +221,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sprite: {fileID: 1168564416231350774}
   target: {fileID: 0}
-  giveScoreOnDeath: 1000
-  attackTimeDefault: 2.5
+  giveScoreOnDeath: 1500
+  attackTimeDefault: 1.4
   attackTime: 0
   attackProjectile: {fileID: 0}
   attackDamage: 45
   attackAnim: ElectricEnemyAttack
   attackShotDelay: 1.2
   attackTotalDuration: 2
-  attackSound: {fileID: 7073382011647977794, guid: d1cf22b3d8fa8804e924e9966932c41d, type: 3}
+  attackSound: {fileID: 7073382011647977794, guid: de513c12c19f19646a0b7d089af0a9d1, type: 3}
   attackExtraObject:
   - {fileID: 0}
   - {fileID: 8661592347238051789, guid: 4b81cdf5fe0da99418138fddb45d8fd1, type: 3}
   - {fileID: 7073382011647977794, guid: 376c8ad9614b9b045bb5f1e51a1b44c3, type: 3}
   attackType: 3
+  attackRefire: 0
   meleeAnim: 
   meleeDamage: 0
   meleeRange: 0
@@ -241,14 +245,21 @@ MonoBehaviour:
   meleeSoundHit: {fileID: 0}
   hasRangedAttack: 1
   hasMeleeAttack: 0
-  deathAnim: CloakEnemyDie
+  deathAnim: ElectricEnemyDie
+  deathSound: {fileID: 0}
   sightMask:
     serializedVersion: 2
     m_Bits: 467
   dropItem: {fileID: 8565569619343638066, guid: 82cd6d40e3df2ad4084e003857e25360, type: 3}
   painTime: 0.6
-  painChance: 6
-  painAnim: CloakEnemyPain
+  painChance: 8
+  painAnim: ElectricEnemyPain
+  painSound: {fileID: 0}
+  hiddenWhileWaiting: 0
+  wakeUpTimer: 0
+  wakeUpAnim: 
+  canBeHealed: 0
+  canBeRevived: 0
 --- !u!114 &394628553306279085
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -262,3 +273,88 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   difficulty: 01010101
+--- !u!1 &8948950766482244765
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8151684165659713359}
+  - component: {fileID: 227011285239695233}
+  - component: {fileID: 3292322450748911199}
+  - component: {fileID: 2897920540578186013}
+  m_Layer: 2
+  m_Name: HealerBehavior
+  m_TagString: ProjectileIgnores
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8151684165659713359
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8948950766482244765}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1168564417033956029}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &227011285239695233
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8948950766482244765}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 112
+  m_CollisionDetection: 0
+--- !u!65 &3292322450748911199
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8948950766482244765}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 11, y: 4, z: 11}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2897920540578186013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8948950766482244765}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fd487726f9f827438907c934648a304, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyScript: {fileID: 1168564417033956031}
+  enemyHealth: {fileID: 1168564417033955968}
+  healAnimation: ElectricEnemyHeal
+  afterHealAnimation: ElectricEnemyIdle
+  healParticles: {fileID: 8661592347238051789, guid: 8b2795fb43f4fac4ba3def55450b6b4b, type: 3}
+  cooldown: 0.5
+  cooldownDefault: 4
+  healDuration: 2
+  soundPerformHeal: {fileID: 7073382011647977794, guid: 7cdb7006820eacf4588e6c3fa6a0cf7c, type: 3}
+  soundHealed: {fileID: 7073382011647977794, guid: fe918af12d0fe4241805c19e7037bb45, type: 3}
+  soundRevived: {fileID: 7073382011647977794, guid: e7557022e20e777479acfe7dd356a30f, type: 3}
