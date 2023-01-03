@@ -123,19 +123,20 @@ MonoBehaviour:
   meleeStartDelay: 0.5
   meleeDuration: 1
   meleeSound: {fileID: 0}
-  meleeSoundHit: {fileID: 7073382011647977794, guid: 0bfedfe9ed709cf4db2c6f33a9f9b0a2, type: 3}
+  meleeSoundHit: {fileID: 7073382011647977794, guid: add27be737d907543be3c8a9fd81cbde, type: 3}
   hasRangedAttack: 0
   hasMeleeAttack: 1
-  deathAnim: SkeletonEnemyDie
-  deathSound: {fileID: 0}
   sightMask:
     serializedVersion: 2
     m_Bits: 467
+  sightSound: {fileID: 7073382011647977794, guid: 634bf9a6c5aaf314c8f920514ea197c2, type: 3}
   dropItem: {fileID: 0}
   painTime: 0.4
   painChance: 7
-  painAnim: 
-  painSound: {fileID: 0}
+  painAnim: GhostEnemyPain
+  painSound: {fileID: 7073382011647977794, guid: b335a1a76af03574d979a71f6eefb562, type: 3}
+  deathAnim: GhostEnemyDie
+  deathSound: {fileID: 7073382011647977794, guid: 8b274db9923304849a9e00cb5f6bd9a4, type: 3}
   hiddenWhileWaiting: 1
   wakeUpTimer: 0.9
   wakeUpAnim: GhostEnemyAppear

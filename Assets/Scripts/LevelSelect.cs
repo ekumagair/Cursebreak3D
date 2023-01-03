@@ -10,8 +10,9 @@ public class LevelSelect : MonoBehaviour
 
     void Start()
     {
+        Time.timeScale = 1.0f;
         Cursor.lockState = CursorLockMode.None;
-        StaticClass.loadSavedPlayerInfo = false;
+        StaticClass.ResetStats();
     }
 
     void Update()

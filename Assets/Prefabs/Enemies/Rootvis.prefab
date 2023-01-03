@@ -204,6 +204,8 @@ MonoBehaviour:
   armor: 0
   armorMult: 0
   overallDamageMult: 1
+  disableCollisionWhileDead: 0
+  startHealth: 0
 --- !u!114 &5557292691291244484
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -229,7 +231,8 @@ MonoBehaviour:
   attackSound: {fileID: 7073382011647977794, guid: d1cf22b3d8fa8804e924e9966932c41d, type: 3}
   attackExtraObject: []
   attackType: 0
-  meleeAnim: RootvisAttack
+  attackRefire: 0
+  meleeAnim: RootvisAttackMelee
   meleeDamage: 20
   meleeRange: 3.5
   meleeStartDelay: 0.5
@@ -238,19 +241,22 @@ MonoBehaviour:
   meleeSoundHit: {fileID: 7073382011647977794, guid: add27be737d907543be3c8a9fd81cbde, type: 3}
   hasRangedAttack: 1
   hasMeleeAttack: 1
-  deathAnim: CloakEnemyDie
-  deathSound: {fileID: 0}
   sightMask:
     serializedVersion: 2
     m_Bits: 467
+  sightSound: {fileID: 7073382011647977794, guid: 9afabb0604d9725449f861045ffe8663, type: 3}
   dropItem: {fileID: 0}
   painTime: 0.4
   painChance: 3
-  painAnim: CloakEnemyPain
-  painSound: {fileID: 0}
+  painAnim: RootvisPain
+  painSound: {fileID: 7073382011647977794, guid: 36f74adaa4cb10545bfd3e24740f8e89, type: 3}
+  deathAnim: RootvisDie
+  deathSound: {fileID: 7073382011647977794, guid: 654142d15be81d146a12ba6fbc40a3e7, type: 3}
   hiddenWhileWaiting: 0
   wakeUpTimer: 0
   wakeUpAnim: 
+  canBeHealed: 1
+  canBeRevived: 1
 --- !u!114 &3368057994646024819
 MonoBehaviour:
   m_ObjectHideFlags: 0

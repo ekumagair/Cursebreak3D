@@ -9,6 +9,8 @@ public class Projectile : MonoBehaviour
     public string ignoreTag = "";
     public GameObject[] createObjectOnHit;
 
+    bool canEnterTrigger = true;
+
     void Update()
     {
         transform.Translate(speed * Vector3.forward * Time.deltaTime);
@@ -18,9 +20,11 @@ public class Projectile : MonoBehaviour
     {
         GameObject hitObj = other.gameObject;
 
-        if (hitObj.tag != ignoreTag && hitObj.tag != "Projectile" && hitObj.tag != "Canvas" && hitObj.tag != "Item" && hitObj.tag != "Teleporter" && hitObj.tag != "ProjectileIgnores" && hitObj.tag != "EditorOnly")
+        if (canEnterTrigger && hitObj.tag != ignoreTag && hitObj.tag != "Projectile" && hitObj.tag != "Canvas" && hitObj.tag != "Item" && hitObj.tag != "Teleporter" && hitObj.tag != "ProjectileIgnores" && hitObj.tag != "EditorOnly")
         {
-            if(hitObj.GetComponent<Health>() != null)
+            canEnterTrigger = false;
+
+            if (hitObj.GetComponent<Health>() != null)
             {
                 hitObj.GetComponent<Health>().TakeDamage(damage, false);
             }

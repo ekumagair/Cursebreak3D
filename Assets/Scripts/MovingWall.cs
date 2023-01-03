@@ -9,6 +9,7 @@ public class MovingWall : MonoBehaviour
     public int wallState;
     public GameObject soundOnMove;
     public bool isSecret = true;
+    public bool canBeAddedToMinimap = true;
 
     void Start()
     {
@@ -43,7 +44,6 @@ public class MovingWall : MonoBehaviour
         if (isSecret)
         {
             StaticClass.secretsDiscovered++;
-            //Player.score += 3000;
             Player.scoreThisLevel += 3000;
             Player.gotScoreTimer = 4f;
         }
@@ -56,7 +56,7 @@ public class MovingWall : MonoBehaviour
 
         while (Vector3.Distance(transform.position, targetPos) > 0.001f)
         {
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, 0.2f);
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, 0.28f);
 
             yield return new WaitForSeconds(0.1f);
         }

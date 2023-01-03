@@ -204,6 +204,8 @@ MonoBehaviour:
   armor: 0
   armorMult: 0
   overallDamageMult: 1
+  disableCollisionWhileDead: 0
+  startHealth: 0
 --- !u!114 &7235027794245079007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -229,6 +231,7 @@ MonoBehaviour:
   attackSound: {fileID: 0}
   attackExtraObject: []
   attackType: 0
+  attackRefire: 0
   meleeAnim: SkeletonEnemyAttack
   meleeDamage: 10
   meleeRange: 3.5
@@ -238,19 +241,22 @@ MonoBehaviour:
   meleeSoundHit: {fileID: 7073382011647977794, guid: 0bfedfe9ed709cf4db2c6f33a9f9b0a2, type: 3}
   hasRangedAttack: 0
   hasMeleeAttack: 1
-  deathAnim: SkeletonEnemyDie
-  deathSound: {fileID: 7073382011647977794, guid: 552fe703e369a084f86416667d84f401, type: 3}
   sightMask:
     serializedVersion: 2
     m_Bits: 467
+  sightSound: {fileID: 7073382011647977794, guid: 8f30c4d1f6fa43c4e875672c3958cfde, type: 3}
   dropItem: {fileID: 0}
   painTime: 0.5
   painChance: 1
   painAnim: SkeletonEnemyPain
-  painSound: {fileID: 0}
+  painSound: {fileID: 7073382011647977794, guid: 6a7d5bf14e76f354da2b2c2a91a845be, type: 3}
+  deathAnim: SkeletonEnemyDie
+  deathSound: {fileID: 7073382011647977794, guid: 552fe703e369a084f86416667d84f401, type: 3}
   hiddenWhileWaiting: 0
   wakeUpTimer: 0
   wakeUpAnim: 
+  canBeHealed: 1
+  canBeRevived: 1
 --- !u!114 &5459484734067410844
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -7,6 +7,7 @@ public class Minimap : MonoBehaviour
     public GameObject mapObjectsRoot;
     public GameObject wallSpritePrefab;
     public GameObject playerSpritePrefab;
+    public GameObject[] doorSpritePrefab;
     public Vector3 posOffset;
     public float scrollScale = 1f;
     public float zoomScale;
@@ -81,23 +82,56 @@ public class Minimap : MonoBehaviour
                 if (Input.GetAxis("Mouse ScrollWheel") > 0 && mapObjectsRoot.transform.localScale.x < 8f)
                 {
                     mapObjectsRoot.transform.localScale += new Vector3(zoomScale, zoomScale, zoomScale);
-                    mapObjectsRoot.transform.position -= transform.right * 160 * 5 * zoomScale;
-                    mapObjectsRoot.transform.position -= transform.up * 80 * 5 * zoomScale;
+                    mapObjectsRoot.transform.position -= transform.right * playerObject.transform.position.x * zoomScale;
+                    mapObjectsRoot.transform.position -= transform.up * playerObject.transform.position.z * zoomScale;
                 }
                 else if (Input.GetAxis("Mouse ScrollWheel") < 0 && mapObjectsRoot.transform.localScale.x > 0.8f)
                 {
                     mapObjectsRoot.transform.localScale -= new Vector3(zoomScale, zoomScale, zoomScale);
-                    mapObjectsRoot.transform.position += transform.right * 160 * 5 * zoomScale;
-                    mapObjectsRoot.transform.position += transform.up * 80 * 5 * zoomScale;
+                    mapObjectsRoot.transform.position += transform.right * playerObject.transform.position.x * zoomScale;
+                    mapObjectsRoot.transform.position += transform.up * playerObject.transform.position.z * zoomScale;
                 }
             }
         }
     }
 
-    public void AddToMinimap(GameObject obj)
+    // Check conditions and then add to minimap.
+    public void AddToMinimapFilter(GameObject obj)
+    {
+        if (obj.isStatic && obj.gameObject.name != "Floor" && obj.gameObject.name != "Ceiling")
+        {
+            AddToMinimap(obj);
+        }
+        else if (obj.tag == "MovingWall")
+        {
+            if (obj.GetComponent<MovingWall>().canBeAddedToMinimap)
+            {
+                AddToMinimap(obj);
+                obj.GetComponent<MovingWall>().canBeAddedToMinimap = false;
+            }
+        }
+        else if (obj.GetComponent<Door>() != null)
+        {
+            if (obj.GetComponent<Door>().doorState == 0)
+            {
+                AddToMinimap(obj);
+            }
+        }
+    }
+
+    // Adds to minimap without checking conditions.
+    void AddToMinimap(GameObject obj)
     {
         if (usedPositions.Contains(new Vector3(obj.transform.position.x + posOffset.x, obj.transform.position.z + posOffset.y, 0)) == false && Time.timeScale != 0.0f)
         {
+            GameObject prefabToAdd = wallSpritePrefab;
+
+            if(obj.GetComponent<Door>() != null)
+            {
+                prefabToAdd = doorSpritePrefab[obj.GetComponent<Door>().key];
+            }
+
+            ////// Reset position start //////
             playerSprite.transform.SetParent(null);
 
             Vector3 previousMinimapPosition = mapObjectsRoot.transform.position;
@@ -105,17 +139,21 @@ public class Minimap : MonoBehaviour
 
             mapObjectsRoot.transform.position = new Vector3(0, 0, 0);
             mapObjectsRoot.transform.localScale = new Vector3(1, 1, 1);
+            ////// Reset position end //////
 
-            var ws = Instantiate(wallSpritePrefab, mapObjectsRoot.transform);
+            // Instantiate prefab on the map
+            var ws = Instantiate(prefabToAdd, mapObjectsRoot.transform);
             ws.transform.position = new Vector3(obj.transform.position.x + posOffset.x, obj.transform.position.z + posOffset.y, 0);
             usedPositions.Add(ws.transform.position);
 
             Debug.Log("Added " + obj.name + " to minimap");
 
+            ////// Restore position start //////
             mapObjectsRoot.transform.position = previousMinimapPosition;
             mapObjectsRoot.transform.localScale = previousMinimapScale;
 
             playerSprite.transform.SetParent(mapObjectsRoot.transform);
+            ////// Restore position end //////
         }
     }
 }

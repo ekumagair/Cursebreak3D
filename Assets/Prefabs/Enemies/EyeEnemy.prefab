@@ -232,7 +232,7 @@ MonoBehaviour:
   attackExtraObject:
   - {fileID: 0}
   - {fileID: 8661592347238051789, guid: 5afe0f5353eb9214dbf081ca87d8ccae, type: 3}
-  - {fileID: 7073382011647977794, guid: 376c8ad9614b9b045bb5f1e51a1b44c3, type: 3}
+  - {fileID: 7073382011647977794, guid: 4735dab58d1ba2f449e3f945dbcfa976, type: 3}
   attackType: 4
   attackRefire: 1
   meleeAnim: 
@@ -244,16 +244,17 @@ MonoBehaviour:
   meleeSoundHit: {fileID: 0}
   hasRangedAttack: 1
   hasMeleeAttack: 0
-  deathAnim: EyeEnemyDie
-  deathSound: {fileID: 0}
   sightMask:
     serializedVersion: 2
     m_Bits: 467
+  sightSound: {fileID: 7073382011647977794, guid: fd310e13438e9a948991512b247820dc, type: 3}
   dropItem: {fileID: 0}
   painTime: 0.7
   painChance: 2
   painAnim: EyeEnemyPain
-  painSound: {fileID: 0}
+  painSound: {fileID: 7073382011647977794, guid: 2a1eaca2766bb3e45909aba8eab4c2aa, type: 3}
+  deathAnim: EyeEnemyDie
+  deathSound: {fileID: 7073382011647977794, guid: e3b65ad01fb5a414e855e483b25d305d, type: 3}
   hiddenWhileWaiting: 0
   wakeUpTimer: 0
   wakeUpAnim: 

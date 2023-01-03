@@ -39,6 +39,8 @@ public class Player : MonoBehaviour
     public static int[] savedAmmo = new int[3];
     public static float gotScoreTimer = 0;
 
+    bool scrolledMouse = false;
+
     Health healthScript;
     Controls controlsScript;
     GameObject gameCanvas;
@@ -92,6 +94,7 @@ public class Player : MonoBehaviour
         timeSeconds = 0;
         timeMinutes = 0;
         scoreThisLevel = 0;
+        scrolledMouse = false;
         StaticClass.gameState = 0;
         StaticClass.secretsDiscovered = 0;
         StaticClass.enemiesKilled = 0;
@@ -146,6 +149,7 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        // Select weapon with keyboard.
         if(Input.GetKeyDown(KeyCode.Alpha1) && CanSelectWeapon(1))
         {
             currentWeapon = 1;
@@ -174,8 +178,22 @@ public class Player : MonoBehaviour
             weaponDelaysCurrent[6] = weaponDelaysDefault[6];
         }
 
+        // Select weapon with mouse wheel.
+        if (Input.GetAxis("Mouse ScrollWheel") != 0.0f)
+        {
+            if (scrolledMouse == false)
+            {
+                currentWeapon = NextAvailableWeapon(-Input.GetAxisRaw("Mouse ScrollWheel"));
+                scrolledMouse = true;
+            }
+        }
+        else
+        {
+            scrolledMouse = false;
+        }
+
         // Attack
-        if (Input.GetMouseButton(0) && weaponDelaysCurrent[currentWeapon] == 0 && (ammo[weaponAmmoType[currentWeapon]] >= weaponAmmoCost[currentWeapon] || weaponAmmoType[currentWeapon] == -1) && healthScript.isDead == false && StaticClass.gameState == 0)
+        if (Input.GetMouseButton(0) && weaponsUnlocked[currentWeapon] == true && weaponDelaysCurrent[currentWeapon] == 0 && (ammo[weaponAmmoType[currentWeapon]] >= weaponAmmoCost[currentWeapon] || weaponAmmoType[currentWeapon] == -1) && healthScript.isDead == false && StaticClass.gameState == 0)
         {
             if (weaponType[currentWeapon] == 0 && weaponProjectile[currentWeapon] != null)
             {
@@ -262,7 +280,7 @@ public class Player : MonoBehaviour
                 }
             }
 
-            // Make sound.
+            // Make sound
             if (weaponSound[currentWeapon] != null)
             {
                 Instantiate(weaponSound[currentWeapon], transform.position, transform.rotation);
@@ -271,6 +289,20 @@ public class Player : MonoBehaviour
             // Consume ammo and make the weapon take some time to fire again.
             ammo[weaponAmmoType[currentWeapon]] -= weaponAmmoCost[currentWeapon];
             weaponDelaysCurrent[currentWeapon] = weaponDelaysDefault[currentWeapon];
+
+            // Change to melee if you ran out of ammo.
+            if (ammo[weaponAmmoType[currentWeapon]] < weaponAmmoCost[currentWeapon])
+            {
+                if (weaponsUnlocked[1] == false)
+                {
+                    currentWeapon = 0;
+                }
+                else
+                {
+                    currentWeapon = 1;
+                    weaponDelaysCurrent[1] = weaponDelaysDefault[1];
+                }
+            }
         }
 
         // Weapon delays
@@ -283,20 +315,6 @@ public class Player : MonoBehaviour
             if(weaponDelaysCurrent[i] < 0)
             {
                 weaponDelaysCurrent[i] = 0;
-            }
-        }
-
-        // Change to melee if you ran out of ammo.
-        if(weaponsUnlocked[currentWeapon] == false || ammo[weaponAmmoType[currentWeapon]] < weaponAmmoCost[currentWeapon])
-        {
-            if(weaponsUnlocked[1] == false)
-            {
-                currentWeapon = 0;
-            }
-            else
-            {
-                currentWeapon = 1;
-                weaponDelaysCurrent[1] = weaponDelaysDefault[1];
             }
         }
 
@@ -419,7 +437,7 @@ public class Player : MonoBehaviour
         {
             for (float i = -1; i <= 1; i += 0.1f)
             {
-                RevealMinimap(i);
+                RevealMinimapRay(i);
             }
         }
 
@@ -492,7 +510,6 @@ public class Player : MonoBehaviour
 
                 if (itemScript.giveScore != 0)
                 {
-                    //score += itemScript.giveScore;
                     scoreThisLevel += itemScript.giveScore;
                     gotScoreTimer = 4f;
                 }
@@ -588,7 +605,7 @@ public class Player : MonoBehaviour
     {
         if(StaticClass.difficulty > 0 && amount > 9)
         {
-            // Don't let player sprint.
+            // Don't let player sprint for a limited time if more than 9 damage was taken.
             conditionTimer[2] = 1f;
         }
 
@@ -654,7 +671,6 @@ public class Player : MonoBehaviour
 
         yield return new WaitForSeconds(1.3f);
 
-        //SceneManager.LoadScene("C" + StaticClass.chapterReadOnly + "M" + (StaticClass.mapReadOnly + 1));
         SceneManager.LoadScene("Intermission");
     }
 
@@ -682,6 +698,37 @@ public class Player : MonoBehaviour
         return currentWeapon != w && weaponsUnlocked[w] && ammo[weaponAmmoType[w]] >= weaponAmmoCost[w];
     }
 
+    // Check what weapon can be selected next while using the mouse wheel. Skips weapons you can't choose.
+    int NextAvailableWeapon(float direction)
+    {
+        int select = currentWeapon;
+
+        if (direction > 0)
+        {
+            for (int i = 0; i < weaponsUnlocked.Length; i++)
+            {
+                if (i > select && CanSelectWeapon(i))
+                {
+                    select = i;
+                    break;
+                }
+            }
+        }
+        else if (direction < 0)
+        {
+            for (int i = weaponsUnlocked.Length; i > 0; i--)
+            {
+                if (i < select && CanSelectWeapon(i))
+                {
+                    select = i;
+                    break;
+                }
+            }
+        }
+
+        return select;
+    }
+
     // Multiply damage for the player's attacks, depending on certain conditions.
     int DamageMultiplier()
     {
@@ -699,14 +746,15 @@ public class Player : MonoBehaviour
         return mult;
     }
 
-    void RevealMinimap(float spread)
+    // Reveal minimap with sight.
+    void RevealMinimapRay(float spread)
     {
         RaycastHit minimapHit;
         if (Physics.Raycast(transform.position, transform.forward + (spread * transform.right), out minimapHit, Mathf.Infinity, attackRayMask))
         {
-            if (minimapHit.collider.gameObject != null && minimapHit.collider.gameObject.isStatic)
+            if (minimapHit.collider.gameObject != null)
             {
-                minimapScript.AddToMinimap(minimapHit.collider.gameObject);
+                minimapScript.AddToMinimapFilter(minimapHit.collider.gameObject);
             }
         }
     }

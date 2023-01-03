@@ -14,32 +14,52 @@ public class TitleScreen : MonoBehaviour
     public GameObject sectionChooseChapter;
     public GameObject sectionDifficulty;
     public GameObject sectionLoadGame;
+    public GameObject sectionOptions;
     public Text[] loadGameSlotsText;
+    public string[] loadGameTextsDefault = new string[4];
 
     void Start()
     {
         Time.timeScale = 1.0f;
-        Player.scoreThisLevel = 0;
-        StaticClass.currentChapter = 1;
-        StaticClass.currentMap = 1;
-        StaticClass.secretsDiscovered = 0;
-        StaticClass.secretsTotal = 0;
-        StaticClass.enemiesTotal = 0;
-        StaticClass.loadSavedPlayerInfo = false;
-        Player.timeSeconds = 0;
-        Player.timeMinutes = 0;
+        StaticClass.ResetStats();
         Cursor.lockState = CursorLockMode.None;
         versionText.text = "v " + Application.version.ToString();
-        SectionStart();
 
-        // Load slot text
+        for (int i = 0; i < loadGameSlotsText.Length; i++)
+        {
+            loadGameTextsDefault[i] = loadGameSlotsText[i].text;
+        }
+
+        if (PlayerPrefs.HasKey("global_mouse_sensitivity"))
+        {
+            Options.mouseSensitivity = PlayerPrefs.GetFloat("global_mouse_sensitivity");
+            Options.musicVolume = PlayerPrefs.GetFloat("global_music_volume");
+            Options.soundVolume = PlayerPrefs.GetFloat("global_sfx_volume");
+        }
+
+        SectionStart();
+        SetSaveSlotsTexts();
+    }
+
+    void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+    }
+
+    void SetSaveSlotsTexts()
+    {
         int i = 0;
         foreach (Text preview in loadGameSlotsText)
         {
+            preview.text = loadGameTextsDefault[i];
+
             Button slotButton = preview.transform.parent.gameObject.GetComponent<Button>();
             EventTrigger eventTrigger = preview.transform.parent.gameObject.GetComponent<EventTrigger>();
             preview.text += " - ";
-            
+
             if (PlayerPrefs.HasKey("slot" + i.ToString() + "_scene_name"))
             {
                 preview.text += "(" + PlayerPrefs.GetString("slot" + i.ToString() + "_scene_name") + ", SCORE: " + PlayerPrefs.GetInt("slot" + i.ToString() + "_score").ToString() + ")";
@@ -57,20 +77,13 @@ public class TitleScreen : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.Escape))
-        {
-            Application.Quit();
-        }
-    }
-
     public void SectionStart()
     {
         sectionStart.SetActive(true);
         sectionChooseChapter.SetActive(false);
         sectionDifficulty.SetActive(false);
         sectionLoadGame.SetActive(false);
+        sectionOptions.SetActive(false);
         StaticClass.loadSavedPlayerInfo = false;
         SectionAny();
     }
@@ -81,6 +94,7 @@ public class TitleScreen : MonoBehaviour
         sectionChooseChapter.SetActive(true);
         sectionDifficulty.SetActive(false);
         sectionLoadGame.SetActive(false);
+        sectionOptions.SetActive(false);
         SectionAny();
     }
 
@@ -90,6 +104,7 @@ public class TitleScreen : MonoBehaviour
         sectionChooseChapter.SetActive(false);
         sectionDifficulty.SetActive(true);
         sectionLoadGame.SetActive(false);
+        sectionOptions.SetActive(false);
         SectionAny();
     }
 
@@ -99,12 +114,25 @@ public class TitleScreen : MonoBehaviour
         sectionChooseChapter.SetActive(false);
         sectionDifficulty.SetActive(false);
         sectionLoadGame.SetActive(true);
+        sectionOptions.SetActive(false);
+        SectionAny();
+    }
+
+    public void SectionOptions()
+    {
+        sectionStart.SetActive(false);
+        sectionChooseChapter.SetActive(false);
+        sectionDifficulty.SetActive(false);
+        sectionLoadGame.SetActive(false);
+        sectionOptions.SetActive(true);
         SectionAny();
     }
 
     void SectionAny()
     {
         selectIcon.enabled = false;
+        SetSaveSlotsTexts();
+        PlayerPrefs.Save();
     }
 
     public void SetChapter(int c)
@@ -193,6 +221,8 @@ public class TitleScreen : MonoBehaviour
         }
 
         Debug.Log("Deleted save on slot " + slot.ToString());
+
+        SetSaveSlotsTexts();
     }
 
     public void QuitGame()

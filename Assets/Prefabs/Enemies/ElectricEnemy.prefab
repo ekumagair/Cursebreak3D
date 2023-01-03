@@ -245,16 +245,17 @@ MonoBehaviour:
   meleeSoundHit: {fileID: 0}
   hasRangedAttack: 1
   hasMeleeAttack: 0
-  deathAnim: ElectricEnemyDie
-  deathSound: {fileID: 0}
   sightMask:
     serializedVersion: 2
     m_Bits: 467
+  sightSound: {fileID: 0}
   dropItem: {fileID: 8565569619343638066, guid: 82cd6d40e3df2ad4084e003857e25360, type: 3}
   painTime: 0.6
   painChance: 8
   painAnim: ElectricEnemyPain
-  painSound: {fileID: 0}
+  painSound: {fileID: 7073382011647977794, guid: b335a1a76af03574d979a71f6eefb562, type: 3}
+  deathAnim: ElectricEnemyDie
+  deathSound: {fileID: 0}
   hiddenWhileWaiting: 0
   wakeUpTimer: 0
   wakeUpAnim: 

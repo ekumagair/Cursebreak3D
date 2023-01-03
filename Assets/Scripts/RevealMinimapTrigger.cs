@@ -13,9 +13,9 @@ public class RevealMinimapTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.isStatic && other.gameObject.name != "Floor" && other.gameObject.name != "Ceiling")
+        if(other.gameObject != null)
         {
-            minimapScript.AddToMinimap(other.gameObject);
+            minimapScript.AddToMinimapFilter(other.gameObject);
         }
     }
 }

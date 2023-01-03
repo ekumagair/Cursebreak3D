@@ -23,6 +23,7 @@ public class HUD : MonoBehaviour
     public GameObject pauseGeneral;
     public GameObject pauseRoot;
     public GameObject sectionSelectSave;
+    public GameObject sectionOptions;
 
     [Header("Minimap")]
     public Text minimapMapNumberDisplay;
@@ -156,6 +157,7 @@ public class HUD : MonoBehaviour
             pauseGeneral.SetActive(false);
             pauseRoot.SetActive(false);
             sectionSelectSave.SetActive(false);
+            sectionOptions.SetActive(false);
         }
 
         // Toggle minimap
@@ -176,18 +178,30 @@ public class HUD : MonoBehaviour
     {
         pauseRoot.SetActive(true);
         sectionSelectSave.SetActive(false);
+        sectionOptions.SetActive(false);
         pauseSelectIcon.enabled = false;
+        PlayerPrefs.Save();
     }
 
     public void GoToSelectSave()
     {
         pauseRoot.SetActive(false);
         sectionSelectSave.SetActive(true);
+        sectionOptions.SetActive(false);
+        pauseSelectIcon.enabled = false;
+    }
+
+    public void GoToOptions()
+    {
+        pauseRoot.SetActive(false);
+        sectionSelectSave.SetActive(false);
+        sectionOptions.SetActive(true);
         pauseSelectIcon.enabled = false;
     }
 
     public void SaveToSlot(int s)
     {
+        PlayerPrefs.Save();
         SaveData(s);
     }
 

@@ -24,11 +24,11 @@ public class MouseLook : MonoBehaviour
     {
         if (lookX && playerScript.conditionTimer[5] <= 0)
         {
-            mouseX = Input.GetAxis("Mouse X") * mouseS * Time.deltaTime;
+            mouseX = Input.GetAxis("Mouse X") * mouseS * Options.mouseSensitivity * Time.deltaTime;
         }
         if (lookY && playerScript.conditionTimer[6] <= 0)
         {
-            mouseY = Input.GetAxis("Mouse Y") * mouseS * Time.deltaTime;
+            mouseY = Input.GetAxis("Mouse Y") * mouseS * Options.mouseSensitivity * Time.deltaTime;
         }
 
         xRot -= mouseY;

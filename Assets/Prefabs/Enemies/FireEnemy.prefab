@@ -126,16 +126,17 @@ MonoBehaviour:
   meleeSoundHit: {fileID: 7073382011647977794, guid: d21c6381deec4be4b91710d0c5ccf3c3, type: 3}
   hasRangedAttack: 1
   hasMeleeAttack: 1
-  deathAnim: FireEnemyDie
-  deathSound: {fileID: 7073382011647977794, guid: 03f099a86069f5346b106983cc8dc81f, type: 3}
   sightMask:
     serializedVersion: 2
     m_Bits: 467
+  sightSound: {fileID: 7073382011647977794, guid: c7569bcac6dcf664f8e5a6e7ad4ccc59, type: 3}
   dropItem: {fileID: 8565569619343638066, guid: 441e811ce55ffcf419494d164a1df7f8, type: 3}
   painTime: 0.5
   painChance: 5
   painAnim: FireEnemyPain
   painSound: {fileID: 7073382011647977794, guid: cc155ee5eef9c0344be6578ed2973e68, type: 3}
+  deathAnim: FireEnemyDie
+  deathSound: {fileID: 7073382011647977794, guid: 03f099a86069f5346b106983cc8dc81f, type: 3}
   hiddenWhileWaiting: 0
   wakeUpTimer: 0
   wakeUpAnim: 

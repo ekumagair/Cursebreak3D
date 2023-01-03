@@ -181,31 +181,31 @@ public class Controls : MonoBehaviour
     {
         yield return new WaitForSeconds(4f / GetCurrentVelocity());
 
-        if (isMoving && isGrounded)
+        if (isMoving && isGrounded && HUD.mapEnabled == false)
         {
             FootstepSFX();
-        }
 
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
-        foreach (GameObject en in enemies)
-        {
-            if (en.GetComponent<Enemy>() != null)
+            foreach (GameObject en in enemies)
             {
-                float hearDistance;
-                if(isSprinting)
+                if (en.GetComponent<Enemy>() != null)
                 {
-                    hearDistance = 100f;
-                }
-                else
-                {
-                    hearDistance = 8f;
-                }
+                    float hearDistance;
+                    if (isSprinting)
+                    {
+                        hearDistance = 100f;
+                    }
+                    else
+                    {
+                        hearDistance = 8f;
+                    }
 
-                Enemy enemyScript = en.GetComponent<Enemy>();
-                if (enemyScript.CanHear(gameObject, hearDistance))
-                {
-                    enemyScript.target = gameObject;
+                    Enemy enemyScript = en.GetComponent<Enemy>();
+                    if (enemyScript.CanHear(gameObject, hearDistance))
+                    {
+                        enemyScript.target = gameObject;
+                    }
                 }
             }
         }

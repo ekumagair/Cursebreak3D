@@ -10,6 +10,7 @@ TagManager:
   - Canvas
   - Teleporter
   - ProjectileIgnores
+  - MovingWall
   layers:
   - Default
   - TransparentFX

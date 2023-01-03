@@ -12,6 +12,11 @@ public class Door : MonoBehaviour
     public int key = 0;
     public bool canUse = true;
 
+    // Door states
+    // 0 = Closed
+    // 1 = Moving
+    // 2 = Open
+
     void Start()
     {
         closedPosition = transform.position;

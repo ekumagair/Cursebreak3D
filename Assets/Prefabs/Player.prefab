@@ -199,6 +199,7 @@ GameObject:
   - component: {fileID: 1686189749075883694}
   - component: {fileID: 3236426144556185477}
   - component: {fileID: -1980402611779862909}
+  - component: {fileID: 2833261000944849129}
   - component: {fileID: 1686189749075883665}
   m_Layer: 8
   m_Name: Player
@@ -406,6 +407,19 @@ MonoBehaviour:
   overallDamageMult: 1
   disableCollisionWhileDead: 1
   startHealth: 0
+--- !u!114 &2833261000944849129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1686189749075883693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c55e70c4b92d8b749b2863969b72425c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 0
 --- !u!82 &1686189749075883665
 AudioSource:
   m_ObjectHideFlags: 0

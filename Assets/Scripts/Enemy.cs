@@ -24,6 +24,7 @@ public class Enemy : MonoBehaviour
     public GameObject attackSound;
     public GameObject[] attackExtraObject;
     float projectileSpeedMult = 1.0f;
+    GameObject attackSoundInstance;
 
     public enum RangedAttackType
     {
@@ -32,7 +33,9 @@ public class Enemy : MonoBehaviour
         OneRayForwardAccurate,
         OneRayForwardSpreadSmall,
         OneRayForwardSpreadMedium,
-        OneRayForwardSpreadLarge
+        OneRayForwardSpreadLarge,
+        BossRay,
+        BossProjectile
     }
     public RangedAttackType attackType = 0;
 
@@ -55,16 +58,10 @@ public class Enemy : MonoBehaviour
     public bool hasRangedAttack = true;
     public bool hasMeleeAttack = false;
 
-    // Death
-    [Header("Death")]
-    public string deathAnim;
-    public GameObject deathSound;
-    bool attacking = false;
-    bool died = false;
-
     // Sight
     [Header("Sight")]
     public LayerMask sightMask;
+    public GameObject sightSound;
 
     // Drop item
     [Header("Item Drop")]
@@ -77,6 +74,14 @@ public class Enemy : MonoBehaviour
     public string painAnim;
     public GameObject painSound;
     bool inPain = false;
+    GameObject painSoundInstance;
+
+    // Death
+    [Header("Death")]
+    public string deathAnim;
+    public GameObject deathSound;
+    bool attacking = false;
+    bool died = false;
 
     // Pain chance
     // 1 = Always
@@ -119,7 +124,10 @@ public class Enemy : MonoBehaviour
         inPain = false;
         revived = false;
 
-        StaticClass.enemiesTotal++;
+        if(GetComponent<AppearOnDifficulty>().difficulty[StaticClass.difficulty] == true)
+        {
+            StaticClass.enemiesTotal++;
+        }
 
         if(painChance < 1)
         {
@@ -270,11 +278,17 @@ public class Enemy : MonoBehaviour
                 }
             }
 
-            // Reduce wake up animation time
+            // Reduce wake up animation time.
             if(wokeUp == false && animator.enabled == true && sprite.activeSelf == true)
             {
+                // Execute once when this enemy has a target.
                 wokeUp = true;
                 animator.Play(wakeUpAnim);
+
+                if(sightSound != null)
+                {
+                    Instantiate(sightSound, transform.position, transform.rotation);
+                }
             }
             if (wakeUpTimer > 0f)
             {
@@ -367,7 +381,7 @@ public class Enemy : MonoBehaviour
 
         if (attackSound != null)
         {
-            Instantiate(attackSound, transform.position, transform.rotation);
+            attackSoundInstance = Instantiate(attackSound, transform.position, transform.rotation);
         }
 
         if (attackAnim != "")
@@ -381,57 +395,13 @@ public class Enemy : MonoBehaviour
         {
             if (attackType == RangedAttackType.OneObjectForwardAccurate)
             {
-                var p = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
-                p.GetComponent<Projectile>().ignoreTag = tag;
-                p.GetComponent<Projectile>().speed *= projectileSpeedMult;
-                p.transform.forward = dir;
-
-                if (attackDamage != 0)
-                {
-                    p.GetComponent<Projectile>().damage = attackDamage;
-                }
-
-                if (target.GetComponent<Player>() != null)
-                {
-                    if(target.GetComponent<Player>().isInvisible)
-                    {
-                        p.transform.forward = (transform.forward + transform.right / Random.Range(-4f, 4f)).normalized;
-                    }
-                }
+                ProjectileAttack(0, false, false);
             }
             else if (attackType == RangedAttackType.ThreeObjectsForwardSpread)
             {
-                var p1 = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
-                p1.GetComponent<Projectile>().ignoreTag = tag;
-                p1.GetComponent<Projectile>().speed *= projectileSpeedMult;
-                p1.transform.forward = dir;
-
-                var p2 = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
-                p2.GetComponent<Projectile>().ignoreTag = tag;
-                p2.GetComponent<Projectile>().speed *= projectileSpeedMult;
-                p2.transform.forward = (transform.forward + transform.right / 3).normalized;
-
-                var p3 = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
-                p3.GetComponent<Projectile>().ignoreTag = tag;
-                p3.GetComponent<Projectile>().speed *= projectileSpeedMult;
-                p3.transform.forward = (transform.forward + -transform.right / 3).normalized;
-
-                if(attackDamage != 0)
-                {
-                    p1.GetComponent<Projectile>().damage = attackDamage;
-                    p2.GetComponent<Projectile>().damage = attackDamage;
-                    p3.GetComponent<Projectile>().damage = attackDamage;
-                }
-
-                if (target.GetComponent<Player>() != null)
-                {
-                    if (target.GetComponent<Player>().isInvisible)
-                    {
-                        p1.transform.forward = (transform.forward + transform.right / Random.Range(-4f, 4f)).normalized;
-                        p2.transform.forward = (transform.forward + transform.right / Random.Range(4f, 6f)).normalized;
-                        p2.transform.forward = (transform.forward + -transform.right / Random.Range(4f, 6f)).normalized;
-                    }
-                }
+                ProjectileAttack(0, false, false);
+                ProjectileAttack(0.3f, false, false);
+                ProjectileAttack(-0.3f, false, false);
             }
             else if(attackType == RangedAttackType.OneRayForwardAccurate)
             {
@@ -449,6 +419,23 @@ public class Enemy : MonoBehaviour
             {
                 RangedRayAttack(Random.Range(-0.12f, 0.12f), false);
             }
+            else if (attackType == RangedAttackType.BossRay)
+            {
+                RangedRayAttack(0f, true);
+                attackRefire = true;
+
+                if(Random.Range(0, 4) == 0)
+                {
+                    attackType = RangedAttackType.BossProjectile;
+                }
+            }
+            else if (attackType == RangedAttackType.BossProjectile)
+            {
+                ProjectileAttack(0f, true, true);
+                ProjectileAttack(1f, true, true);
+                ProjectileAttack(-1f, true, true);
+                attackRefire = false;
+            }
         }
 
         yield return new WaitForSeconds(attackTotalDuration - attackShotDelay);
@@ -457,6 +444,12 @@ public class Enemy : MonoBehaviour
         {
             ResetAttackTime();
             attacking = false;
+
+            if(attackType == RangedAttackType.BossProjectile)
+            {
+                attackTime = attackTimeDefault * 3f;
+                attackType = RangedAttackType.BossRay;
+            }
         }
         else
         {
@@ -558,6 +551,38 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    void ProjectileAttack(float spreadMult, bool ignoreDamageOverride, bool ignoreInvisibility)
+    {
+        var p = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
+        p.GetComponent<Projectile>().ignoreTag = tag;
+        p.GetComponent<Projectile>().speed *= projectileSpeedMult;
+        p.transform.forward = (transform.forward + transform.right * spreadMult).normalized;
+
+        if (attackDamage != 0 && !ignoreDamageOverride)
+        {
+            p.GetComponent<Projectile>().damage = attackDamage;
+        }
+
+        if (target.GetComponent<Player>() != null)
+        {
+            if (target.GetComponent<Player>().isInvisible && !ignoreInvisibility)
+            {
+                if (spreadMult == 0.0f)
+                {
+                    p.transform.forward = (transform.forward + transform.right / Random.Range(-4f, 4f)).normalized;
+                }
+                else if (spreadMult > 0.0f)
+                {
+                    p.transform.forward = (transform.forward + transform.right / Random.Range(4f, 6f)).normalized;
+                }
+                else if (spreadMult < 0.0f)
+                {
+                    p.transform.forward = (transform.forward + -transform.right / Random.Range(4f, 6f)).normalized;
+                }
+            }
+        }
+    }
+
     public void ResetAttackTime()
     {
         attackTime = attackTimeDefault * Random.Range(0.8f, 1.2f);
@@ -566,9 +591,10 @@ public class Enemy : MonoBehaviour
 
     public IEnumerator Pain()
     {
-        if (Random.Range(0, painChance) == 0)
+        if (Random.Range(0, painChance) == 0 && inPain == false)
         {
             inPain = true;
+            StopAttackSound();
 
             if (attackCoroutine != null)
             {
@@ -587,9 +613,9 @@ public class Enemy : MonoBehaviour
             {
                 animator.Play(painAnim);
             }
-            if(painSound != null)
+            if(painSound != null && healthScript.isDead == false)
             {
-                Instantiate(painSound, transform.position, transform.rotation);
+                painSoundInstance = Instantiate(painSound, transform.position, transform.rotation);
             }
 
             yield return new WaitForSeconds(painTime);
@@ -699,6 +725,14 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    void StopAttackSound()
+    {
+        if (attackSoundInstance != null)
+        {
+            Destroy(attackSoundInstance);
+        }
+    }
+
     public void Revive()
     {
         healthScript.health = healthScript.startHealth;
@@ -707,6 +741,7 @@ public class Enemy : MonoBehaviour
         died = false;
         inPain = false;
         revived = true;
+        StopAttackSound();
         ResetAttackTime();
 
         tag = "Enemy";
@@ -726,7 +761,6 @@ public class Enemy : MonoBehaviour
         GetComponent<NavMeshAgent>().enabled = false;
 
         // Give score.
-        //Player.score += giveScoreOnDeath;
         Player.scoreThisLevel += giveScoreOnDeath;
 
         // Only count towards kill count once.
@@ -735,6 +769,7 @@ public class Enemy : MonoBehaviour
             StaticClass.enemiesKilled++;
         }
 
+        // Set tag to ProjectileIgnores and set layer to IgnoreRaycast, play death animation.
         tag = "ProjectileIgnores";
         gameObject.layer = 2;
         animator.Play(deathAnim);
@@ -749,6 +784,15 @@ public class Enemy : MonoBehaviour
             Instantiate(dropItem, transform.position - (transform.up * 2) + (transform.forward / 2), transform.rotation);
         }
 
+        StopAttackSound();
+
+        // Prevent pain sound from playing.
+        if(painSoundInstance != null)
+        {
+            Destroy(painSoundInstance);
+        }
+
+        // Play death sound, if there is one.
         if(deathSound != null)
         {
             Instantiate(deathSound, transform.position, transform.rotation);

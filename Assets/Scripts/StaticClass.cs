@@ -39,4 +39,26 @@ public static class StaticClass
     // 0 = Minimap disabled
     // 1 = All revealed from the start
     // 2 = Gradual reveal
+
+    // Intermission display type
+    public static int intermissionDisplayType = 1;
+    // 0 = Show numbers instantly
+    // 1 = Show numbers gradually
+
+    // Reset stats
+    public static void ResetStats()
+    {
+        Player.scoreThisLevel = 0;
+        StaticClass.currentChapter = 1;
+        StaticClass.currentMap = 1;
+        StaticClass.secretsDiscovered = 0;
+        StaticClass.secretsTotal = 0;
+        StaticClass.enemiesKilled = 0;
+        StaticClass.enemiesTotal = 0;
+        StaticClass.loadSavedPlayerInfo = false;
+        Player.timeSeconds = 0;
+        Player.timeMinutes = 0;
+
+        Debug.Log("Reset stats!");
+    }
 }
