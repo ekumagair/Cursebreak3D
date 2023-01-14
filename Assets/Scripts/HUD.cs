@@ -29,7 +29,8 @@ public class HUD : MonoBehaviour
     public Text minimapMapNumberDisplay;
     public Text minimapEnemyText;
     public Text minimapSecretsText;
-    public Text minimapScoreText;
+    public Text minimapCurrentScoreText;
+    public Text minimapTotalScoreText;
     public GameObject mapRoot;
 
     [Header("Weapons")]
@@ -43,7 +44,7 @@ public class HUD : MonoBehaviour
     public float messageTimer = 0f;
     public static int logCurrentPosition = 0;
 
-    public static bool mapEnabled = false;
+    public static bool minimapEnabled = false;
 
     GameObject statTarget;
     Health targetHealth;
@@ -59,7 +60,7 @@ public class HUD : MonoBehaviour
         targetHealth = statTarget.GetComponent<Health>();
         logCurrentPosition = 0;
         messageTimer = 0f;
-        mapEnabled = false;
+        minimapEnabled = false;
 
         if (statTarget.GetComponent<Player>() != null)
         {
@@ -81,7 +82,8 @@ public class HUD : MonoBehaviour
         minimapMapNumberDisplay.text = "Chapter " + StaticClass.currentChapter.ToString() + " - Map " + StaticClass.currentMap.ToString();
         minimapEnemyText.text = "Foes: " + StaticClass.enemiesKilled.ToString() + "/" + StaticClass.enemiesTotal.ToString();
         minimapSecretsText.text = "Secrets: " + StaticClass.secretsDiscovered.ToString() + "/" + StaticClass.secretsTotal.ToString();
-        minimapScoreText.text = "Score: " + Player.scoreThisLevel.ToString();
+        minimapCurrentScoreText.text = "Current score: " + Player.scoreThisLevel.ToString();
+        minimapTotalScoreText.text = "Total score: " + (Player.score + Player.scoreThisLevel).ToString();
         weaponImage.sprite = weaponSprites[targetPlayer.currentWeapon];
 
         // Show score if recently collected item that gives you score. By default, show ammo.
@@ -150,7 +152,7 @@ public class HUD : MonoBehaviour
         if(Time.timeScale == 0.0f)
         {
             pauseGeneral.SetActive(true);
-            mapEnabled = false;
+            minimapEnabled = false;
         }
         else
         {
@@ -163,9 +165,9 @@ public class HUD : MonoBehaviour
         // Toggle minimap
         if(Input.GetKeyDown(KeyCode.Tab) && StaticClass.gameState == 0 && StaticClass.minimapType != 0)
         {
-            mapEnabled = !mapEnabled;
+            minimapEnabled = !minimapEnabled;
         }
-        mapRoot.SetActive(mapEnabled);
+        mapRoot.SetActive(minimapEnabled);
     }
 
     public void PauseEnd()

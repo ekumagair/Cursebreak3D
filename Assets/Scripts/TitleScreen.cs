@@ -21,20 +21,13 @@ public class TitleScreen : MonoBehaviour
     void Start()
     {
         Time.timeScale = 1.0f;
-        StaticClass.ResetStats();
+        StaticClass.ResetStats(true);
         Cursor.lockState = CursorLockMode.None;
         versionText.text = "v " + Application.version.ToString();
 
         for (int i = 0; i < loadGameSlotsText.Length; i++)
         {
             loadGameTextsDefault[i] = loadGameSlotsText[i].text;
-        }
-
-        if (PlayerPrefs.HasKey("global_mouse_sensitivity"))
-        {
-            Options.mouseSensitivity = PlayerPrefs.GetFloat("global_mouse_sensitivity");
-            Options.musicVolume = PlayerPrefs.GetFloat("global_music_volume");
-            Options.soundVolume = PlayerPrefs.GetFloat("global_sfx_volume");
         }
 
         SectionStart();
@@ -45,7 +38,7 @@ public class TitleScreen : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Escape))
         {
-            Application.Quit();
+            QuitGame();
         }
     }
 
@@ -228,5 +221,10 @@ public class TitleScreen : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
+    }
+
+    private void OnApplicationQuit()
+    {
+        PlayerPrefs.Save();
     }
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 public class Exit : MonoBehaviour
 {
     public GameObject fade;
+    public GameObject useSound;
 
     Animator anim;
 
@@ -17,5 +18,10 @@ public class Exit : MonoBehaviour
     public void UsedExit()
     {
         anim.Play("ExitUsed");
+
+        if(useSound != null)
+        {
+            Instantiate(useSound, transform.position, transform.rotation);
+        }
     }
 }

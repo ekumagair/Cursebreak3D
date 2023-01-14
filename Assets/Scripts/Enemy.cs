@@ -62,6 +62,7 @@ public class Enemy : MonoBehaviour
     [Header("Sight")]
     public LayerMask sightMask;
     public GameObject sightSound;
+    public bool noSightSoundOnHard = false;
 
     // Drop item
     [Header("Item Drop")]
@@ -124,7 +125,7 @@ public class Enemy : MonoBehaviour
         inPain = false;
         revived = false;
 
-        if(GetComponent<AppearOnDifficulty>().difficulty[StaticClass.difficulty] == true)
+        if(GetComponent<AppearOnDifficulty>().difficulty[StaticClass.difficulty] == true && StaticClass.gameState != 2)
         {
             StaticClass.enemiesTotal++;
         }
@@ -168,6 +169,12 @@ public class Enemy : MonoBehaviour
             {
                 attackType = RangedAttackType.OneRayForwardAccurate;
             }
+        }
+
+        // If this enemy has no sight sound on hard difficulty.
+        if(noSightSoundOnHard && StaticClass.difficulty >= 2)
+        {
+            sightSound = null;
         }
 
         ResetAttackTime();
@@ -674,7 +681,7 @@ public class Enemy : MonoBehaviour
         {
             var hitObj = hit.collider.gameObject;
 
-            if (hitObj == which && hasPath && (hitObj.GetComponent<Player>() == null || hitObj.GetComponent<Player>().isInvisible == false) || hitObj == target)
+            if (hitObj == which && (hitObj.GetComponent<Player>() == null || hitObj.GetComponent<Player>().isInvisible == false) || hitObj == target)
             {
                 Debug.Log(gameObject + " saw " + which);
                 Debug.DrawRay(transform.position, dir * hit.distance, Color.green);
@@ -682,7 +689,7 @@ public class Enemy : MonoBehaviour
             }
             else
             {
-                Debug.DrawRay(transform.position, dir * 1000, Color.red);
+                Debug.DrawRay(transform.position, dir * 500, Color.red);
                 return false;
             }
         }

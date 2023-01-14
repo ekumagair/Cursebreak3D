@@ -248,14 +248,15 @@ MonoBehaviour:
   sightMask:
     serializedVersion: 2
     m_Bits: 467
-  sightSound: {fileID: 0}
+  sightSound: {fileID: 7073382011647977794, guid: 9538e5a9f919c564e8cd19eed4673534, type: 3}
+  noSightSoundOnHard: 0
   dropItem: {fileID: 8565569619343638066, guid: 82cd6d40e3df2ad4084e003857e25360, type: 3}
   painTime: 0.6
   painChance: 8
   painAnim: ElectricEnemyPain
   painSound: {fileID: 7073382011647977794, guid: b335a1a76af03574d979a71f6eefb562, type: 3}
   deathAnim: ElectricEnemyDie
-  deathSound: {fileID: 0}
+  deathSound: {fileID: 7073382011647977794, guid: fba7cb693c28038428fa857e4642a5a5, type: 3}
   hiddenWhileWaiting: 0
   wakeUpTimer: 0
   wakeUpAnim: 

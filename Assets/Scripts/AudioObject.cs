@@ -17,12 +17,18 @@ public class AudioObject : MonoBehaviour
 
         audioSource.clip = clips[Random.Range(0, clips.Length)];
         audioSource.pitch *= Random.Range(pitchMultMin, pitchMultMax);
+        SetVolume();
         audioSource.Play();
 
         StartCoroutine(DestroyAfterAudio());
     }
 
     void Update()
+    {
+        SetVolume();
+    }
+
+    void SetVolume()
     {
         audioSource.volume = baseVolume * Options.soundVolume;
     }

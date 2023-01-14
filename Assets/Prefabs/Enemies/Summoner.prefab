@@ -224,7 +224,7 @@ MonoBehaviour:
   attackTimeDefault: 1.25
   attackTime: 0
   attackProjectile: {fileID: 9116008725644934739, guid: fb708f0f3c8bea846bb88c22c9bcde3c, type: 3}
-  attackDamage: 12
+  attackDamage: 10
   attackAnim: SummonerAttack
   attackShotDelay: 0.3
   attackTotalDuration: 0.7
@@ -248,6 +248,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 467
   sightSound: {fileID: 7073382011647977794, guid: 628aae50bfdcb6d4c83d3d1b16d76a3c, type: 3}
+  noSightSoundOnHard: 0
   dropItem: {fileID: 0}
   painTime: 1
   painChance: 12

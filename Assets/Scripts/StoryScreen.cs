@@ -44,7 +44,7 @@ public class StoryScreen : MonoBehaviour
                 storyText.text = "You encountered a lot more monsters than you expected. They were also much more powerful than you are used to seeing.\n\nThere has to be something causing this infestation, and you don't want to face it alone. There is a fortress nearby. Perhaps its inhabitants could help you.";
                 break;
             case 4:
-                storyText.text = "The fortress had nobody that could help you. On the contrary, it has also been taken over by the monsters.\n\nAt least the situation made you improve your combat skills, because the key you just received unlocks a new part of the fortress. One that seems a lot more dangerous.";
+                storyText.text = "The fortress had nobody that could help you. On the contrary, it has also been taken over by the monsters.\n\nFortunately, the situation made you improve your combat skills, because the key you just received unlocks a new part of the fortress. One that seems a lot more dangerous.";
                 break;
             case 5:
                 storyText.text = "The Summoner has been defeated. The monster infestation is now contained. This world already has enough evil creatures as it is.\n\nAfter you close the last cursed spell book, you feel relieved, knowing that your unexpected quest has ended in victory. Congratulations!";
@@ -68,7 +68,7 @@ public class StoryScreen : MonoBehaviour
 
         Instantiate(fadeTo, gameObject.transform);
 
-        yield return new WaitForSeconds(1.4f);
+        yield return new WaitForSeconds(1.45f);
 
         _as.mute = true;
 

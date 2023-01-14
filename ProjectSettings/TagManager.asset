@@ -11,6 +11,7 @@ TagManager:
   - Teleporter
   - ProjectileIgnores
   - MovingWall
+  - StaticWall
   layers:
   - Default
   - TransparentFX

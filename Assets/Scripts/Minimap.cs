@@ -8,6 +8,7 @@ public class Minimap : MonoBehaviour
     public GameObject wallSpritePrefab;
     public GameObject playerSpritePrefab;
     public GameObject[] doorSpritePrefab;
+    public GameObject floorSpritePrefab;
     public Vector3 posOffset;
     public float scrollScale = 1f;
     public float zoomScale;
@@ -16,13 +17,20 @@ public class Minimap : MonoBehaviour
     GameObject playerObject;
     GameObject playerSprite;
 
+    Vector3 previousMinimapPosition;
+    Vector3 previousMinimapScale;
+
+    Vector3 lastFloorPosition = Vector3.zero;
+
     List<Vector3> usedPositions = new List<Vector3>();
+    List<GameObject> filteredObjects = new List<GameObject>();
 
     void Start()
     {
         everyGameObject = GameObject.FindObjectsOfType<GameObject>();
         mapObjectsRoot.transform.localScale = new Vector3(1, 1, 1);
         usedPositions.Clear();
+        filteredObjects.Clear();
 
         if (StaticClass.minimapType == 1)
         {
@@ -32,7 +40,7 @@ public class Minimap : MonoBehaviour
             {
                 if (obj.name != "Floor" && obj.name != "Ceiling" && obj.GetComponent<Transform>() != null && obj.GetComponent<RectTransform>() == null && StaticClass.minimapType == 1)
                 {
-                    if (obj.isStatic && posLatest != new Vector3(obj.transform.position.x + posOffset.x, obj.transform.position.z + posOffset.y, 0))
+                    if (obj.tag == "StaticWall" && posLatest != new Vector3(obj.transform.position.x + posOffset.x, obj.transform.position.z + posOffset.y, 0))
                     {
                         var ws = Instantiate(wallSpritePrefab, mapObjectsRoot.transform);
                         ws.transform.position = new Vector3(obj.transform.position.x + posOffset.x, obj.transform.position.z + posOffset.y, 0);
@@ -55,7 +63,7 @@ public class Minimap : MonoBehaviour
 
     void Update()
     {
-        if (HUD.mapEnabled && StaticClass.gameState == 0)
+        if (HUD.minimapEnabled && StaticClass.gameState == 0)
         {
             if (StaticClass.minimapType == 1)
             {
@@ -98,31 +106,51 @@ public class Minimap : MonoBehaviour
     // Check conditions and then add to minimap.
     public void AddToMinimapFilter(GameObject obj)
     {
-        if (obj.isStatic && obj.gameObject.name != "Floor" && obj.gameObject.name != "Ceiling")
+        if (filteredObjects.Contains(obj) == false && obj.layer != 5 && Time.timeScale != 0.0f)
         {
-            AddToMinimap(obj);
-        }
-        else if (obj.tag == "MovingWall")
-        {
-            if (obj.GetComponent<MovingWall>().canBeAddedToMinimap)
+            if (obj.tag == "StaticWall")
             {
-                AddToMinimap(obj);
-                obj.GetComponent<MovingWall>().canBeAddedToMinimap = false;
+                // Adds static walls to minimap. Checks the object tag because the "isStatic" boolean doesn't work for builds!
+                AddToMinimap(obj, obj.transform.position, true);
             }
-        }
-        else if (obj.GetComponent<Door>() != null)
-        {
-            if (obj.GetComponent<Door>().doorState == 0)
+            else if (obj.tag == "MovingWall")
             {
-                AddToMinimap(obj);
+                // Adds secret walls to minimap. Only adds them once, based on their initial position.
+                if (obj.GetComponent<MovingWall>().canBeAddedToMinimap)
+                {
+                    AddToMinimap(obj, obj.transform.position, true);
+                    obj.GetComponent<MovingWall>().canBeAddedToMinimap = false;
+                }
+            }
+            else if (obj.GetComponent<Door>() != null)
+            {
+                // Adds doors to minimap. Only adds them once, and only if they are closed.
+                if (obj.GetComponent<Door>().doorState == 0)
+                {
+                    AddToMinimap(obj, obj.transform.position, true);
+                }
             }
         }
     }
 
-    // Adds to minimap without checking conditions.
-    void AddToMinimap(GameObject obj)
+    // Add floor to the minimap, with an object's position as reference.
+    public void AddFloorToMinimap(GameObject reference)
     {
-        if (usedPositions.Contains(new Vector3(obj.transform.position.x + posOffset.x, obj.transform.position.z + posOffset.y, 0)) == false && Time.timeScale != 0.0f)
+        Vector3 pos = new Vector3(Mathf.RoundToInt(reference.transform.position.x), 0, Mathf.RoundToInt(reference.transform.position.z));
+
+        if (usedPositions.Contains(pos) == false && Time.timeScale != 0.0f && (pos.x % 2 == 0 || pos.z % 2 == 0))
+        {
+            AddToMinimap(reference, pos, false);
+            usedPositions.Add(pos);
+            lastFloorPosition = pos;
+            Debug.Log("Added floor to minimap at " + pos);
+        }
+    }
+
+    // Adds to minimap without checking conditions.
+    void AddToMinimap(GameObject obj, Vector3 pos, bool filtered)
+    {
+        if (usedPositions.Contains(new Vector3(pos.x + posOffset.x, pos.z + posOffset.y, 0)) == false && Time.timeScale != 0.0f)
         {
             GameObject prefabToAdd = wallSpritePrefab;
 
@@ -130,21 +158,30 @@ public class Minimap : MonoBehaviour
             {
                 prefabToAdd = doorSpritePrefab[obj.GetComponent<Door>().key];
             }
+            if(obj.tag == "Player")
+            {
+                prefabToAdd = floorSpritePrefab;
+            }
 
             ////// Reset position start //////
             playerSprite.transform.SetParent(null);
 
-            Vector3 previousMinimapPosition = mapObjectsRoot.transform.position;
-            Vector3 previousMinimapScale = mapObjectsRoot.transform.localScale;
+            previousMinimapPosition = mapObjectsRoot.transform.position;
+            previousMinimapScale = mapObjectsRoot.transform.localScale;
 
             mapObjectsRoot.transform.position = new Vector3(0, 0, 0);
             mapObjectsRoot.transform.localScale = new Vector3(1, 1, 1);
             ////// Reset position end //////
 
-            // Instantiate prefab on the map
+            // Instantiate prefab on the minimap
             var ws = Instantiate(prefabToAdd, mapObjectsRoot.transform);
-            ws.transform.position = new Vector3(obj.transform.position.x + posOffset.x, obj.transform.position.z + posOffset.y, 0);
+            ws.transform.position = new Vector3(pos.x + posOffset.x, pos.z + posOffset.y, 0);
             usedPositions.Add(ws.transform.position);
+
+            if (filtered == true)
+            {
+                filteredObjects.Add(obj);
+            }
 
             Debug.Log("Added " + obj.name + " to minimap");
 

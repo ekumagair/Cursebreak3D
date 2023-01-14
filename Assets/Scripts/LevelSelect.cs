@@ -12,7 +12,7 @@ public class LevelSelect : MonoBehaviour
     {
         Time.timeScale = 1.0f;
         Cursor.lockState = CursorLockMode.None;
-        StaticClass.ResetStats();
+        StaticClass.ResetStats(true);
     }
 
     void Update()

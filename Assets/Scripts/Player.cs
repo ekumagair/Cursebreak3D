@@ -28,15 +28,23 @@ public class Player : MonoBehaviour
     public bool isInvisible = false;
     public RenderTexture canvasTargetTexture;
 
+    // score: Total chapter score. Only resets after a chapter is completed.
     public static int score = 0;
+    // scoreThisLevel: Resets after level is completed.
     public static int scoreThisLevel = 0;
+
+    // Time spent on the current level.
     public static int timeSeconds = 0;
     public static int timeMinutes = 0;
+
+    // Player information stored after a level is completed.
     public static int savedHealth = 100;
     public static int savedArmor = 100;
     public static float savedArmorMult = 1f;
     public static bool[] savedWeaponsUnlocked = new bool[7];
     public static int[] savedAmmo = new int[3];
+
+    // Replace ammo display with scoreThisLevel display for a limited time.
     public static float gotScoreTimer = 0;
 
     bool scrolledMouse = false;
@@ -179,7 +187,7 @@ public class Player : MonoBehaviour
         }
 
         // Select weapon with mouse wheel.
-        if (Input.GetAxis("Mouse ScrollWheel") != 0.0f)
+        if (Input.GetAxis("Mouse ScrollWheel") != 0.0f && HUD.minimapEnabled == false)
         {
             if (scrolledMouse == false)
             {
@@ -433,16 +441,19 @@ public class Player : MonoBehaviour
         }
 
         // Reveal walls on minimap
-        if (StaticClass.minimapType == 2 && HUD.mapEnabled == false)
+        if (StaticClass.minimapType == 2 && HUD.minimapEnabled == false)
         {
             for (float i = -1; i <= 1; i += 0.1f)
             {
-                RevealMinimapRay(i);
+                RevealMinimapRay(i, false);
             }
         }
 
+        // Reveal floor on minimap
+        //minimapScript.AddFloorToMinimap(gameObject);
+
         // Debug
-        if(StaticClass.debug == true)
+        if (StaticClass.debug == true)
         {
             // Toggle canvas
             if(Input.GetKeyDown(KeyCode.U))
@@ -457,6 +468,18 @@ public class Player : MonoBehaviour
                 {
                     Camera.main.targetTexture = null;
                 }
+            }
+
+            // Add object in front of player to minimap
+            if(Input.GetKeyDown(KeyCode.M))
+            {
+                RevealMinimapRay(0, true);
+            }
+
+            // Add health
+            if(Input.GetKeyDown(KeyCode.H))
+            {
+                healthScript.health += 10;
             }
         }
     }
@@ -476,6 +499,7 @@ public class Player : MonoBehaviour
                     healthScript.health += itemScript.giveHealth;
                 }
 
+                // Limits player health.
                 if (healthScript.health > 100)
                 {
                     healthScript.health = 100;
@@ -621,7 +645,7 @@ public class Player : MonoBehaviour
         GetComponent<CharacterController>().enabled = false;
         GetComponent<Controls>().enabled = false;
         Camera.main.GetComponent<MouseLook>().enabled = false;
-        HUD.mapEnabled = false;
+        HUD.minimapEnabled = false;
 
         Instantiate(deathFadeObject, gameCanvas.transform);
 
@@ -747,7 +771,7 @@ public class Player : MonoBehaviour
     }
 
     // Reveal minimap with sight.
-    void RevealMinimapRay(float spread)
+    void RevealMinimapRay(float spread, bool addToLog)
     {
         RaycastHit minimapHit;
         if (Physics.Raycast(transform.position, transform.forward + (spread * transform.right), out minimapHit, Mathf.Infinity, attackRayMask))
@@ -755,6 +779,12 @@ public class Player : MonoBehaviour
             if (minimapHit.collider.gameObject != null)
             {
                 minimapScript.AddToMinimapFilter(minimapHit.collider.gameObject);
+
+                if (addToLog == true && StaticClass.debug == true)
+                {
+                    gameCanvas.GetComponent<HUD>().HudAddLog(minimapHit.collider.gameObject.ToString());
+                    gameCanvas.GetComponent<HUD>().HudAddLog(minimapHit.collider.gameObject.transform.position.ToString());
+                }
             }
         }
     }

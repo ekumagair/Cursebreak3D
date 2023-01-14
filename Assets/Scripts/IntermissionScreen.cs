@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 public class IntermissionScreen : MonoBehaviour
 {
     public GameObject fadeFrom;
+    public GameObject fadeTo;
+
     public Text score;
     public Text scoreTotal;
     public Text secrets;
@@ -14,6 +16,7 @@ public class IntermissionScreen : MonoBehaviour
     public Text enemies;
     public Text enemiesRating;
     public Text time;
+    public Text continueText;
     public AudioSource bonusSound;
 
     bool secretsBonus = false;
@@ -24,6 +27,7 @@ public class IntermissionScreen : MonoBehaviour
     int displayNumber2 = 0;
 
     AudioSource _as;
+    bool endedIntermission = false;
 
     void Start()
     {
@@ -33,6 +37,7 @@ public class IntermissionScreen : MonoBehaviour
         Instantiate(fadeFrom, gameObject.transform);
 
         intermissionState = 0;
+        endedIntermission = false;
 
         secretsRating.enabled = false;
         enemiesRating.enabled = false;
@@ -78,45 +83,23 @@ public class IntermissionScreen : MonoBehaviour
             {
                 ShowTimeText(Player.timeMinutes, Player.timeSeconds);
             }
+            if (intermissionState >= 5)
+            {
+                continueText.enabled = true;
+            }
+            else
+            {
+                continueText.enabled = false;
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
         {
             if (intermissionState >= 5)
             {
-                // Reset variables
-                Player.scoreThisLevel = 0;
-                StaticClass.secretsDiscovered = 0;
-                StaticClass.secretsTotal = 0;
-                StaticClass.enemiesTotal = 0;
-                Player.timeSeconds = 0;
-                Player.timeMinutes = 0;
-
-                // Continue to next map or story screen
-                if (StaticClass.currentMap < 5)
+                if(endedIntermission == false)
                 {
-                    SceneManager.LoadScene("C" + StaticClass.currentChapter + "M" + (StaticClass.currentMap + 1));
-                }
-                else
-                {
-                    switch (StaticClass.currentChapter)
-                    {
-                        default:
-                            StoryScreen.whichText = 0;
-                            break;
-                        case 1:
-                            StoryScreen.whichText = 3;
-                            break;
-                        case 2:
-                            StoryScreen.whichText = 4;
-                            break;
-                        case 3:
-                            StoryScreen.whichText = 5;
-                            break;
-                    }
-                    StaticClass.loadSavedPlayerInfo = false;
-                    StoryScreen.goToTitle = true;
-                    SceneManager.LoadScene("Story");
+                    StartCoroutine(EndIntermission());
                 }
             }
             else
@@ -286,5 +269,46 @@ public class IntermissionScreen : MonoBehaviour
     void PlayBonusSound()
     {
         bonusSound.Play();
+    }
+
+    IEnumerator EndIntermission()
+    {
+        endedIntermission = true;
+        intermissionState = 5;
+
+        // Create fade in object.
+        Instantiate(fadeTo, gameObject.transform);
+
+        yield return new WaitForSeconds(1.45f);
+
+        // Reset variables. Doesn't reset chapter and map variables.
+        StaticClass.ResetStats(false);
+
+        // Continue to next map or story screen
+        if (StaticClass.currentMap < 5)
+        {
+            SceneManager.LoadScene("C" + StaticClass.currentChapter + "M" + (StaticClass.currentMap + 1));
+        }
+        else
+        {
+            switch (StaticClass.currentChapter)
+            {
+                default:
+                    StoryScreen.whichText = 0;
+                    break;
+                case 1:
+                    StoryScreen.whichText = 3;
+                    break;
+                case 2:
+                    StoryScreen.whichText = 4;
+                    break;
+                case 3:
+                    StoryScreen.whichText = 5;
+                    break;
+            }
+            StaticClass.loadSavedPlayerInfo = false;
+            StoryScreen.goToTitle = true;
+            SceneManager.LoadScene("Story");
+        }
     }
 }

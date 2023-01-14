@@ -28,6 +28,7 @@ public class HealerBehavior : MonoBehaviour
 
     void Update()
     {
+        // Cooldown timer. Must wait "cooldownDefault" seconds before being able to heal again.
         if(cooldown > 0)
         {
             cooldown -= Time.deltaTime;
@@ -40,15 +41,18 @@ public class HealerBehavior : MonoBehaviour
 
     void OnTriggerStay(Collider other)
     {
+        // Every enemy that gets close to this one is added to a list. The enemy that heals can't heal itself. Targets can't be added twice to the list.
         if (EnemyIsActive() && other.gameObject.tag != "Player" && other.gameObject.GetComponent<Enemy>() != null && other.gameObject != transform.parent.gameObject && healTargets.Contains(other.gameObject) == false)
         {
-            if (other.gameObject.GetComponent<Enemy>().canBeHealed == true)
+            // Adds to targets list if the target can be healed or if the target is dead and it can be revived.
+            if (other.gameObject.GetComponent<Enemy>().canBeHealed == true || (other.gameObject.GetComponent<Health>().isDead == true && other.gameObject.GetComponent<Enemy>().canBeRevived == true))
             {
                 healTargets.Add(other.gameObject);
             }
         }
     }
 
+    // Occasionally check if should heal. Can't heal if the healTargets list is empty.
     IEnumerator DecideToHeal()
     {
         yield return new WaitForSeconds(0.5f);
@@ -61,12 +65,17 @@ public class HealerBehavior : MonoBehaviour
         StartCoroutine(DecideToHeal());
     }
 
+    // Performs the healing and reviving to every healTarget at once. This lasts for "t" seconds.
     public IEnumerator Heal(float t)
     {
-        spriteAnimator.Play(healAnimation);
-        enemyScript.wakeUpTimer = t;
+        // Play healing animation and prevent enemy from attacking while healing.
+        if (enemyHealth.isDead == false)
+        {
+            spriteAnimator.Play(healAnimation);
+            enemyScript.wakeUpTimer = t;
+        }
 
-        // Don't let the sounds be too loud.
+        // Don't let the sounds be too loud by limiting the amount of sound objects created.
         int snd_heal_limit = 3;
         int snd_revive_limit = 3;
 
@@ -140,12 +149,15 @@ public class HealerBehavior : MonoBehaviour
         enemyScript.attackTime += 1f;
         enemyScript.wakeUpTimer = 0;
 
+        // Resets cooldown timer. Increase cooldown based on how many targets were healed.
         cooldown = cooldownDefault;
         cooldown += healTargets.Count;
 
+        // Clears healTargets list.
         healTargets.Clear();
     }
 
+    // Returns true if the enemy with the healer behaviour is not busy attacking, waking up, or dead or with no target.
     bool EnemyIsActive()
     {
         return enemyScript.attackTime > 0 && enemyScript.wakeUpTimer <= 0 && enemyHealth.isDead == false && enemyScript.target != null;

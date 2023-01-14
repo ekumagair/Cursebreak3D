@@ -122,7 +122,7 @@ MonoBehaviour:
   meleeRange: 3.6
   meleeStartDelay: 0.5
   meleeDuration: 1
-  meleeSound: {fileID: 0}
+  meleeSound: {fileID: 7073382011647977794, guid: 1389e2ac7da81da438ce3f41ade14c8d, type: 3}
   meleeSoundHit: {fileID: 7073382011647977794, guid: add27be737d907543be3c8a9fd81cbde, type: 3}
   hasRangedAttack: 0
   hasMeleeAttack: 1
@@ -130,6 +130,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 467
   sightSound: {fileID: 7073382011647977794, guid: 634bf9a6c5aaf314c8f920514ea197c2, type: 3}
+  noSightSoundOnHard: 1
   dropItem: {fileID: 0}
   painTime: 0.4
   painChance: 7

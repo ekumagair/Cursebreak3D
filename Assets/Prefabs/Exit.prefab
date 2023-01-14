@@ -172,6 +172,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fade: {fileID: 1665016438080051992, guid: ff6ba38f279140147897a5ed654ffcfa, type: 3}
+  useSound: {fileID: 7073382011647977794, guid: 08d6e164854df244ca6a7563884b8fd2, type: 3}
 --- !u!95 &5648826510893856865
 Animator:
   serializedVersion: 3

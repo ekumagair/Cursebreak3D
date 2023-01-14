@@ -88,7 +88,7 @@ public class Controls : MonoBehaviour
         }
 
         // Execute movement
-        if (controller.enabled == true && HUD.mapEnabled == false && playerScript.conditionTimer[1] <= 0)
+        if (controller.enabled == true && HUD.minimapEnabled == false && playerScript.conditionTimer[1] <= 0)
         {
             controller.Move(move * vel * Time.deltaTime);
         }
@@ -181,7 +181,7 @@ public class Controls : MonoBehaviour
     {
         yield return new WaitForSeconds(4f / GetCurrentVelocity());
 
-        if (isMoving && isGrounded && HUD.mapEnabled == false)
+        if (isMoving && isGrounded && HUD.minimapEnabled == false)
         {
             FootstepSFX();
 
