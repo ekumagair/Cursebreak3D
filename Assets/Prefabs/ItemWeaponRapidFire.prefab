@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5885094664761333886}
   - component: {fileID: 5885094664761333887}
   - component: {fileID: 5885094664761333884}
+  - component: {fileID: 3059770695792075780}
   m_Layer: 2
   m_Name: ItemWeaponRapidFire
   m_TagString: Item
@@ -72,6 +73,20 @@ MonoBehaviour:
   createOnCollect: {fileID: 1665016438080051992, guid: 7704073fdb1aa424aa5260b9ab0fb16d, type: 3}
   createOnCollectGameWorld: {fileID: 7073382011647977794, guid: c81dddb581850c348a7fa5ed0498c0f5, type: 3}
   canAlwaysCollect: 0
+  triggersAutosave: 1
+--- !u!114 &3059770695792075780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5885094664761333885}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ccef66117689204781a0575de5df0d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  difficulty: 01010101
 --- !u!1 &5885094664875255987
 GameObject:
   m_ObjectHideFlags: 0

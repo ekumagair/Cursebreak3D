@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ControlsDefault : MonoBehaviour
 {
-    public CharacterController controller;
+    CharacterController controller;
     Camera mainCam;
 
     [Header("Physics")]
@@ -40,6 +40,7 @@ public class ControlsDefault : MonoBehaviour
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
+        controller = GetComponent<CharacterController>();
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         isSprinting = false;
         StartCoroutine(Footstep());
@@ -48,7 +49,6 @@ public class ControlsDefault : MonoBehaviour
     void Update()
     {
         // Movement
-
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, solidMask);
 
         if (isGrounded && velocityV3.y < 0)
@@ -102,7 +102,6 @@ public class ControlsDefault : MonoBehaviour
         }
 
         // Use
-
         if (Input.GetKeyDown(useKey))
         {
             Debug.DrawRay(transform.position, mainCam.transform.forward * 4, Color.white, 5f);

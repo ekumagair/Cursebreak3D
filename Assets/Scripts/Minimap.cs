@@ -183,7 +183,7 @@ public class Minimap : MonoBehaviour
                 filteredObjects.Add(obj);
             }
 
-            Debug.Log("Added " + obj.name + " to minimap");
+            //Debug.Log("Added " + obj.name + " to minimap");
 
             ////// Restore position start //////
             mapObjectsRoot.transform.position = previousMinimapPosition;

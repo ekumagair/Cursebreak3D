@@ -20,6 +20,7 @@ public class StoryScreen : MonoBehaviour
     void Start()
     {
         Time.timeScale = 1.0f;
+        Cursor.lockState = CursorLockMode.None;
         Instantiate(fadeFrom, gameObject.transform);
 
         _as = GetComponent<AudioSource>();
@@ -41,13 +42,13 @@ public class StoryScreen : MonoBehaviour
                 storyText.text = "At the entrance to the newly-opened underground section, the monsters' presence feels even stronger.\n\nThe source of the infestation could be down there, and though the risk is great, eliminating it could bring an end to this.\n\nYou've reached this far, no reason to stop now.";
                 break;
             case 3:
-                storyText.text = "You encountered a lot more monsters than you expected. They were also much more powerful than you are used to seeing.\n\nThere has to be something causing this infestation, and you don't want to face it alone. There is a fortress nearby. Perhaps its inhabitants could help you.";
+                storyText.text = "You encountered a lot more monsters than you expected. Their strength was also much greater than what you are used to.\n\nThere has to be something causing an infestation, and you don't want to face it alone. There is a fortress nearby. Perhaps its inhabitants could help you.";
                 break;
             case 4:
-                storyText.text = "The fortress had nobody that could help you. On the contrary, it has also been taken over by the monsters.\n\nFortunately, the situation made you improve your combat skills, because the key you just received unlocks a new part of the fortress. One that seems a lot more dangerous.";
+                storyText.text = "The fortress had nobody that could help you. On the contrary, it has also been taken over by the monsters.\n\nFortunately, the situation made you improve your combat abilities, because the key you just received unlocks a new part of the fortress. One that seems a lot more dangerous.";
                 break;
             case 5:
-                storyText.text = "The Summoner has been defeated. The monster infestation is now contained. This world already has enough evil creatures as it is.\n\nAfter you close the last cursed spell book, you feel relieved, knowing that your unexpected quest has ended in victory. Congratulations!";
+                storyText.text = "The Summoner has been defeated. The monster infestation is now contained. There are enough vile creatures in this world as it is.\n\nAfter you close the last cursed spell book, you feel relieved, knowing that your unexpected quest has ended in victory. Congratulations!";
                 break;
         }
 
@@ -56,7 +57,7 @@ public class StoryScreen : MonoBehaviour
 
     void Update()
     {
-        if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space)) && continued == false)
+        if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) && continued == false && Time.timeSinceLevelLoad >= 1)
         {
             StartCoroutine(Continue());
         }
@@ -68,7 +69,7 @@ public class StoryScreen : MonoBehaviour
 
         Instantiate(fadeTo, gameObject.transform);
 
-        yield return new WaitForSeconds(1.45f);
+        yield return new WaitForSeconds(1.85f);
 
         _as.mute = true;
 
@@ -78,7 +79,17 @@ public class StoryScreen : MonoBehaviour
         }
         else
         {
-            SceneManager.LoadScene("TitleScreen");
+            // End of chapter story screen. Go to title screen if not the last chapter. If finished the last chapter, go to the cast screen.
+            if (StaticClass.currentChapter < 3)
+            {
+                TitleScreen.startFromChapterSelect = true;
+                SceneManager.LoadScene("TitleScreen");
+            }
+            else
+            {
+                TitleScreen.startFromChapterSelect = true;
+                SceneManager.LoadScene("Cast");
+            }
         }
     }
 }

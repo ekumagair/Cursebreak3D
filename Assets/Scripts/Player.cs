@@ -28,7 +28,7 @@ public class Player : MonoBehaviour
     public bool isInvisible = false;
     public RenderTexture canvasTargetTexture;
 
-    // score: Total chapter score. Only resets after a chapter is completed.
+    // score: Total chapter score. Only resets after a chapter is completed. Is only actually updated after a level ends.
     public static int score = 0;
     // scoreThisLevel: Resets after level is completed.
     public static int scoreThisLevel = 0;
@@ -44,8 +44,14 @@ public class Player : MonoBehaviour
     public static bool[] savedWeaponsUnlocked = new bool[7];
     public static int[] savedAmmo = new int[3];
 
+    public static Vector3 savedPosition;
+    public static float savedRotation;
+
     // Replace ammo display with scoreThisLevel display for a limited time.
     public static float gotScoreTimer = 0;
+
+    // Damage prevents player from sprinting for a short time.
+    public static bool damageStopsSprint = false;
 
     bool scrolledMouse = false;
 
@@ -54,9 +60,20 @@ public class Player : MonoBehaviour
     GameObject gameCanvas;
     HUD gameCanvasScript;
     Minimap minimapScript;
+    CharacterController characterController;
+
+    // Register interaction with objects in the map.
+    public List<string> enemyStartPositions;
+    public static string[] savedEnemyStartPositions = new string[1];
+    public List<string> killedEnemies;
+    public static string[] savedKilledEnemies = new string[1];
+    public List<string> destroyedItemsPositions;
+    public static string[] savedDestroyedItemsPositions = new string[1];
+    public List<string> discoveredSecrets;
+    public static string[] savedDiscoveredSecrets = new string[1];
 
     // Weapon list
-    // 0 = Empty hand
+    // 0 = Empty hand (Always unlocked)
     // 1 = Wooden Staff
     // 2 = Plasma Blade
     // 3 = Fire Ring
@@ -86,8 +103,14 @@ public class Player : MonoBehaviour
     // 2 = Can't sprint
     // 3 = 2x Damage Multiplier
     // 4 = 4x Damage Multiplier
-    // 5 = Can't look horizontally
-    // 6 = Can't look vertically
+    // 5 = Can't aim horizontally
+    // 6 = Can't aim vertically
+
+    private void Awake()
+    {
+        StaticClass.enemiesTotal = 0;
+        StaticClass.secretsTotal = 0;
+    }
 
     void Start()
     {
@@ -96,18 +119,15 @@ public class Player : MonoBehaviour
         gameCanvas = GameObject.FindGameObjectWithTag("Canvas");
         gameCanvasScript = gameCanvas.GetComponent<HUD>();
         minimapScript = gameCanvasScript.mapRoot.GetComponent<Minimap>();
+        characterController = GetComponent<CharacterController>();
         Camera.main.targetTexture = canvasTargetTexture;
         isInvisible = false;
         weaponsUnlocked[0] = true;
-        timeSeconds = 0;
-        timeMinutes = 0;
-        scoreThisLevel = 0;
         scrolledMouse = false;
         StaticClass.gameState = 0;
-        StaticClass.secretsDiscovered = 0;
-        StaticClass.enemiesKilled = 0;
+        TitleScreen.startFromChapterSelect = false;
 
-        if(StaticClass.loadSavedPlayerInfo == true)
+        if (StaticClass.loadSavedPlayerInfo == true)
         {
             // Load player info.
             healthScript.health = savedHealth;
@@ -125,16 +145,55 @@ public class Player : MonoBehaviour
             }
 
             // Fail-safe, in case the player's saved health is 0 or less.
-            if(healthScript.health <= 0)
+            if (healthScript.health <= 0)
             {
                 healthScript.health = 1;
             }
 
-            //StaticClass.loadSavedPlayerInfo = false;
-            StartCoroutine(Autosave(0.03f));
+            Debug.Log("Loaded player inventory info.");
+
+            // Load player transform.
+            if (StaticClass.loadSavedPlayerFullInfo == true)
+            {
+                characterController.enabled = false;
+                transform.position = new Vector3(savedPosition.x, savedPosition.y, savedPosition.z);
+                transform.rotation = Quaternion.Euler(0, savedRotation, 0);
+
+                Debug.Log("Loaded player full info.");
+            }
+        }
+        else
+        {
+            // Don't load player info.
+            StaticClass.secretsDiscovered = 0;
+            StaticClass.enemiesKilled = 0;
+            timeSeconds = 0;
+            timeMinutes = 0;
+            scoreThisLevel = 0;
         }
 
-        if(StaticClass.difficulty == 0) // Easy
+        // Load saved map data.
+        if(StaticClass.loadSavedMapData == true)
+        {
+            for (int x = 0; x < savedEnemyStartPositions.Length; x++)
+            {
+                enemyStartPositions.Add(savedEnemyStartPositions[x]);
+            }
+            for (int i = 0; i < savedDestroyedItemsPositions.Length; i++)
+            {
+                destroyedItemsPositions.Add(savedDestroyedItemsPositions[i]);
+            }
+            for (int y = 0; y < savedKilledEnemies.Length; y++)
+            {
+                killedEnemies.Add(savedKilledEnemies[y]);
+            }
+            for (int i = 0; i < savedDiscoveredSecrets.Length; i++)
+            {
+                discoveredSecrets.Add(savedDiscoveredSecrets[i]);
+            }
+        }
+
+        if (StaticClass.difficulty <= 0) // Easy
         {
             healthScript.overallDamageMult = 0.5f;
         }
@@ -146,13 +205,36 @@ public class Player : MonoBehaviour
         {
             healthScript.overallDamageMult = 1.5f;
         }
-        else if (StaticClass.difficulty == 3) // Very hard
+        else if (StaticClass.difficulty >= 3) // Very hard
         {
             healthScript.overallDamageMult = 2.0f;
         }
 
+        // If difficulty is normal or easier.
+        if(StaticClass.difficulty <= 1)
+        {
+            damageStopsSprint = false;
+        }
+        else
+        {
+            damageStopsSprint = true;
+        }
+
         StartCoroutine(CheckEnemyVision());
         StartCoroutine(Timer());
+
+        if (StaticClass.pendingLoad > -1)
+        {
+            // If loaded slot from a menu that doesn't have the player.
+            StaticClass.ResetStats(false);
+            SaveSystem.LoadGame(StaticClass.pendingLoad);
+        }
+        else
+        {
+            StartCoroutine(Autosave(0.25f));
+        }
+
+        characterController.enabled = true;
     }
 
     void Update()
@@ -288,7 +370,7 @@ public class Player : MonoBehaviour
                 }
             }
 
-            // Make sound
+            // Play weapon sound.
             if (weaponSound[currentWeapon] != null)
             {
                 Instantiate(weaponSound[currentWeapon], transform.position, transform.rotation);
@@ -373,6 +455,7 @@ public class Player : MonoBehaviour
         }
 
         // Condition timers
+        // Cycle through every condition timer.
         for (int i = 0; i < conditionTimer.Length; i++)
         {
             if (conditionTimer[i] > 0)
@@ -388,10 +471,12 @@ public class Player : MonoBehaviour
                     {
                         if (conditionTimer[i] > 3)
                         {
+                            // Show overlay.
                             gameCanvasScript.conditionOverlaysAnimators[i].Play("FlashImageShow");
                         }
                         else
                         {
+                            // Make overlay blink to show that the condition timer is running out.
                             gameCanvasScript.conditionOverlaysAnimators[i].Play("FlashImage");
                         }
                     }
@@ -470,16 +555,57 @@ public class Player : MonoBehaviour
                 }
             }
 
-            // Add object in front of player to minimap
+            // Add object in front of player to minimap.
             if(Input.GetKeyDown(KeyCode.M))
             {
                 RevealMinimapRay(0, true);
             }
 
             // Add health
-            if(Input.GetKeyDown(KeyCode.H))
+            if(Input.GetKeyDown(KeyCode.H) && !Input.GetKey(KeyCode.LeftShift))
             {
                 healthScript.health += 10;
+            }
+            // Add armor
+            if (Input.GetKeyDown(KeyCode.R) && !Input.GetKey(KeyCode.LeftShift))
+            {
+                healthScript.armorMult = 0.75f;
+                healthScript.armor += 10;
+            }
+            if (Input.GetKeyDown(KeyCode.G) && !Input.GetKey(KeyCode.LeftShift))
+            {
+                healthScript.armorMult = 0.5f;
+                healthScript.armor += 10;
+            }
+
+            // Save and Load tests
+            if(Input.GetKey(KeyCode.LeftShift))
+            {
+                if (Input.GetKeyDown(KeyCode.G))
+                {
+                    SaveToPlayerData(0);
+                }
+                if (Input.GetKeyDown(KeyCode.H))
+                {
+                    LoadFromPlayerData(0);
+                }
+                if (Input.GetKeyDown(KeyCode.B))
+                {
+                    SaveSystem.SaveGame(0);
+                }
+                if (Input.GetKeyDown(KeyCode.N))
+                {
+                    SaveSystem.LoadGame(0);
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                Debug.Log("Player Y rotation: " + transform.rotation.y);
+                Debug.Log("Difficulty is " + StaticClass.difficulty);
+                Debug.Log("Level score: " + Player.scoreThisLevel);
+                Debug.Log("Chapter score: " + Player.score);
+                Debug.Log("Slot 1 level score: " + PlayerPrefs.GetInt("slot1_scoreThisLevel"));
             }
         }
     }
@@ -494,6 +620,7 @@ public class Player : MonoBehaviour
 
             if ((itemScript.giveHealth > 0 && healthScript.health < 100) || (itemScript.giveArmor > 0 && healthScript.armor < 100) || (itemScript.giveAmmo > 0 && ammo[itemScript.giveAmmoType] < ammoLimit[itemScript.giveAmmoType]) || itemScript.giveWeapon != -1 || itemScript.giveKey != -1 || itemScript.canAlwaysCollect == true)
             {
+                // Give health.
                 if (itemScript.giveHealth != 0)
                 {
                     healthScript.health += itemScript.giveHealth;
@@ -505,6 +632,7 @@ public class Player : MonoBehaviour
                     healthScript.health = 100;
                 }
 
+                // Give weapon.
                 if (itemScript.giveWeapon >= 0)
                 {
                     weaponsUnlocked[itemScript.giveWeapon] = true;
@@ -516,11 +644,13 @@ public class Player : MonoBehaviour
                     }
                 }
 
+                // Give ammo.
                 if (itemScript.giveAmmo > 0 && itemScript.giveAmmoType != -1)
                 {
                     ammo[itemScript.giveAmmoType] += itemScript.giveAmmo;
                 }
 
+                // Give armor.
                 if (itemScript.giveArmor != 0)
                 {
                     healthScript.armor += itemScript.giveArmor;
@@ -532,18 +662,21 @@ public class Player : MonoBehaviour
                     }
                 }
 
+                // Give score.
                 if (itemScript.giveScore != 0)
                 {
                     scoreThisLevel += itemScript.giveScore;
                     gotScoreTimer = 4f;
                 }
 
+                // Give key.
                 if (itemScript.giveKey >= 0)
                 {
                     keys[itemScript.giveKey] = true;
                 }
 
-                if(itemScript.giveCondition > -1)
+                // Give condition.
+                if (itemScript.giveCondition > -1 && itemScript.giveConditionTimer > 0)
                 {
                     conditionTimer[itemScript.giveCondition] = itemScript.giveConditionTimer;
                 }
@@ -563,6 +696,12 @@ public class Player : MonoBehaviour
                     Instantiate(itemScript.createOnCollectGameWorld, transform.position, transform.rotation);
                 }
 
+                if (itemScript.triggersAutosave == true)
+                {
+                    StartCoroutine(Autosave(0.5f));
+                }
+
+                destroyedItemsPositions.Add(other.gameObject.transform.position.x.ToString() + other.gameObject.transform.position.y.ToString() + other.gameObject.transform.position.z.ToString());
                 Destroy(other.gameObject);
             }
         }
@@ -617,17 +756,17 @@ public class Player : MonoBehaviour
         StartCoroutine(Timer());
     }
 
-    // Auto save on slot 0
+    // Auto save on slot 0.
     public IEnumerator Autosave(float t)
     {
         yield return new WaitForSeconds(t);
-        gameCanvas.GetComponent<HUD>().SaveData(0);
+        SaveSystem.SaveGame(0);
     }
 
     // When the player takes damage.
     public void PlayerPain(int amount)
     {
-        if(StaticClass.difficulty > 0 && amount > 9)
+        if(StaticClass.difficulty > 0 && amount > 9 && damageStopsSprint == true)
         {
             // Don't let player sprint for a limited time if more than 9 damage was taken.
             conditionTimer[2] = 1f;
@@ -655,6 +794,7 @@ public class Player : MonoBehaviour
 
         yield return new WaitForSeconds(4f);
 
+        SaveSystem.LoadGame(0);
         SceneManager.LoadScene("C" + StaticClass.currentChapter + "M" + StaticClass.currentMap);
     }
 
@@ -662,6 +802,7 @@ public class Player : MonoBehaviour
     public IEnumerator Exit(GameObject fade)
     {
         StaticClass.gameState = 1;
+        StaticClass.pendingLoad = -1;
         Time.timeScale = 1.0f;
 
         GetComponent<CharacterController>().enabled = false;
@@ -691,9 +832,12 @@ public class Player : MonoBehaviour
             savedWeaponsUnlocked[i] = weaponsUnlocked[i];
         }
 
+        // Don't load old data on the new level.
         StaticClass.loadSavedPlayerInfo = true;
+        StaticClass.loadSavedPlayerFullInfo = false;
+        StaticClass.loadSavedMapData = false;
 
-        yield return new WaitForSeconds(1.3f);
+        yield return new WaitForSeconds(1.85f);
 
         SceneManager.LoadScene("Intermission");
     }
@@ -787,5 +931,69 @@ public class Player : MonoBehaviour
                 }
             }
         }
+    }
+
+    // Save to player data.
+    public void SaveToPlayerData(int slot)
+    {
+        SaveSystem.SavePlayer(this, slot);
+    }
+
+    // Load from player data.
+    public void LoadFromPlayerData(int slot)
+    {
+        PlayerData data = SaveSystem.LoadPlayer(slot);
+
+        characterController.enabled = false;
+
+        savedHealth = data.health;
+        savedArmor = data.armor;
+        savedArmorMult = data.armorMult;
+
+        savedPosition.x = data.position[0];
+        savedPosition.y = data.position[1];
+        savedPosition.z = data.position[2];
+
+        savedRotation = data.rotation;
+
+        for (int i = 0; i < ammo.Length; i++)
+        {
+            savedAmmo[i] = data.ammo[i];
+        }
+
+        for (int i = 0; i < weaponsUnlocked.Length; i++)
+        {
+            savedWeaponsUnlocked[i] = data.weaponsUnlocked[i];
+        }
+
+        savedEnemyStartPositions = new string[data.enemyStartPositions.Length];
+        for (int i = 0; i < data.enemyStartPositions.Length; i++)
+        {
+            savedEnemyStartPositions[i] = data.enemyStartPositions[i];
+        }
+
+        savedDestroyedItemsPositions = new string[data.destroyedItemsPositions.Length];
+        for (int i = 0; i < data.destroyedItemsPositions.Length; i++)
+        {
+            savedDestroyedItemsPositions[i] = data.destroyedItemsPositions[i];
+        }
+
+        savedKilledEnemies = new string[data.killedEnemies.Length];
+        for (int i = 0; i < data.killedEnemies.Length; i++)
+        {
+            savedKilledEnemies[i] = data.killedEnemies[i];
+        }
+
+        savedDiscoveredSecrets = new string[data.discoveredSecrets.Length];
+        for (int i = 0; i < data.discoveredSecrets.Length; i++)
+        {
+            savedDiscoveredSecrets[i] = data.discoveredSecrets[i];
+        }
+
+        StaticClass.loadSavedPlayerInfo = true;
+        StaticClass.loadSavedPlayerFullInfo = true;
+        StaticClass.loadSavedMapData = true;
+
+        SceneManager.LoadScene(data.scene);
     }
 }

@@ -168,6 +168,7 @@ MonoBehaviour:
   createOnCollect: {fileID: 1665016438080051992, guid: 7704073fdb1aa424aa5260b9ab0fb16d, type: 3}
   createOnCollectGameWorld: {fileID: 7073382011647977794, guid: 75388c7814bf47b44bc798dbe05c49f5, type: 3}
   canAlwaysCollect: 0
+  triggersAutosave: 1
 --- !u!114 &6296691289324730524
 MonoBehaviour:
   m_ObjectHideFlags: 0

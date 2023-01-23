@@ -18,4 +18,28 @@ public class Item : MonoBehaviour
     public GameObject createOnCollect;
     public GameObject createOnCollectGameWorld;
     public bool canAlwaysCollect = false;
+    public bool triggersAutosave = false;
+
+    Player player;
+
+    private void Start()
+    {
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+    }
+
+    private void Update()
+    {
+        if (StaticClass.loadSavedMapData == true)
+        {
+            if (player.destroyedItemsPositions.Contains(transform.position.x.ToString() + transform.position.y.ToString() + transform.position.z.ToString()))
+            {
+                if(giveKey > 0)
+                {
+                    player.keys[giveKey] = true;
+                }
+
+                Destroy(gameObject);
+            }
+        }
+    }
 }

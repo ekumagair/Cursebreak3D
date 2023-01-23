@@ -18,6 +18,7 @@ public class CheatCode : MonoBehaviour
     [Header("Cheat Properties")]
     public bool once = true;
     public bool playSound = false;
+    public bool debugOnly = false;
     public KeyCode[] buttons;
     public int currentButton;
 
@@ -42,72 +43,78 @@ public class CheatCode : MonoBehaviour
                 // If typed every key.
                 if(currentButton == buttons.Length)
                 {
-                    currentButton = 0;
-
-                    if(giveWeapon > 0)
+                    if(debugOnly == false || (debugOnly == true && StaticClass.debug == true))
                     {
-                        playerScript.weaponsUnlocked[giveWeapon] = true;
-                        playerScript.ammo[playerScript.weaponAmmoType[giveWeapon]] += 20;
+                        ExecuteEffect();
                     }
-                    if (giveWeapon == -1)
-                    {
-                        for (int i = 0; i < playerScript.weaponsUnlocked.Length; i++)
-                        {
-                            playerScript.weaponsUnlocked[i] = true;
-                            playerScript.ammo[playerScript.weaponAmmoType[i]] += 20;
-                        }
-                    }
-                    if (giveArmor > 0)
-                    {
-                        playerScript.GetComponent<Health>().armor += giveArmor;
-                        playerScript.GetComponent<Health>().armorMult = giveArmorMult;
-                    }
-                    if(giveKey > 0)
-                    {
-                        playerScript.keys[giveKey] = true;
-                    }
-                    if (giveKey == -1)
-                    {
-                        for (int i = 0; i < playerScript.keys.Length; i++)
-                        {
-                            playerScript.keys[i] = true;
-                        }
-                    }
-                    if (giveFullAmmo == true)
-                    {
-                        for (int i = 0; i < playerScript.ammoLimit.Length; i++)
-                        {
-                            playerScript.ammo[i] = playerScript.ammoLimit[i];
-                        }
-                    }
-                    if(giveLevelWin == true)
-                    {
-                        //StartCoroutine(playerScript.Exit(playerScript.deathFadeObject));
-                        playerScript.StartCoroutine(playerScript.Exit(null));
-                        //SceneManager.LoadScene("Intermission");
-                    }
-                    if(goToScene != "")
-                    {
-                        SceneManager.LoadScene(goToScene);
-                    }
-
-                    playerScript.GetComponent<Health>().overallDamageMult = giveOverallMult;
-
-                    if (playSound == true)
-                    {
-                        GetComponent<AudioSource>().Play();
-                    }
-                    if(once == true)
-                    {
-                        Destroy(gameObject);
-                    }
-
                 }
             }
             else
             {
                 currentButton = 0;
             }
+        }
+    }
+
+    void ExecuteEffect()
+    {
+        currentButton = 0;
+
+        if (giveWeapon > 0)
+        {
+            playerScript.weaponsUnlocked[giveWeapon] = true;
+            playerScript.ammo[playerScript.weaponAmmoType[giveWeapon]] += 20;
+        }
+        if (giveWeapon == -1)
+        {
+            for (int i = 0; i < playerScript.weaponsUnlocked.Length; i++)
+            {
+                playerScript.weaponsUnlocked[i] = true;
+                playerScript.ammo[playerScript.weaponAmmoType[i]] += 20;
+            }
+        }
+        if (giveArmor > 0)
+        {
+            playerScript.GetComponent<Health>().armor += giveArmor;
+            playerScript.GetComponent<Health>().armorMult = giveArmorMult;
+        }
+        if (giveKey > 0)
+        {
+            playerScript.keys[giveKey] = true;
+        }
+        if (giveKey == -1)
+        {
+            for (int i = 0; i < playerScript.keys.Length; i++)
+            {
+                playerScript.keys[i] = true;
+            }
+        }
+        if (giveFullAmmo == true)
+        {
+            for (int i = 0; i < playerScript.ammoLimit.Length; i++)
+            {
+                playerScript.ammo[i] = playerScript.ammoLimit[i];
+            }
+        }
+        if (giveLevelWin == true)
+        {
+            playerScript.StartCoroutine(playerScript.Exit(null));
+            //SceneManager.LoadScene("Intermission");
+        }
+        if (goToScene != "")
+        {
+            SceneManager.LoadScene(goToScene);
+        }
+
+        playerScript.GetComponent<Health>().overallDamageMult = giveOverallMult;
+
+        if (playSound == true)
+        {
+            GetComponent<AudioSource>().Play();
+        }
+        if (once == true)
+        {
+            Destroy(gameObject);
         }
     }
 }

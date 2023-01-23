@@ -106,6 +106,7 @@ GameObject:
   - component: {fileID: 8565569619343638065}
   - component: {fileID: 8565569619343638064}
   - component: {fileID: 8565569619343638067}
+  - component: {fileID: 7207832943608303909}
   m_Layer: 2
   m_Name: ItemGreenPotion
   m_TagString: Item
@@ -167,3 +168,16 @@ MonoBehaviour:
   createOnCollect: {fileID: 1665016438080051992, guid: 7704073fdb1aa424aa5260b9ab0fb16d, type: 3}
   createOnCollectGameWorld: {fileID: 7073382011647977794, guid: e26bc531b08f2a943b12539705ed5efe, type: 3}
   canAlwaysCollect: 0
+--- !u!114 &7207832943608303909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8565569619343638066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ccef66117689204781a0575de5df0d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  difficulty: 01010101

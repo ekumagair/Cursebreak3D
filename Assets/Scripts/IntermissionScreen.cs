@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class IntermissionScreen : MonoBehaviour
 {
+    // Intermission screen script. This script does not change the currentChapter and currentMap variables. Only the MapProperties script does that.
     public GameObject fadeFrom;
     public GameObject fadeTo;
 
@@ -32,6 +33,7 @@ public class IntermissionScreen : MonoBehaviour
     void Start()
     {
         Time.timeScale = 1.0f;
+        Cursor.lockState = CursorLockMode.None;
         _as = GetComponent<AudioSource>();
 
         Instantiate(fadeFrom, gameObject.transform);
@@ -60,6 +62,30 @@ public class IntermissionScreen : MonoBehaviour
             ShowTimeText(0, 0);
             StartCoroutine(GradualDisplay());
         }
+
+        // If this is the latest unlocked chapter, and the last map in the current chapter, unlock the next chapter as soon as the intermission screen starts.
+        if (StaticClass.currentChapter == StaticClass.unlockedChapter && StaticClass.currentMap >= 5)
+        {
+            StaticClass.unlockedChapter++;
+            PlayerPrefs.SetInt("global_unlocked_chapter", StaticClass.unlockedChapter);
+            Debug.Log("Unlocked new chapter!");
+        }
+
+        // Save chapter high score.
+        string key = "global_c" + StaticClass.currentChapter.ToString() + "_high_score";
+
+        // Create saved high score key if it doesn't exist.
+        if (PlayerPrefs.HasKey(key) == false)
+        {
+            PlayerPrefs.SetInt(key, 0);
+        }
+        // Save new high score if current record is smaller than current score.
+        if(PlayerPrefs.GetInt(key) < Player.score)
+        {
+            PlayerPrefs.SetInt(key, Player.score);
+        }
+
+        PlayerPrefs.Save();
     }
 
     void Update()
@@ -93,7 +119,7 @@ public class IntermissionScreen : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+        if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) && Time.timeSinceLevelLoad >= 1)
         {
             if (intermissionState >= 5)
             {
@@ -275,11 +301,12 @@ public class IntermissionScreen : MonoBehaviour
     {
         endedIntermission = true;
         intermissionState = 5;
+        PlayerPrefs.Save();
 
         // Create fade in object.
         Instantiate(fadeTo, gameObject.transform);
 
-        yield return new WaitForSeconds(1.45f);
+        yield return new WaitForSeconds(1.85f);
 
         // Reset variables. Doesn't reset chapter and map variables.
         StaticClass.ResetStats(false);

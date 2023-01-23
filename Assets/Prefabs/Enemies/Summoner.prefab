@@ -199,7 +199,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9147871d047eb714c8baf564543864e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 2000
+  health: 1800
   isDead: 0
   armor: 50
   armorMult: 0.5

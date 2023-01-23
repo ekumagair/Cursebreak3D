@@ -41,6 +41,9 @@ public class HUD : MonoBehaviour
     public Animator[] conditionOverlaysAnimators;
     public Color firstPersonSpritesInvisibleColor;
 
+    [Header("Loading")]
+    public GameObject loadingScreen;
+
     public float messageTimer = 0f;
     public static int logCurrentPosition = 0;
 
@@ -49,6 +52,18 @@ public class HUD : MonoBehaviour
     GameObject statTarget;
     Health targetHealth;
     Player targetPlayer;
+
+    void Awake()
+    {
+        if (StaticClass.pendingLoad == -1)
+        {
+            loadingScreen.SetActive(false);
+        }
+        else
+        {
+            loadingScreen.SetActive(true);
+        }
+    }
 
     void Start()
     {
@@ -203,8 +218,7 @@ public class HUD : MonoBehaviour
 
     public void SaveToSlot(int s)
     {
-        PlayerPrefs.Save();
-        SaveData(s);
+        SaveSystem.SaveGame(s);
     }
 
     public void QuitToMenu()
@@ -212,12 +226,14 @@ public class HUD : MonoBehaviour
         SceneManager.LoadScene("TitleScreen");
     }
 
+    // Message on the center of the screen.
     public void HudMessage(string message, float duration)
     {
         messageText.text = message;
         messageTimer = duration;
     }
 
+    // Messages on the top left part of the screen.
     public void HudAddLog(string message)
     {
         var msg = Instantiate(logMessagePrefab, gameObject.transform);
@@ -231,12 +247,12 @@ public class HUD : MonoBehaviour
         }
 
         Debug.Log(message);
-        Debug.Log("Log position: " + HUD.logCurrentPosition);
+        Debug.Log("Log position: " + logCurrentPosition);
     }
 
     public void HudMoveUpLog()
     {
-        HUD.logCurrentPosition--;
+        logCurrentPosition--;
         LogMessageScript[] logMsg = FindObjectsOfType<LogMessageScript>();
         foreach (LogMessageScript lm in logMsg)
         {
@@ -248,28 +264,31 @@ public class HUD : MonoBehaviour
             logCurrentPosition = 0;
         }
 
-        Debug.Log("Log position: " + HUD.logCurrentPosition);
+        Debug.Log("Log position: " + logCurrentPosition);
     }
 
     public void SaveData(int slot)
     {
-        PlayerPrefs.SetString("slot" + slot.ToString() + "_scene_name", SceneManager.GetActiveScene().name);
-        PlayerPrefs.SetInt("slot" + slot.ToString() + "_difficulty", StaticClass.difficulty);
-        PlayerPrefs.SetInt("slot" + slot.ToString() + "_score", Player.score);
-        PlayerPrefs.SetInt("slot" + slot.ToString() + "_health", targetHealth.health);
-        PlayerPrefs.SetInt("slot" + slot.ToString() + "_armor", targetHealth.armor);
-        PlayerPrefs.SetFloat("slot" + slot.ToString() + "_armor_mult", targetHealth.armorMult);
+        /*
+        string prefix = StaticClass.SLOT_PREFIX + slot.ToString();
+
+        PlayerPrefs.SetString(prefix + "_scene_name", SceneManager.GetActiveScene().name);
+        PlayerPrefs.SetInt(prefix + "_difficulty", StaticClass.difficulty);
+        PlayerPrefs.SetInt(prefix + "_score", Player.score);
+        PlayerPrefs.SetInt(prefix + "_health", targetHealth.health);
+        PlayerPrefs.SetInt(prefix + "_armor", targetHealth.armor);
+        PlayerPrefs.SetFloat(prefix + "_armor_mult", targetHealth.armorMult);
 
         for (int i = 0; i < targetPlayer.ammo.Length; i++)
         {
-            PlayerPrefs.SetInt("slot" + slot.ToString() + "_ammo" + i.ToString(), targetPlayer.ammo[i]);
+            PlayerPrefs.SetInt(prefix + "_ammo" + i.ToString(), targetPlayer.ammo[i]);
         }
 
         for (int x = 0; x < targetPlayer.weaponsUnlocked.Length; x++)
         {
-            PlayerPrefs.SetInt("slot" + slot.ToString() + "_weapon_unlocked" + x.ToString(), Convert.ToInt32(targetPlayer.weaponsUnlocked[x]));
+            PlayerPrefs.SetInt(prefix + "_weapon_unlocked" + x.ToString(), Convert.ToInt32(targetPlayer.weaponsUnlocked[x]));
         }
 
-        Debug.Log("Saved game on slot " + slot.ToString());
+        Debug.Log("Saved game on slot " + slot.ToString());*/
     }
 }

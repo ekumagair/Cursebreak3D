@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Controls : MonoBehaviour
 {
-    public CharacterController controller;
+    CharacterController controller;
     Camera mainCam;
 
     [Header("Physics")]
@@ -44,6 +44,7 @@ public class Controls : MonoBehaviour
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
+        controller = GetComponent<CharacterController>();
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         hudScript = GameObject.FindGameObjectWithTag("Canvas").GetComponent<HUD>();
         playerScript = GetComponent<Player>();
