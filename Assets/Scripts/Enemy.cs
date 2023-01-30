@@ -68,6 +68,10 @@ public class Enemy : MonoBehaviour
     [Header("Item Drop")]
     public GameObject dropItem;
 
+    // Misc health properties. The actual health and armor values are in the Health script.
+    [Header("Misc health properties")]
+    public bool healthNotAffectedByDifficulty = false;
+
     // Pain
     [Header("Pain")]
     public float painTime = 0.5f;
@@ -160,6 +164,12 @@ public class Enemy : MonoBehaviour
         if (StaticClass.difficulty <= 0)
         {
             projectileSpeedMult = 0.75f;
+            attackTimeDefault *= 1.1f;
+
+            if (healthNotAffectedByDifficulty == false)
+            {
+                healthScript.health = Mathf.RoundToInt(healthScript.health * 0.9f);
+            }
 
             // Make enemy ray attack less accurate if on Easy.
             if (attackType == RangedAttackType.OneRayForwardSpreadSmall)
@@ -174,20 +184,28 @@ public class Enemy : MonoBehaviour
         else if (StaticClass.difficulty == 2)
         {
             projectileSpeedMult = 1.25f;
-            healthScript.health = Mathf.RoundToInt(healthScript.health * 1.1f);
             agent.speed *= 1.25f;
             attackTimeDefault *= 0.75f;
+
+            if(healthNotAffectedByDifficulty == false)
+            {
+                healthScript.health = Mathf.RoundToInt(healthScript.health * 1.1f);
+            }
         }
         else if (StaticClass.difficulty >= 3)
         {
             projectileSpeedMult = 1.5f;
-            healthScript.health = Mathf.RoundToInt(healthScript.health * 1.25f);
             agent.speed *= 1.75f;
             attackTimeDefault *= 0.5f;
             painChance += 1;
 
+            if (healthNotAffectedByDifficulty == false)
+            {
+                healthScript.health = Mathf.RoundToInt(healthScript.health * 1.25f);
+            }
+
             // Make enemy ray attack more accurate if on Very Hard.
-            if(attackType == RangedAttackType.OneRayForwardSpreadMedium || attackType == RangedAttackType.OneRayForwardSpreadLarge)
+            if (attackType == RangedAttackType.OneRayForwardSpreadMedium || attackType == RangedAttackType.OneRayForwardSpreadLarge)
             {
                 attackType = RangedAttackType.OneRayForwardSpreadSmall;
             }
@@ -206,8 +224,9 @@ public class Enemy : MonoBehaviour
         }
 
         ResetAttackTime();
-        StartCoroutine(AddPositionToListCoroutine());
 
+        // Add positions for the retreat behaviour.
+        StartCoroutine(AddPositionToListCoroutine());
         for (int i = 0; i < previousPositions.Length; i++)
         {
             AddPositionToList();
@@ -307,13 +326,16 @@ public class Enemy : MonoBehaviour
             }
 
             // Reduce wake up animation time.
-            if(wokeUp == false && animator.enabled == true && sprite.activeSelf == true)
+            if (wokeUp == false && animator.enabled == true && sprite.activeSelf == true)
             {
                 // Execute once when this enemy has a target.
                 wokeUp = true;
                 animator.Play(wakeUpAnim);
 
-                if(sightSound != null)
+                // Save this interaction to a list in the player's script.
+                player.enemiesWithTargets.Add(initialPositionToString);
+
+                if (sightSound != null)
                 {
                     Instantiate(sightSound, transform.position, transform.rotation);
                 }
@@ -322,7 +344,7 @@ public class Enemy : MonoBehaviour
             {
                 wakeUpTimer -= Time.deltaTime;
             }
-            if(wakeUpTimer < 0f)
+            if (wakeUpTimer < 0f)
             {
                 wakeUpTimer = 0f;
             }
@@ -378,10 +400,11 @@ public class Enemy : MonoBehaviour
             StopAllCoroutines();
             Death(false);
         }
+        animator.SetBool("Dead", healthScript.isDead);
 
         // Check if state changed
         // Disable this enemy if the player completed the current level or died.
-        if(StaticClass.gameState == 1 || StaticClass.gameState == 2)
+        if (StaticClass.gameState == 1 || StaticClass.gameState == 2)
         {
             StopAllCoroutines();
             agent.enabled = false;
@@ -389,9 +412,9 @@ public class Enemy : MonoBehaviour
         }
 
         // Hidden while waiting.
-        if(hiddenWhileWaiting)
+        if (hiddenWhileWaiting)
         {
-            if(target == null && wakeUpTimer > 0f)
+            if (target == null && wakeUpTimer > 0f)
             {
                 sprite.SetActive(false);
             }
@@ -406,6 +429,12 @@ public class Enemy : MonoBehaviour
         {
             died = true;
             Death(true);
+        }
+
+        // If enemy spotted the player on this save slot.
+        if (player.enemiesWithTargets.Contains(initialPositionToString) && healthScript.isDead == false)
+        {
+            target = player.gameObject;
         }
     }
 
@@ -480,7 +509,7 @@ public class Enemy : MonoBehaviour
 
         yield return new WaitForSeconds(attackTotalDuration - attackShotDelay);
 
-        if(attackRefire == false || CanSee(target, 50f) == false || inPain == true)
+        if (attackRefire == false || CanSee(target, 50f) == false || inPain == true)
         {
             ResetAttackTime();
             attacking = false;
@@ -552,7 +581,7 @@ public class Enemy : MonoBehaviour
 
     void RangedRayAttack(float maxSpread, bool ignoreInvisibility)
     {
-        if(target.GetComponent<Player>() != null && ignoreInvisibility == false)
+        if (target.GetComponent<Player>() != null && ignoreInvisibility == false)
         {
             if (target.GetComponent<Player>().isInvisible == true)
             {
@@ -828,12 +857,12 @@ public class Enemy : MonoBehaviour
             }
         }
 
-        if(canBeRevived == false)
+        if (canBeRevived == false)
         {
             Destroy(GetComponent<Collider>());
         }
 
-        if(dropItem != null)
+        if (dropItem != null)
         {
             Instantiate(dropItem, transform.position - (transform.up * 2) + (transform.forward / 2), transform.rotation);
         }
@@ -841,13 +870,13 @@ public class Enemy : MonoBehaviour
         StopAttackSound();
 
         // Prevent pain sound from playing.
-        if(painSoundInstance != null)
+        if (painSoundInstance != null)
         {
             Destroy(painSoundInstance);
         }
 
         // Play death sound, if there is one.
-        if(deathSound != null && instant == false)
+        if (deathSound != null && instant == false)
         {
             Instantiate(deathSound, transform.position, transform.rotation);
         }

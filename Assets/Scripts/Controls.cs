@@ -15,17 +15,19 @@ public class Controls : MonoBehaviour
     public bool canJump = true;
     public KeyCode sprintKeyCode;
     public bool isSprinting = false;
+    Vector3 velocityV3;
+    Vector3 recordedPosition = Vector3.zero;
 
     [Header("Collision")]
     public Transform groundCheck;
     public float groundDistance = 0.4f;
     public LayerMask solidMask;
     public LayerMask useMask;
-    Vector3 velocityV3;
 
     [Header("Checks")]
     public bool isGrounded;
-    public bool isMoving;
+    public bool isInputtingMovement;
+    public bool isChangingPosition;
 
     [Header("Footstep Sounds")]
     public AudioClip[] steps;
@@ -66,13 +68,13 @@ public class Controls : MonoBehaviour
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
-        if(x != 0 || z != 0)
+        if (x != 0 || z != 0)
         {
-            isMoving = true;
+            isInputtingMovement = true;
         }
         else
         {
-            isMoving = false;
+            isInputtingMovement = false;
         }
 
         Vector3 move = transform.right * x + transform.forward * z;
@@ -88,7 +90,10 @@ public class Controls : MonoBehaviour
             isSprinting = false;
         }
 
-        // Execute movement
+        isChangingPosition = recordedPosition != transform.position;
+        recordedPosition = transform.position;
+
+        // Execute horizontal movement.
         if (controller.enabled == true && HUD.minimapEnabled == false && playerScript.conditionTimer[1] <= 0)
         {
             controller.Move(move * vel * Time.deltaTime);
@@ -105,6 +110,7 @@ public class Controls : MonoBehaviour
 
         if (controller.enabled == true)
         {
+            // Execute vertical movement.
             controller.Move(velocityV3 * Time.deltaTime);
         }
 
@@ -160,7 +166,7 @@ public class Controls : MonoBehaviour
                         hit.collider.gameObject.GetComponent<Exit>().UsedExit();
                         StartCoroutine(GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().Exit(hit.collider.gameObject.GetComponent<Exit>().fade));
                     }
-                    if(hit.collider.gameObject.name == "HeartDoor")
+                    if (hit.collider.gameObject.name == "HeartDoor")
                     {
                         hudScript.HudMessage("You need a heart to open this door", 3f);
                     }
@@ -180,9 +186,9 @@ public class Controls : MonoBehaviour
 
     IEnumerator Footstep()
     {
-        yield return new WaitForSeconds(4f / GetCurrentVelocity());
+        yield return new WaitForSeconds(4.5f / GetCurrentVelocity());
 
-        if (isMoving && isGrounded && HUD.minimapEnabled == false)
+        if (isInputtingMovement && isGrounded && isChangingPosition && HUD.minimapEnabled == false)
         {
             FootstepSFX();
 
@@ -216,7 +222,7 @@ public class Controls : MonoBehaviour
 
     float GetCurrentVelocity()
     {
-        if(!isSprinting)
+        if (!isSprinting)
         {
             return vel;
         }

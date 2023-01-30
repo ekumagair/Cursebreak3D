@@ -145,7 +145,11 @@ public class HealerBehavior : MonoBehaviour
 
         yield return new WaitForSeconds(t);
 
-        spriteAnimator.Play(afterHealAnimation);
+        if (enemyHealth.isDead == false)
+        {
+            spriteAnimator.Play(afterHealAnimation);
+        }
+
         enemyScript.attackTime += 1f;
         enemyScript.wakeUpTimer = 0;
 

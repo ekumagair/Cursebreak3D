@@ -404,6 +404,7 @@ GameObject:
   - component: {fileID: 548057023}
   - component: {fileID: 548057025}
   - component: {fileID: 548057024}
+  - component: {fileID: 548057026}
   m_Layer: 5
   m_Name: CharacterName
   m_TagString: Untagged
@@ -452,7 +453,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 815868804a395644c8623282c39b62c0, type: 3}
-    m_FontSize: 42
+    m_FontSize: 36
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 1
@@ -472,6 +473,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 548057022}
   m_CullTransparentMesh: 1
+--- !u!114 &548057026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 548057022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0.21273594, g: 0, b: 0.38679248, a: 0.5019608}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &928839148
 GameObject:
   m_ObjectHideFlags: 0
@@ -633,6 +649,7 @@ GameObject:
   - component: {fileID: 1484619258}
   - component: {fileID: 1484619260}
   - component: {fileID: 1484619259}
+  - component: {fileID: 1484619261}
   m_Layer: 5
   m_Name: EndText
   m_TagString: Untagged
@@ -681,7 +698,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 815868804a395644c8623282c39b62c0, type: 3}
-    m_FontSize: 42
+    m_FontSize: 36
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 1
@@ -706,6 +723,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1484619257}
   m_CullTransparentMesh: 1
+--- !u!114 &1484619261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1484619257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0.21273594, g: 0, b: 0.38679248, a: 0.5019608}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1737203675
 GameObject:
   m_ObjectHideFlags: 0
@@ -1054,12 +1086,12 @@ MonoBehaviour:
   characterName: {fileID: 548057024}
   endText: {fileID: 1484619259}
   characterNameList:
-  - Remnant
+  - Undead
   - Cultist
   - Rootvis
-  - Ignis
+  - Ignitia
   - Phantom
-  - Arachulus
+  - Araculus
   - Mage
   - Summoner
   - 

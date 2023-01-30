@@ -655,6 +655,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fadeFrom: {fileID: 1665016438080051992, guid: deccfc2f6063f474bbc4970ef83f4a4a, type: 3}
   fadeTo: {fileID: 1665016438080051992, guid: ff6ba38f279140147897a5ed654ffcfa, type: 3}
+  loadingScreen: {fileID: 3813469510788046099, guid: 010d8d866d5eb7643a2ba66bca9dfe5c, type: 3}
   storyText: {fileID: 1428956185}
 --- !u!82 &1825082349
 AudioSource:

@@ -25,6 +25,9 @@ public class HUD : MonoBehaviour
     public GameObject sectionSelectSave;
     public GameObject sectionOptions;
 
+    [Header("Select save slot")]
+    public Text[] saveSlotText;
+
     [Header("Minimap")]
     public Text minimapMapNumberDisplay;
     public Text minimapEnemyText;
@@ -44,6 +47,7 @@ public class HUD : MonoBehaviour
     [Header("Loading")]
     public GameObject loadingScreen;
 
+    [Header("Messages")]
     public float messageTimer = 0f;
     public static int logCurrentPosition = 0;
 
@@ -84,6 +88,15 @@ public class HUD : MonoBehaviour
         else
         {
             targetPlayer = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        }
+
+        // Tell the player if a save slot is empty.
+        for (int i = 0; i < saveSlotText.Length; i++)
+        {
+            if(SaveSystem.SaveExists(i + 1, "player") == false)
+            {
+                saveSlotText[i].text += " (EMPTY)";
+            }
         }
     }
 
@@ -265,30 +278,5 @@ public class HUD : MonoBehaviour
         }
 
         Debug.Log("Log position: " + logCurrentPosition);
-    }
-
-    public void SaveData(int slot)
-    {
-        /*
-        string prefix = StaticClass.SLOT_PREFIX + slot.ToString();
-
-        PlayerPrefs.SetString(prefix + "_scene_name", SceneManager.GetActiveScene().name);
-        PlayerPrefs.SetInt(prefix + "_difficulty", StaticClass.difficulty);
-        PlayerPrefs.SetInt(prefix + "_score", Player.score);
-        PlayerPrefs.SetInt(prefix + "_health", targetHealth.health);
-        PlayerPrefs.SetInt(prefix + "_armor", targetHealth.armor);
-        PlayerPrefs.SetFloat(prefix + "_armor_mult", targetHealth.armorMult);
-
-        for (int i = 0; i < targetPlayer.ammo.Length; i++)
-        {
-            PlayerPrefs.SetInt(prefix + "_ammo" + i.ToString(), targetPlayer.ammo[i]);
-        }
-
-        for (int x = 0; x < targetPlayer.weaponsUnlocked.Length; x++)
-        {
-            PlayerPrefs.SetInt(prefix + "_weapon_unlocked" + x.ToString(), Convert.ToInt32(targetPlayer.weaponsUnlocked[x]));
-        }
-
-        Debug.Log("Saved game on slot " + slot.ToString());*/
     }
 }

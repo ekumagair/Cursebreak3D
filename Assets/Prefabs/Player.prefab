@@ -286,7 +286,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1152
   isGrounded: 0
-  isMoving: 0
+  isInputtingMovement: 0
+  isChangingPosition: 0
   steps:
   - {fileID: 8300000, guid: e66a7c63189080044816fda39157d8f5, type: 3}
   - {fileID: 8300000, guid: 3a8bce9112ad19e458b8a35411fa8da6, type: 3}
@@ -326,7 +327,7 @@ MonoBehaviour:
   - 0.5
   - 0.65
   - 0.6
-  - 0.25
+  - 0.225
   - 0.2
   weaponDelaysCurrent:
   - 0
@@ -386,10 +387,14 @@ MonoBehaviour:
     m_Bits: 1747
   deathFadeObject: {fileID: 1665016438080051992, guid: 18000859b58cbbf4399f6f5390ade0a5, type: 3}
   damageOverlayObject: {fileID: 1665016438080051992, guid: 9a5b661e974475b4ab4440deafa464b3, type: 3}
+  extraDamageSound: {fileID: 7073382011647977794, guid: ca3ea396a89c81849a917799527101b1, type: 3}
   isInvisible: 0
   canvasTargetTexture: {fileID: 8400000, guid: 4098ca2a3bb4c0c4cbef9b6b9e94e8ae, type: 2}
   enemyStartPositions: []
+  killedEnemies: []
   destroyedItemsPositions: []
+  discoveredSecrets: []
+  enemiesWithTargets: []
 --- !u!114 &-1980402611779862909
 MonoBehaviour:
   m_ObjectHideFlags: 0

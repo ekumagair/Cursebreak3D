@@ -15,17 +15,19 @@ public class ControlsDefault : MonoBehaviour
     public bool canJump = true;
     public KeyCode sprintKeyCode;
     public bool isSprinting = false;
+    Vector3 velocityV3;
+    Vector3 recordedPosition = Vector3.zero;
 
     [Header("Collision")]
     public Transform groundCheck;
     public float groundDistance = 0.4f;
     public LayerMask solidMask;
     public LayerMask useMask;
-    Vector3 velocityV3;
 
     [Header("Checks")]
     public bool isGrounded;
-    public bool isMoving;
+    public bool isInputtingMovement;
+    public bool isChangingPosition;
 
     [Header("Footstep Sounds")]
     public AudioClip[] steps;
@@ -61,11 +63,11 @@ public class ControlsDefault : MonoBehaviour
 
         if (x != 0 || z != 0)
         {
-            isMoving = true;
+            isInputtingMovement = true;
         }
         else
         {
-            isMoving = false;
+            isInputtingMovement = false;
         }
 
         Vector3 move = transform.right * x + transform.forward * z;
@@ -81,13 +83,16 @@ public class ControlsDefault : MonoBehaviour
             isSprinting = false;
         }
 
+        isChangingPosition = recordedPosition != transform.position;
+        recordedPosition = transform.position;
+
+        // Execute horizontal movement.
         if (controller.enabled == true)
         {
             controller.Move(move * vel * Time.deltaTime);
         }
 
         // Jump
-
         if (Input.GetButtonDown("Jump") && isGrounded && canJump)
         {
             velocityV3.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
@@ -98,6 +103,7 @@ public class ControlsDefault : MonoBehaviour
 
         if (controller.enabled == true)
         {
+            // Execute vertical movement.
             controller.Move(velocityV3 * Time.deltaTime);
         }
 
@@ -128,9 +134,9 @@ public class ControlsDefault : MonoBehaviour
 
     IEnumerator Footstep()
     {
-        yield return new WaitForSeconds(3.6f / GetCurrentVelocity());
+        yield return new WaitForSeconds(4.5f / GetCurrentVelocity());
 
-        if (isMoving && isGrounded)
+        if (isInputtingMovement && isGrounded && isChangingPosition)
         {
             FootstepSFX();
         }

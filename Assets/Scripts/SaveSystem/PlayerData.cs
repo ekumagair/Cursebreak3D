@@ -14,11 +14,14 @@ public class PlayerData
     public int[] ammo = new int[3];
     public float[] position;
     public float rotation;
+    public int currentWeapon;
+    public float[] condition = new float[7];
 
     public string[] enemyStartPositions;
     public string[] killedEnemies;
     public string[] destroyedItemsPositions;
     public string[] discoveredSecrets;
+    public string[] enemiesWithTarget;
 
     public PlayerData(Player player)
     {
@@ -26,6 +29,7 @@ public class PlayerData
         health = player.GetComponent<Health>().health;
         armor = player.GetComponent<Health>().armor;
         armorMult = player.GetComponent<Health>().armorMult;
+        currentWeapon = player.currentWeapon;
 
         for (int i = 0; i < player.ammo.Length; i++)
         {
@@ -35,6 +39,11 @@ public class PlayerData
         for (int i = 0; i < player.weaponsUnlocked.Length; i++)
         {
             weaponsUnlocked[i] = player.weaponsUnlocked[i];
+        }
+
+        for (int i = 0; i < player.conditionTimer.Length; i++)
+        {
+            condition[i] = player.conditionTimer[i];
         }
 
         position = new float[3];
@@ -66,6 +75,12 @@ public class PlayerData
         for (int i = 0; i < player.discoveredSecrets.Count; i++)
         {
             discoveredSecrets[i] = player.discoveredSecrets[i];
+        }
+
+        enemiesWithTarget = new string[player.enemiesWithTargets.Count];
+        for (int i = 0; i < player.enemiesWithTargets.Count; i++)
+        {
+            enemiesWithTarget[i] = player.enemiesWithTargets[i];
         }
     }
 }

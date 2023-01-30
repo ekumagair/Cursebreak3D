@@ -17,18 +17,25 @@ public class Options : MonoBehaviour
     public Button crosshairAdd;
     public Button crosshairSubtract;
 
+    public Text flashingText;
+    public Button flashingAdd;
+    public Button flashingSubtract;
+
     public static float mouseSensitivity = 1.0f;
     public static float musicVolume = 0.5f;
     public static float soundVolume = 1.0f;
+    public static int flashingEffects = 0;
 
     void Start()
     {
+        // Load saved settings.
         if (PlayerPrefs.HasKey("global_mouse_sensitivity"))
         {
             mouseSensitivity = PlayerPrefs.GetFloat("global_mouse_sensitivity");
             musicVolume = PlayerPrefs.GetFloat("global_music_volume");
             soundVolume = PlayerPrefs.GetFloat("global_sfx_volume");
             Crosshair.sprite = PlayerPrefs.GetInt("global_crosshair");
+            flashingEffects = PlayerPrefs.GetInt("global_flashing");
         }
 
         mouseSensitivitySlider.value = mouseSensitivity * 10;
@@ -38,10 +45,12 @@ public class Options : MonoBehaviour
 
     void Update()
     {
+        // Slider-controlled settings
         mouseSensitivityValue.text = "(" + mouseSensitivity + "x)";
         musicValue.text = "(" + musicSlider.value + "%)";
         soundValue.text = "(" + soundSlider.value + "%)";
 
+        // Crosshair settings
         crosshairText.text = "Crosshair: ";
         switch (Crosshair.sprite)
         {
@@ -81,6 +90,47 @@ public class Options : MonoBehaviour
         {
             crosshairSubtract.interactable = true;
         }
+
+        // Flashing effects settings
+        flashingText.text = "Flashes: ";
+        switch (flashingEffects)
+        {
+            case 0:
+                flashingText.text += "All effects";
+                break;
+            case 1:
+                flashingText.text += "Pickups only";
+                break;
+            case 2:
+                flashingText.text += "Damage only";
+                break;
+            case 3:
+                flashingText.text += "Power-ups only";
+                break;
+            case 4:
+                flashingText.text += "None";
+                break;
+            default:
+                break;
+        }
+
+        if (flashingEffects >= 4)
+        {
+            flashingAdd.interactable = false;
+        }
+        else
+        {
+            flashingAdd.interactable = true;
+        }
+
+        if (flashingEffects <= 0)
+        {
+            flashingSubtract.interactable = false;
+        }
+        else
+        {
+            flashingSubtract.interactable = true;
+        }
     }
 
     public void SetMouseSensitivity()
@@ -107,12 +157,19 @@ public class Options : MonoBehaviour
         SaveOptions();
     }
 
+    public void ChangeFlashingFX(int increment)
+    {
+        flashingEffects += increment;
+        SaveOptions();
+    }
+
     public static void SaveOptions()
     {
         PlayerPrefs.SetFloat("global_mouse_sensitivity", mouseSensitivity);
         PlayerPrefs.SetFloat("global_music_volume", musicVolume);
         PlayerPrefs.SetFloat("global_sfx_volume", soundVolume);
         PlayerPrefs.SetInt("global_crosshair", Crosshair.sprite);
+        PlayerPrefs.SetInt("global_flashing", flashingEffects);
     }
 
     public static void ResetOptions()
@@ -121,6 +178,7 @@ public class Options : MonoBehaviour
         musicVolume = 0.5f;
         soundVolume = 1.0f;
         Crosshair.sprite = 0;
+        flashingEffects = 0;
         SaveOptions();
         PlayerPrefs.Save();
 

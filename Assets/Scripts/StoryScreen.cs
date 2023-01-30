@@ -8,6 +8,7 @@ public class StoryScreen : MonoBehaviour
 {
     public GameObject fadeFrom;
     public GameObject fadeTo;
+    public GameObject loadingScreen;
 
     public Text storyText;
 
@@ -70,6 +71,8 @@ public class StoryScreen : MonoBehaviour
         Instantiate(fadeTo, gameObject.transform);
 
         yield return new WaitForSeconds(1.85f);
+
+        TitleScreen.CreateLoadingScreen(loadingScreen, transform);
 
         _as.mute = true;
 

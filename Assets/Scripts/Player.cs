@@ -25,6 +25,7 @@ public class Player : MonoBehaviour
     public LayerMask attackRayMask;
     public GameObject deathFadeObject;
     public GameObject damageOverlayObject;
+    public GameObject extraDamageSound;
     public bool isInvisible = false;
     public RenderTexture canvasTargetTexture;
 
@@ -46,6 +47,8 @@ public class Player : MonoBehaviour
 
     public static Vector3 savedPosition;
     public static float savedRotation;
+    public static int savedCurrentWeapon;
+    public static float[] savedConditionTimers = new float[7];
 
     // Replace ammo display with scoreThisLevel display for a limited time.
     public static float gotScoreTimer = 0;
@@ -61,6 +64,7 @@ public class Player : MonoBehaviour
     HUD gameCanvasScript;
     Minimap minimapScript;
     CharacterController characterController;
+    MapProperties mapProperties;
 
     // Register interaction with objects in the map.
     public List<string> enemyStartPositions;
@@ -71,6 +75,8 @@ public class Player : MonoBehaviour
     public static string[] savedDestroyedItemsPositions = new string[1];
     public List<string> discoveredSecrets;
     public static string[] savedDiscoveredSecrets = new string[1];
+    public List<string> enemiesWithTargets;
+    public static string[] savedEnemiesWithTargets = new string[1];
 
     // Weapon list
     // 0 = Empty hand (Always unlocked)
@@ -108,6 +114,8 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
+        StaticClass.enemiesKilled = 0;
+        StaticClass.secretsDiscovered = 0;
         StaticClass.enemiesTotal = 0;
         StaticClass.secretsTotal = 0;
     }
@@ -120,6 +128,7 @@ public class Player : MonoBehaviour
         gameCanvasScript = gameCanvas.GetComponent<HUD>();
         minimapScript = gameCanvasScript.mapRoot.GetComponent<Minimap>();
         characterController = GetComponent<CharacterController>();
+        mapProperties = GameObject.Find("MapProperties").GetComponent<MapProperties>();
         Camera.main.targetTexture = canvasTargetTexture;
         isInvisible = false;
         weaponsUnlocked[0] = true;
@@ -133,6 +142,7 @@ public class Player : MonoBehaviour
             healthScript.health = savedHealth;
             healthScript.armor = savedArmor;
             healthScript.armorMult = savedArmorMult;
+            currentWeapon = savedCurrentWeapon;
 
             for (int i = 0; i < savedAmmo.Length; i++)
             {
@@ -152,12 +162,21 @@ public class Player : MonoBehaviour
 
             Debug.Log("Loaded player inventory info.");
 
-            // Load player transform.
+            // Load full player info.
             if (StaticClass.loadSavedPlayerFullInfo == true)
             {
                 characterController.enabled = false;
                 transform.position = new Vector3(savedPosition.x, savedPosition.y, savedPosition.z);
                 transform.rotation = Quaternion.Euler(0, savedRotation, 0);
+
+                for (int i = 0; i < savedConditionTimers.Length; i++)
+                {
+                    conditionTimer[i] = savedConditionTimers[i];
+                }
+
+                conditionTimer[1] = 0.5f;
+                conditionTimer[5] = 0.5f;
+                conditionTimer[6] = 0.5f;
 
                 Debug.Log("Loaded player full info.");
             }
@@ -191,8 +210,13 @@ public class Player : MonoBehaviour
             {
                 discoveredSecrets.Add(savedDiscoveredSecrets[i]);
             }
+            for (int i = 0; i < savedEnemiesWithTargets.Length; i++)
+            {
+                enemiesWithTargets.Add(savedEnemiesWithTargets[i]);
+            }
         }
 
+        // Reduce damage vulnerability on easier difficulties. Increase damage vulnerability on harder difficulties.
         if (StaticClass.difficulty <= 0) // Easy
         {
             healthScript.overallDamageMult = 0.5f;
@@ -376,6 +400,12 @@ public class Player : MonoBehaviour
                 Instantiate(weaponSound[currentWeapon], transform.position, transform.rotation);
             }
 
+            // If the player has an extra damage power-up, play an additional sound.
+            if(extraDamageSound != null && (conditionTimer[3] > 0 || conditionTimer[4] > 0))
+            {
+                Instantiate(extraDamageSound, transform.position, transform.rotation);
+            }
+
             // Consume ammo and make the weapon take some time to fire again.
             ammo[weaponAmmoType[currentWeapon]] -= weaponAmmoCost[currentWeapon];
             weaponDelaysCurrent[currentWeapon] = weaponDelaysDefault[currentWeapon];
@@ -476,8 +506,15 @@ public class Player : MonoBehaviour
                         }
                         else
                         {
-                            // Make overlay blink to show that the condition timer is running out.
-                            gameCanvasScript.conditionOverlaysAnimators[i].Play("FlashImage");
+                            // Make overlay blink to show that the condition timer is running out. Don't blink if power-up flashing is disabled.
+                            if (Options.flashingEffects == 0 || Options.flashingEffects == 3)
+                            {
+                                gameCanvasScript.conditionOverlaysAnimators[i].Play("FlashImage");
+                            }
+                            else
+                            {
+                                gameCanvasScript.conditionOverlaysAnimators[i].Play("FlashImageShow");
+                            }
                         }
                     }
                 }
@@ -624,6 +661,12 @@ public class Player : MonoBehaviour
                 if (itemScript.giveHealth != 0)
                 {
                     healthScript.health += itemScript.giveHealth;
+
+                    // Don't autosave if the map properties forbid it.
+                    if(mapProperties.healthItemDoesNotAutosave == true)
+                    {
+                        itemScript.triggersAutosave = false;
+                    }
                 }
 
                 // Limits player health.
@@ -660,6 +703,12 @@ public class Player : MonoBehaviour
                     {
                         healthScript.armorMult = itemScript.giveArmorMult;
                     }
+
+                    // Don't autosave if the map properties forbid it.
+                    if (mapProperties.armorItemDoesNotAutosave == true)
+                    {
+                        itemScript.triggersAutosave = false;
+                    }
                 }
 
                 // Give score.
@@ -681,12 +730,14 @@ public class Player : MonoBehaviour
                     conditionTimer[itemScript.giveCondition] = itemScript.giveConditionTimer;
                 }
 
+                // Message on top left corner.
                 if (itemScript.logMessageOnCollect != "")
                 {
                     gameCanvas.GetComponent<HUD>().HudAddLog(itemScript.logMessageOnCollect);
                 }
 
-                if (itemScript.createOnCollect != null)
+                // Pickup flash.
+                if (itemScript.createOnCollect != null && (Options.flashingEffects == 0 || Options.flashingEffects == 1))
                 {
                     Instantiate(itemScript.createOnCollect, gameCanvas.transform);
                 }
@@ -696,7 +747,7 @@ public class Player : MonoBehaviour
                     Instantiate(itemScript.createOnCollectGameWorld, transform.position, transform.rotation);
                 }
 
-                if (itemScript.triggersAutosave == true)
+                if (itemScript.triggersAutosave == true && itemScript.giveHealth >= 0)
                 {
                     StartCoroutine(Autosave(0.5f));
                 }
@@ -740,7 +791,7 @@ public class Player : MonoBehaviour
         StartCoroutine(CheckEnemyVision());
     }
 
-    // Time spent on this level
+    // Time spent on this level.
     public IEnumerator Timer()
     {
         yield return new WaitForSeconds(1);
@@ -760,7 +811,17 @@ public class Player : MonoBehaviour
     public IEnumerator Autosave(float t)
     {
         yield return new WaitForSeconds(t);
-        SaveSystem.SaveGame(0);
+
+        // Can only autosave if the player is alive.
+        if (StaticClass.gameState != 2)
+        {
+            Debug.Log("Autosaved on slot 0.");
+            SaveSystem.SaveGame(0);
+        }
+        else
+        {
+            Debug.Log("Tried to autosave on slot 0, but the player is dead. Autosave cancelled.");
+        }
     }
 
     // When the player takes damage.
@@ -772,7 +833,8 @@ public class Player : MonoBehaviour
             conditionTimer[2] = 1f;
         }
 
-        if(damageOverlayObject != null)
+        // Damage flash.
+        if(damageOverlayObject != null && (Options.flashingEffects == 0 || Options.flashingEffects == 2))
         {
             Instantiate(damageOverlayObject, gameCanvas.transform);
         }
@@ -821,6 +883,7 @@ public class Player : MonoBehaviour
         savedHealth = healthScript.health;
         savedArmor = healthScript.armor;
         savedArmorMult = healthScript.armorMult;
+        savedCurrentWeapon = currentWeapon;
 
         for (int i = 0; i < ammo.Length; i++)
         {
@@ -949,6 +1012,7 @@ public class Player : MonoBehaviour
         savedHealth = data.health;
         savedArmor = data.armor;
         savedArmorMult = data.armorMult;
+        savedCurrentWeapon = data.currentWeapon;
 
         savedPosition.x = data.position[0];
         savedPosition.y = data.position[1];
@@ -988,6 +1052,18 @@ public class Player : MonoBehaviour
         for (int i = 0; i < data.discoveredSecrets.Length; i++)
         {
             savedDiscoveredSecrets[i] = data.discoveredSecrets[i];
+        }
+
+        savedConditionTimers = new float[data.condition.Length];
+        for (int i = 0; i < data.condition.Length; i++)
+        {
+            savedConditionTimers[i] = data.condition[i];
+        }
+
+        savedEnemiesWithTargets = new string[data.enemiesWithTarget.Length];
+        for (int i = 0; i < data.enemiesWithTarget.Length; i++)
+        {
+            savedEnemiesWithTargets[i] = data.enemiesWithTarget[i];
         }
 
         StaticClass.loadSavedPlayerInfo = true;

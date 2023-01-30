@@ -199,9 +199,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9147871d047eb714c8baf564543864e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 1800
+  health: 1600
   isDead: 0
-  armor: 50
+  armor: 100
   armorMult: 0.5
   overallDamageMult: 1
   disableCollisionWhileDead: 0
@@ -220,8 +220,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sprite: {fileID: 1168564416231350774}
   target: {fileID: 0}
-  giveScoreOnDeath: 10000
-  attackTimeDefault: 1.25
+  giveScoreOnDeath: 20000
+  attackTimeDefault: 1.3
   attackTime: 0
   attackProjectile: {fileID: 9116008725644934739, guid: fb708f0f3c8bea846bb88c22c9bcde3c, type: 3}
   attackDamage: 10
@@ -250,6 +250,7 @@ MonoBehaviour:
   sightSound: {fileID: 7073382011647977794, guid: 628aae50bfdcb6d4c83d3d1b16d76a3c, type: 3}
   noSightSoundOnHard: 0
   dropItem: {fileID: 0}
+  healthNotAffectedByDifficulty: 1
   painTime: 1
   painChance: 12
   painAnim: SummonerPain

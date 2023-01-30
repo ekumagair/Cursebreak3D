@@ -16,9 +16,14 @@ public class TitleScreen : MonoBehaviour
     public GameObject sectionLoadGame;
     public GameObject sectionOptions;
     public GameObject sectionSelectLevel;
+    public GameObject sectionCredits;
     public Text[] loadGameSlotsText;
+    public GameObject[] loadGameDeleteButtons;
+    public GameObject loadingScreen;
     
     string[] loadGameTextsDefault = new string[4];
+    float deleteEverything = 0;
+    AudioSource audioSource;
 
     public static bool startFromChapterSelect = false;
 
@@ -27,6 +32,8 @@ public class TitleScreen : MonoBehaviour
         Time.timeScale = 1.0f;
         Cursor.lockState = CursorLockMode.None;
         MenuSectionSelectLevel.levelWarp = false;
+        deleteEverything = 0;
+        audioSource = GetComponent<AudioSource>();
         versionText.text = "v " + Application.version.ToString();
 
         // Sets default load game button text to the string set in the editor.
@@ -49,6 +56,7 @@ public class TitleScreen : MonoBehaviour
             Debug.LogWarning("unlockedChapter variable was lower than 1! Resetting to default.");
         }
 
+        // Start this scene on the "select chapter" screen.
         if (startFromChapterSelect == false)
         {
             SectionStart();
@@ -64,12 +72,51 @@ public class TitleScreen : MonoBehaviour
 
     void Update()
     {
+        // Quit the game by pressing esc.
         if(Input.GetKeyDown(KeyCode.Escape))
         {
             QuitGame();
         }
 
-        if(StaticClass.debug == true)
+        // Delete all saved data. Must hold the "delete" key for 5 seconds and then press the "enter" key.
+        if (Input.GetKey(KeyCode.Delete))
+        {
+            deleteEverything += Time.deltaTime;
+
+            if (deleteEverything > 5 && Input.GetKeyDown(KeyCode.Return))
+            {
+                PlayerPrefs.DeleteAll();
+                SaveSystem.DeleteSave(0, "player");
+                SaveSystem.DeleteSave(1, "player");
+                SaveSystem.DeleteSave(2, "player");
+                SaveSystem.DeleteSave(3, "player");
+                StaticClass.ResetStats(true);
+                StaticClass.unlockedChapter = 1;
+                Options.ResetOptions();
+                PlayerPrefs.Save();
+
+                SetSaveSlotsTexts();
+                Debug.Log("Cleared all saved data!");
+
+                if (StaticClass.ignoreUnlockedChapter && StaticClass.debug)
+                {
+                    Debug.Log("ignoreUnlockedChapter is set to true. All chapters are still unlocked.");
+                }
+
+                if (audioSource != null && audioSource.clip != null)
+                {
+                    audioSource.Play();
+                }
+
+                deleteEverything = 0;
+            }
+        }
+        else
+        {
+            deleteEverything = 0;
+        }
+
+        if (StaticClass.debug == true)
         {
             if (Input.GetKeyDown(KeyCode.V))
             {
@@ -92,26 +139,6 @@ public class TitleScreen : MonoBehaviour
                     SaveSystem.LoadGame(0);
                 }
             }
-            if (Input.GetKey(KeyCode.Delete) && Input.GetKeyDown(KeyCode.Backspace))
-            {
-                PlayerPrefs.DeleteAll();
-                SaveSystem.DeleteSave(0, "player");
-                SaveSystem.DeleteSave(1, "player");
-                SaveSystem.DeleteSave(2, "player");
-                SaveSystem.DeleteSave(3, "player");
-                StaticClass.ResetStats(true);
-                StaticClass.unlockedChapter = 1;
-                Options.ResetOptions();
-                PlayerPrefs.Save();
-
-                SetSaveSlotsTexts();
-                Debug.Log("Cleared all saved data!");
-
-                if(StaticClass.ignoreUnlockedChapter)
-                {
-                    Debug.Log("ignoreUnlockedChapter is set to true. All chapters are still unlocked.");
-                }
-            }
         }
     }
 
@@ -127,18 +154,25 @@ public class TitleScreen : MonoBehaviour
             Button slotButton = preview.transform.parent.gameObject.GetComponent<Button>();
             EventTrigger eventTrigger = preview.transform.parent.gameObject.GetComponent<EventTrigger>();
             preview.text += " - ";
+            preview.GetComponent<Shadow>().enabled = true;
 
             if (SaveSystem.SaveExists(i, "player"))
             {
                 preview.text += "(" + PlayerPrefs.GetString(StaticClass.SLOT_PREFIX + i.ToString() + "_scene_name") + ", SCORE: " + (PlayerPrefs.GetInt(StaticClass.SLOT_PREFIX + i.ToString() + "_scoreThisLevel") + PlayerPrefs.GetInt(StaticClass.SLOT_PREFIX + i.ToString() + "_score")).ToString() + ")";
                 slotButton.interactable = true;
                 eventTrigger.enabled = true;
+                loadGameDeleteButtons[i].GetComponent<Button>().interactable = true;
+                loadGameDeleteButtons[i].GetComponentInChildren<Text>().enabled = true;
+                loadGameDeleteButtons[i].GetComponent<EventTrigger>().enabled = true;
             }
             else
             {
                 preview.text += "(EMPTY)";
                 slotButton.interactable = false;
                 eventTrigger.enabled = false;
+                loadGameDeleteButtons[i].GetComponent<Button>().interactable = false;
+                loadGameDeleteButtons[i].GetComponentInChildren<Text>().enabled = false;
+                loadGameDeleteButtons[i].GetComponent<EventTrigger>().enabled = false;
             }
 
             i++;
@@ -153,6 +187,7 @@ public class TitleScreen : MonoBehaviour
         sectionLoadGame.SetActive(false);
         sectionOptions.SetActive(false);
         sectionSelectLevel.SetActive(false);
+        sectionCredits.SetActive(false);
         StaticClass.loadSavedPlayerInfo = false;
         SectionAny();
     }
@@ -165,6 +200,7 @@ public class TitleScreen : MonoBehaviour
         sectionLoadGame.SetActive(false);
         sectionOptions.SetActive(false);
         sectionSelectLevel.SetActive(false);
+        sectionCredits.SetActive(false);
         StaticClass.ResetStats(true);
         MenuSectionSelectLevel.levelWarp = false;
         StaticClass.currentMap = 1;
@@ -179,6 +215,7 @@ public class TitleScreen : MonoBehaviour
         sectionLoadGame.SetActive(false);
         sectionOptions.SetActive(false);
         sectionSelectLevel.SetActive(false);
+        sectionCredits.SetActive(false);
         SectionAny();
     }
 
@@ -190,6 +227,7 @@ public class TitleScreen : MonoBehaviour
         sectionLoadGame.SetActive(true);
         sectionOptions.SetActive(false);
         sectionSelectLevel.SetActive(false);
+        sectionCredits.SetActive(false);
         StaticClass.ResetStats(true);
         SectionAny();
     }
@@ -202,6 +240,7 @@ public class TitleScreen : MonoBehaviour
         sectionLoadGame.SetActive(false);
         sectionOptions.SetActive(true);
         sectionSelectLevel.SetActive(false);
+        sectionCredits.SetActive(false);
         SectionAny();
     }
 
@@ -213,9 +252,22 @@ public class TitleScreen : MonoBehaviour
         sectionLoadGame.SetActive(false);
         sectionOptions.SetActive(false);
         sectionSelectLevel.SetActive(true);
+        sectionCredits.SetActive(false);
         MenuSectionSelectLevel.levelWarp = true;
         StaticClass.currentChapter = 1;
         StaticClass.currentMap = 1;
+        SectionAny();
+    }
+
+    public void SectionCredits()
+    {
+        sectionStart.SetActive(false);
+        sectionChooseChapter.SetActive(false);
+        sectionDifficulty.SetActive(false);
+        sectionLoadGame.SetActive(false);
+        sectionOptions.SetActive(false);
+        sectionSelectLevel.SetActive(false);
+        sectionCredits.SetActive(true);
         SectionAny();
     }
 
@@ -248,6 +300,8 @@ public class TitleScreen : MonoBehaviour
 
     public void StartChapter(bool story)
     {
+        CreateLoadingScreen(loadingScreen, transform);
+
         StaticClass.ResetStats(false);
         StaticClass.pendingLoad = -1;
         StaticClass.loadSavedPlayerInfo = false;
@@ -291,35 +345,14 @@ public class TitleScreen : MonoBehaviour
 
     public void LoadGame(int slot)
     {
+        CreateLoadingScreen(loadingScreen, transform);
+
         StaticClass.ResetStats(true);
         string prefix = StaticClass.SLOT_PREFIX + slot.ToString();
 
         if (PlayerPrefs.HasKey(prefix + "_scene_name"))
         {
             SaveSystem.LoadGame(slot);
-            
-            StaticClass.difficulty = PlayerPrefs.GetInt(prefix + "_difficulty");
-            Player.score = PlayerPrefs.GetInt(prefix + "_score");
-            Player.scoreThisLevel = PlayerPrefs.GetInt(prefix + "_scoreThisLevel");/*
-            Player.savedHealth = PlayerPrefs.GetInt(prefix + "_health");
-            Player.savedArmor = PlayerPrefs.GetInt(prefix + "_armor");
-            Player.savedArmorMult = PlayerPrefs.GetFloat(prefix + "_armor_mult");
-
-            for (int i = 0; i < Player.savedAmmo.Length; i++)
-            {
-                Player.savedAmmo[i] = PlayerPrefs.GetInt(prefix + "_ammo" + i.ToString());
-            }
-
-            for (int i = 0; i < Player.savedWeaponsUnlocked.Length; i++)
-            {
-                Player.savedWeaponsUnlocked[i] = Convert.ToBoolean(PlayerPrefs.GetInt(prefix + "_weapon_unlocked" + i.ToString()));
-            }
-
-            Debug.Log("Loaded game on slot " + slot.ToString());
-
-            StaticClass.loadSavedPlayerInfo = true;
-
-            SceneManager.LoadScene(PlayerPrefs.GetString(prefix + "_scene_name"));*/
         }
     }
 
@@ -359,5 +392,11 @@ public class TitleScreen : MonoBehaviour
     private void OnApplicationQuit()
     {
         PlayerPrefs.Save();
+    }
+
+    public static void CreateLoadingScreen(GameObject screen, Transform refTransform)
+    {
+        var ls = Instantiate(screen, new Vector3(640, 400, 0), refTransform.rotation);
+        ls.transform.SetParent(refTransform);
     }
 }

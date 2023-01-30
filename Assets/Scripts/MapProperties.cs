@@ -9,6 +9,10 @@ public class MapProperties : MonoBehaviour
     public int chapter = 1;
     public int map = 1;
 
+    // Set map-specific rules.
+    public bool healthItemDoesNotAutosave = false;
+    public bool armorItemDoesNotAutosave = false;
+
     // Controls the level's music.
     AudioSource _as;
 

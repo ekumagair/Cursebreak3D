@@ -21,6 +21,7 @@ public static class StaticClass
     // Difficulty
     public static int difficulty = 1;
     // Normal values are from 0 to 3. Values greater than 3 will be functional but won't have special properties.
+    // -2 = No enemies, all push walls revealed
     // -1 = No enemies
     // 0 = Easy
     // 1 = Normal
@@ -41,7 +42,7 @@ public static class StaticClass
 
     // Misc rules
     public static bool canPause = true;
-    public static bool debug = true;
+    public static bool debug = false;
 
     // If true, disable chapter unlocking checks. This would make everything unlocked from the start. If false, the player must beat all chapters in order, from first to last.
     public static bool ignoreUnlockedChapter = false;
@@ -75,6 +76,7 @@ public static class StaticClass
         {
             Player.score = 0;
             Player.damageStopsSprint = false;
+            Player.savedCurrentWeapon = 1;
             pendingLoad = -1;
             currentChapter = 1;
             currentMap = 1;
