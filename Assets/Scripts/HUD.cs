@@ -102,8 +102,26 @@ public class HUD : MonoBehaviour
 
     void Update()
     {
-        hpText.text = targetHealth.health.ToString();
-        armorText.text = targetHealth.armor.ToString();
+        if (targetHealth.health >= 0)
+        {
+            hpText.text = targetHealth.health.ToString();
+        }
+        else
+        {
+            // Don't display negative numbers for health.
+            hpText.text = "0";
+        }
+
+        if (targetHealth.armor >= 0)
+        {
+            armorText.text = targetHealth.armor.ToString();
+        }
+        else
+        {
+            // Don't display negative numbers for armor.
+            armorText.text = "0";
+        }
+
         ammo1Text.text = "Plasma: " + targetPlayer.ammo[0].ToString() + "/" + targetPlayer.ammoLimit[0].ToString();
         ammo2Text.text = "Fire: " + targetPlayer.ammo[1].ToString() + "/" + targetPlayer.ammoLimit[1].ToString();
         ammo3Text.text = "Electricity: " + targetPlayer.ammo[2].ToString() + "/" + targetPlayer.ammoLimit[2].ToString();
