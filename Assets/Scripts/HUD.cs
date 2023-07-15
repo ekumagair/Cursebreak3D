@@ -93,9 +93,15 @@ public class HUD : MonoBehaviour
         // Tell the player if a save slot is empty.
         for (int i = 0; i < saveSlotText.Length; i++)
         {
-            if(SaveSystem.SaveExists(i + 1, "player") == false)
+            // Check for save slot "i + 1" because save slot 0 is the auto save, which isn't an option here.
+            if (SaveSystem.SaveExists(i + 1, "player") == false)
             {
                 saveSlotText[i].text += " (EMPTY)";
+            }
+            else
+            {
+                PlayerData data = SaveSystem.LoadPlayer(i + 1);
+                saveSlotText[i].text += " (MAP: " + data.scene.ToString() + ")";
             }
         }
     }
@@ -220,6 +226,7 @@ public class HUD : MonoBehaviour
     {
         targetPlayer.PauseEnd();
         StaticClass.gameState = 0;
+        SaveSystem.SaveGlobal();
     }
 
     public void GoToPauseRoot()
@@ -228,7 +235,8 @@ public class HUD : MonoBehaviour
         sectionSelectSave.SetActive(false);
         sectionOptions.SetActive(false);
         pauseSelectIcon.enabled = false;
-        PlayerPrefs.Save();
+        SaveSystem.SaveGlobal();
+        //PlayerPrefs.Save();
     }
 
     public void GoToSelectSave()
@@ -237,6 +245,7 @@ public class HUD : MonoBehaviour
         sectionSelectSave.SetActive(true);
         sectionOptions.SetActive(false);
         pauseSelectIcon.enabled = false;
+        SaveSystem.SaveGlobal();
     }
 
     public void GoToOptions()

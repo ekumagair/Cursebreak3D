@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System;
 using UnityEngine.EventSystems;
+using System.IO;
 
 public class TitleScreen : MonoBehaviour
 {
@@ -36,23 +37,33 @@ public class TitleScreen : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         versionText.text = "v " + Application.version.ToString();
 
+        SaveSystem.LoadGlobal();
+
         // Sets default load game button text to the string set in the editor.
         for (int i = 0; i < loadGameSlotsText.Length; i++)
         {
             loadGameTextsDefault[i] = loadGameSlotsText[i].text;
         }
 
-        // Load unlocked chapter varaible.
-        if(PlayerPrefs.HasKey("global_unlocked_chapter"))
+        /*
+        // Load unlocked chapter varaible. Old version.
+        if (PlayerPrefs.HasKey("global_unlocked_chapter"))
         {
             StaticClass.unlockedChapter = PlayerPrefs.GetInt("global_unlocked_chapter");
         }
+        */
+
+        // Load serialized unlocked chapter variable.
+        if (File.Exists(SaveSystem.GlobalSavePath()))
+        {
+            StaticClass.unlockedChapter = SaveSystem.GetSavedGlobal().unlockedChapters;
+        }
 
         // Setting the unlocked chapter variable to less than 1 makes the game impossible to start. Don't allow this.
-        if(StaticClass.unlockedChapter < 1)
+        if (StaticClass.unlockedChapter < 1)
         {
             StaticClass.unlockedChapter = 1;
-            PlayerPrefs.SetInt("global_unlocked_chapter", 1);
+            //PlayerPrefs.SetInt("global_unlocked_chapter", 1);
             Debug.LogWarning("unlockedChapter variable was lower than 1! Resetting to default.");
         }
 
@@ -98,7 +109,7 @@ public class TitleScreen : MonoBehaviour
                 SetSaveSlotsTexts();
                 Debug.Log("Cleared all saved data!");
 
-                if (StaticClass.ignoreUnlockedChapter && StaticClass.debug)
+                if (StaticClass.ignoreUnlockedChapter == true && StaticClass.debug == true)
                 {
                     Debug.Log("ignoreUnlockedChapter is set to true. All chapters are still unlocked.");
                 }
@@ -108,6 +119,7 @@ public class TitleScreen : MonoBehaviour
                     audioSource.Play();
                 }
 
+                SaveSystem.SaveGlobal();
                 deleteEverything = 0;
             }
         }
@@ -158,7 +170,10 @@ public class TitleScreen : MonoBehaviour
 
             if (SaveSystem.SaveExists(i, "player"))
             {
-                preview.text += "(" + PlayerPrefs.GetString(StaticClass.SLOT_PREFIX + i.ToString() + "_scene_name") + ", SCORE: " + (PlayerPrefs.GetInt(StaticClass.SLOT_PREFIX + i.ToString() + "_scoreThisLevel") + PlayerPrefs.GetInt(StaticClass.SLOT_PREFIX + i.ToString() + "_score")).ToString() + ")";
+                PlayerData data = SaveSystem.LoadPlayer(i);
+
+                //preview.text += "(" + PlayerPrefs.GetString(StaticClass.SLOT_PREFIX + i.ToString() + "_scene_name") + ", SCORE: " + (PlayerPrefs.GetInt(StaticClass.SLOT_PREFIX + i.ToString() + "_scoreThisLevel") + PlayerPrefs.GetInt(StaticClass.SLOT_PREFIX + i.ToString() + "_score")).ToString() + ")"; Old player pref version.
+                preview.text += "(" + data.scene.ToString() + ", SCORE: " + (data.score + data.scoreThisLevel).ToString() + ")";
                 slotButton.interactable = true;
                 eventTrigger.enabled = true;
                 loadGameDeleteButtons[i].GetComponent<Button>().interactable = true;
@@ -275,7 +290,8 @@ public class TitleScreen : MonoBehaviour
     {
         selectIcon.enabled = false;
         SetSaveSlotsTexts();
-        PlayerPrefs.Save();
+        SaveSystem.SaveGlobal();
+        //PlayerPrefs.Save();
     }
 
     public void SetChapter(int c)
@@ -345,14 +361,15 @@ public class TitleScreen : MonoBehaviour
 
     public void LoadGame(int slot)
     {
-        CreateLoadingScreen(loadingScreen, transform);
-
-        StaticClass.ResetStats(true);
-        string prefix = StaticClass.SLOT_PREFIX + slot.ToString();
-
-        if (PlayerPrefs.HasKey(prefix + "_scene_name"))
+        if (SaveSystem.SaveExists(slot, "player"))
         {
+            CreateLoadingScreen(loadingScreen, transform);
+            StaticClass.ResetStats(true);
             SaveSystem.LoadGame(slot);
+        }
+        else if (StaticClass.debug == true)
+        {
+            Debug.Log("Title screen: No save found.");
         }
     }
 
@@ -379,7 +396,10 @@ public class TitleScreen : MonoBehaviour
             PlayerPrefs.DeleteKey(prefix + "_weapon_unlocked" + i);
         }
 
-        Debug.Log("Deleted save on slot " + slot.ToString());
+        if (StaticClass.debug == true)
+        {
+            Debug.Log("Deleted save on slot " + slot.ToString());
+        }
 
         SetSaveSlotsTexts();
     }
@@ -391,7 +411,7 @@ public class TitleScreen : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        PlayerPrefs.Save();
+        //PlayerPrefs.Save();
     }
 
     public static void CreateLoadingScreen(GameObject screen, Transform refTransform)

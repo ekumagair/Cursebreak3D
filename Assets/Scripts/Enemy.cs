@@ -414,7 +414,7 @@ public class Enemy : MonoBehaviour
         // Hidden while waiting.
         if (hiddenWhileWaiting)
         {
-            if (target == null && wakeUpTimer > 0f)
+            if (target == null && wakeUpTimer > 0f && healthScript.isDead == false)
             {
                 sprite.SetActive(false);
             }
@@ -422,6 +422,13 @@ public class Enemy : MonoBehaviour
             {
                 sprite.SetActive(true);
             }
+        }
+
+        // If enemy was killed on this save slot and its sprite is not active.
+        if (player.killedEnemies.Contains(initialPositionToString) && sprite.activeSelf == false)
+        {
+            wakeUpTimer = 0;
+            sprite.SetActive(true);
         }
 
         // If enemy was killed on this save slot.
@@ -828,6 +835,8 @@ public class Enemy : MonoBehaviour
 
         healthScript.health = 0;
         player.killedEnemies.Add(initialPositionToString);
+        wakeUpTimer = 0;
+        wokeUp = true;
 
         // Give score.
         if (instant == false)

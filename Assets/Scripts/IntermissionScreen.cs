@@ -67,25 +67,32 @@ public class IntermissionScreen : MonoBehaviour
         if (StaticClass.currentChapter == StaticClass.unlockedChapter && StaticClass.currentMap >= 5)
         {
             StaticClass.unlockedChapter++;
-            PlayerPrefs.SetInt("global_unlocked_chapter", StaticClass.unlockedChapter);
-            Debug.Log("Unlocked new chapter!");
+            //PlayerPrefs.SetInt("global_unlocked_chapter", StaticClass.unlockedChapter);
+            if (StaticClass.debug == true)
+            {
+                Debug.Log("Unlocked new chapter!");
+            }
         }
 
-        // Save chapter high score.
+        /*
+        // Save chapter high score. Old version.
         string key = "global_c" + StaticClass.currentChapter.ToString() + "_high_score";
 
-        // Create saved high score key if it doesn't exist.
+        // Create saved high score key if it doesn't exist. Old version.
         if (PlayerPrefs.HasKey(key) == false)
         {
             PlayerPrefs.SetInt(key, 0);
         }
-        // Save new high score if current record is smaller than current score.
-        if(PlayerPrefs.GetInt(key) < Player.score)
+        // Save new high score if current record is smaller than current score. Old version.
+        if (PlayerPrefs.GetInt(key) < Player.score)
         {
             PlayerPrefs.SetInt(key, Player.score);
         }
 
         PlayerPrefs.Save();
+        */
+
+        SaveChapterHighScore();
     }
 
     void Update()
@@ -232,11 +239,12 @@ public class IntermissionScreen : MonoBehaviour
         {
             secretsRating.enabled = true;
 
-            if(secretsBonus == false)
+            if (secretsBonus == false)
             {
                 secretsBonus = true;
                 Player.score += 5000;
                 PlayBonusSound();
+                SaveChapterHighScore();
             }
         }
         else
@@ -252,11 +260,12 @@ public class IntermissionScreen : MonoBehaviour
         {
             enemiesRating.enabled = true;
 
-            if(enemiesBonus == false)
+            if (enemiesBonus == false)
             {
                 enemiesBonus = true;
                 Player.score += 5000;
                 PlayBonusSound();
+                SaveChapterHighScore();
             }
         }
         else
@@ -301,7 +310,8 @@ public class IntermissionScreen : MonoBehaviour
     {
         endedIntermission = true;
         intermissionState = 5;
-        PlayerPrefs.Save();
+        SaveChapterHighScore();
+        SaveSystem.SaveGlobal();
 
         // Create fade in object.
         Instantiate(fadeTo, gameObject.transform);
@@ -337,5 +347,22 @@ public class IntermissionScreen : MonoBehaviour
             StoryScreen.goToTitle = true;
             SceneManager.LoadScene("Story");
         }
+    }
+
+    void SaveChapterHighScore()
+    {
+        // Save chapter high score.
+        if (SaveSystem.GetSavedGlobal() == null)
+        {
+            // Has no saved global stats.
+            StaticClass.chapterHighScore[StaticClass.currentChapter - 1] = Player.score;
+        }
+        else if (SaveSystem.GetSavedGlobal().chapterHighScore[StaticClass.currentChapter - 1] < Player.score)
+        {
+            // Already has a save file for global stats. Replace old high score if current score is higher.
+            StaticClass.chapterHighScore[StaticClass.currentChapter - 1] = Player.score;
+        }
+
+        SaveSystem.SaveGlobal();
     }
 }

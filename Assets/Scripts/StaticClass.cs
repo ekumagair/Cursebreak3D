@@ -18,6 +18,9 @@ public static class StaticClass
     // Unlocked chapter
     public static int unlockedChapter = 1;
 
+    // Chapter high scores
+    public static int[] chapterHighScore = new int[3];
+
     // Difficulty
     public static int difficulty = 1;
     // Normal values are from 0 to 3. Values greater than 3 will be functional but won't have special properties.

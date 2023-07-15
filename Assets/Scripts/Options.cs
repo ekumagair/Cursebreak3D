@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,14 +30,26 @@ public class Options : MonoBehaviour
 
     void Start()
     {
-        // Load saved settings.
         if (PlayerPrefs.HasKey("global_mouse_sensitivity"))
         {
+            // Load saved settings from old version.
             mouseSensitivity = PlayerPrefs.GetFloat("global_mouse_sensitivity");
             musicVolume = PlayerPrefs.GetFloat("global_music_volume");
             soundVolume = PlayerPrefs.GetFloat("global_sfx_volume");
             Crosshair.sprite = PlayerPrefs.GetInt("global_crosshair");
             flashingEffects = PlayerPrefs.GetInt("global_flashing");
+            // Player prefs should not be used on new versions.
+        }
+
+        if (File.Exists(SaveSystem.GlobalSavePath()))
+        {
+            GlobalData data = SaveSystem.GetSavedGlobal();
+
+            mouseSensitivity = data.mouseSensitivity;
+            musicVolume = data.musicVolume;
+            soundVolume = data.soundVolume;
+            Crosshair.sprite = data.crosshairSprite;
+            flashingEffects = data.flashingEffects;
         }
 
         mouseSensitivitySlider.value = mouseSensitivity * 10;
@@ -73,7 +87,7 @@ public class Options : MonoBehaviour
                 break;
         }
 
-        if(Crosshair.sprite >= 4)
+        if (Crosshair.sprite >= 4)
         {
             crosshairAdd.interactable = false;
         }
@@ -136,40 +150,26 @@ public class Options : MonoBehaviour
     public void SetMouseSensitivity()
     {
         mouseSensitivity = mouseSensitivitySlider.value / 10;
-        SaveOptions();
     }
 
     public void SetMusicVolume()
     {
         musicVolume = musicSlider.value / 100;
-        SaveOptions();
     }
 
     public void SetSoundVolume()
     {
         soundVolume = soundSlider.value / 100;
-        SaveOptions();
     }
 
     public void ChangeCrosshair(int increment)
     {
         Crosshair.sprite += increment;
-        SaveOptions();
     }
 
     public void ChangeFlashingFX(int increment)
     {
         flashingEffects += increment;
-        SaveOptions();
-    }
-
-    public static void SaveOptions()
-    {
-        PlayerPrefs.SetFloat("global_mouse_sensitivity", mouseSensitivity);
-        PlayerPrefs.SetFloat("global_music_volume", musicVolume);
-        PlayerPrefs.SetFloat("global_sfx_volume", soundVolume);
-        PlayerPrefs.SetInt("global_crosshair", Crosshair.sprite);
-        PlayerPrefs.SetInt("global_flashing", flashingEffects);
     }
 
     public static void ResetOptions()
@@ -179,9 +179,12 @@ public class Options : MonoBehaviour
         soundVolume = 1.0f;
         Crosshair.sprite = 0;
         flashingEffects = 0;
-        SaveOptions();
-        PlayerPrefs.Save();
 
-        Debug.Log("Reset options.");
+        SaveSystem.SaveGlobal();
+
+        if (StaticClass.debug == true)
+        {
+            Debug.Log("Reset options.");
+        }
     }
 }

@@ -17,6 +17,12 @@ public class PlayerData
     public int currentWeapon;
     public float[] condition = new float[7];
 
+    public int difficulty;
+    public int score;
+    public int scoreThisLevel;
+    public int timeSeconds;
+    public int timeMinutes;
+
     public string[] enemyStartPositions;
     public string[] killedEnemies;
     public string[] destroyedItemsPositions;
@@ -52,6 +58,12 @@ public class PlayerData
         position[2] = player.transform.position.z;
 
         rotation = player.transform.eulerAngles.y;
+
+        difficulty = StaticClass.difficulty;
+        score = Player.score;
+        scoreThisLevel = Player.scoreThisLevel;
+        timeSeconds = Player.timeSeconds;
+        timeMinutes = Player.timeMinutes;
 
         enemyStartPositions = new string[player.enemyStartPositions.Count];
         for (int i = 0; i < player.enemyStartPositions.Count; i++)

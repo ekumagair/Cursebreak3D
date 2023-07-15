@@ -192,7 +192,7 @@ public class Player : MonoBehaviour
         }
 
         // Load saved map data.
-        if(StaticClass.loadSavedMapData == true)
+        if (StaticClass.loadSavedMapData == true)
         {
             for (int x = 0; x < savedEnemyStartPositions.Length; x++)
             {
@@ -1019,6 +1019,12 @@ public class Player : MonoBehaviour
         savedPosition.z = data.position[2];
 
         savedRotation = data.rotation;
+
+        StaticClass.difficulty = data.difficulty;
+        Player.score = data.score;
+        Player.scoreThisLevel = data.scoreThisLevel;
+        Player.timeSeconds = data.timeSeconds;
+        Player.timeMinutes = data.timeMinutes;
 
         for (int i = 0; i < ammo.Length; i++)
         {
