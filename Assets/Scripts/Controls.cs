@@ -117,7 +117,10 @@ public class Controls : MonoBehaviour
         // Use
         if (Input.GetKeyDown(useKey))
         {
-            Debug.DrawRay(transform.position, mainCam.transform.forward * 4, Color.white, 5f);
+            if (StaticClass.debug == true)
+            {
+                Debug.DrawRay(transform.position, mainCam.transform.forward * 4, Color.white, 5f);
+            }
 
             RaycastHit hit;
             if (Physics.Raycast(transform.position, mainCam.transform.forward, out hit, 4f, useMask))
@@ -126,7 +129,11 @@ public class Controls : MonoBehaviour
                 {
                     if (hit.collider.gameObject.GetComponent<Door>() != null)
                     {
-                        Debug.Log("Used door");
+                        if (StaticClass.debug == true)
+                        {
+                            Debug.Log("Used door");
+                        }
+
                         Door doorScript = hit.collider.gameObject.GetComponent<Door>();
 
                         if (doorScript.doorState == 0 && doorScript.canUse == true)
@@ -135,7 +142,7 @@ public class Controls : MonoBehaviour
 
                             if (playerScript.keys[doorScript.key] == false)
                             {
-                                if(doorScript.key == 1)
+                                if (doorScript.key == 1)
                                 {
                                     hudScript.HudMessage("You need a bronze key to open this door", 3f);
                                 }
@@ -152,7 +159,11 @@ public class Controls : MonoBehaviour
                     }
                     if (hit.collider.gameObject.GetComponent<MovingWall>() != null)
                     {
-                        Debug.Log("Used moving wall");
+                        if (StaticClass.debug == true)
+                        {
+                            Debug.Log("Used moving wall");
+                        }
+
                         MovingWall wallScript = hit.collider.gameObject.GetComponent<MovingWall>();
 
                         if (wallScript.wallState == 0)
@@ -162,7 +173,11 @@ public class Controls : MonoBehaviour
                     }
                     if (hit.collider.gameObject.GetComponent<Exit>() != null)
                     {
-                        Debug.Log("Used exit");
+                        if (StaticClass.debug == true)
+                        {
+                            Debug.Log("Used exit");
+                        }
+
                         hit.collider.gameObject.GetComponent<Exit>().UsedExit();
                         StartCoroutine(GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().Exit(hit.collider.gameObject.GetComponent<Exit>().fade));
                     }

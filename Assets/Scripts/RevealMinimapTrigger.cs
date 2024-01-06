@@ -4,18 +4,18 @@ using UnityEngine;
 
 public class RevealMinimapTrigger : MonoBehaviour
 {
-    Minimap minimapScript;
+    private Minimap _minimapScript;
 
     void Start()
     {
-        minimapScript = GameObject.FindGameObjectWithTag("Canvas").GetComponent<HUD>().mapRoot.GetComponent<Minimap>();
+        _minimapScript = GameObject.FindGameObjectWithTag("Canvas").GetComponent<HUD>().mapRoot.GetComponent<Minimap>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if(other.gameObject != null)
         {
-            minimapScript.AddToMinimapFilter(other.gameObject);
+            _minimapScript.AddToMinimapFilter(other.gameObject);
         }
     }
 }

@@ -5,25 +5,26 @@ using UnityEngine.UI;
 
 public class KeyHUD : MonoBehaviour
 {
-    Image img;
-    Player playerScript;
     public int keyId = 0;
+
+    private Image _img;
+    private Player _playerScript;
 
     void Start()
     {
-        img = GetComponent<Image>();
-        playerScript = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        _img = GetComponent<Image>();
+        _playerScript = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
     }
 
     void Update()
     {
-        if(playerScript.keys[keyId] == true)
+        if (_playerScript.keys[keyId] == true)
         {
-            img.enabled = true;
+            _img.enabled = true;
         }
         else
         {
-            img.enabled = false;
+            _img.enabled = false;
         }
     }
 }

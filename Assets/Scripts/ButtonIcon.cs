@@ -4,8 +4,15 @@ using UnityEngine;
 
 public class ButtonIcon : MonoBehaviour
 {
-    public void IconPos(Transform t)
+    private RectTransform _rect;
+
+    private void Awake()
     {
-        GetComponent<RectTransform>().position = new Vector3 (t.position.x - 220, t.position.y, t.position.z);
+        _rect = GetComponent<RectTransform>();
+    }
+
+    public void IconPos(RectTransform t)
+    {
+        _rect.anchoredPosition = new Vector2(t.anchoredPosition.x - (t.sizeDelta.x / 2) - _rect.sizeDelta.x - 10, t.anchoredPosition.y);
     }
 }

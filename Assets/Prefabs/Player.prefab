@@ -390,6 +390,7 @@ MonoBehaviour:
   extraDamageSound: {fileID: 7073382011647977794, guid: ca3ea396a89c81849a917799527101b1, type: 3}
   isInvisible: 0
   canvasTargetTexture: {fileID: 8400000, guid: 4098ca2a3bb4c0c4cbef9b6b9e94e8ae, type: 2}
+  canvasTargetTextureWide: {fileID: 8400000, guid: 60aa3a2a48145d443bf7a8ed3c592589, type: 2}
   enemyStartPositions: []
   killedEnemies: []
   destroyedItemsPositions: []

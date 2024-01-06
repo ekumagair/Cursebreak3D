@@ -11,53 +11,53 @@ public class ChapterStartButton : MonoBehaviour
     public string fullStringOverride = "";
     public bool hideWhenLocked = false;
 
-    Button btn;
-    EventTrigger events;
-    Text buttonText;
+    private Button _btn;
+    private EventTrigger _events;
+    private Text _buttonText;
 
     void Start()
     {
-        btn = GetComponent<Button>();
-        events = GetComponent<EventTrigger>();
-        buttonText = GetComponentInChildren<Text>();
-        buttonText.enabled = false;
+        _btn = GetComponent<Button>();
+        _events = GetComponent<EventTrigger>();
+        _buttonText = GetComponentInChildren<Text>();
+        _buttonText.enabled = false;
     }
 
     void Update()
     {
         if (fullStringOverride == "")
         {
-            buttonText.text = chapterNumber.ToString() + " - ";
+            _buttonText.text = chapterNumber.ToString() + " - ";
         }
         else
         {
-            buttonText.text = fullStringOverride;
+            _buttonText.text = fullStringOverride;
         }
 
         if(StaticClass.unlockedChapter >= chapterNumber || StaticClass.ignoreUnlockedChapter == true)
         {
-            btn.interactable = true;
-            events.enabled = true;
-            buttonText.enabled = true;
+            _btn.interactable = true;
+            _events.enabled = true;
+            _buttonText.enabled = true;
 
             if (fullStringOverride == "")
             {
-                buttonText.text += chapterName;
+                _buttonText.text += chapterName;
             }
         }
         else
         {
-            btn.interactable = false;
-            events.enabled = false;
+            _btn.interactable = false;
+            _events.enabled = false;
 
             if (hideWhenLocked == false)
             {
-                buttonText.text += "(LOCKED)";
-                buttonText.enabled = true;
+                _buttonText.text += "(LOCKED)";
+                _buttonText.enabled = true;
             }
             else
             {
-                buttonText.enabled = false;
+                _buttonText.enabled = false;
             }
         }
     }

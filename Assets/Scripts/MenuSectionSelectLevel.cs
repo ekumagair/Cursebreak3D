@@ -17,7 +17,7 @@ public class MenuSectionSelectLevel : MonoBehaviour
 
     void Update()
     {
-        if(StaticClass.currentChapter <= 1)
+        if (StaticClass.currentChapter <= 1)
         {
             chapterSubtract.interactable = false;
         }

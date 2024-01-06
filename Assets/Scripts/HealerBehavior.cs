@@ -29,11 +29,11 @@ public class HealerBehavior : MonoBehaviour
     void Update()
     {
         // Cooldown timer. Must wait "cooldownDefault" seconds before being able to heal again.
-        if(cooldown > 0)
+        if (cooldown > 0)
         {
             cooldown -= Time.deltaTime;
         }
-        if(cooldown < 0)
+        if (cooldown < 0)
         {
             cooldown = 0;
         }
@@ -57,7 +57,7 @@ public class HealerBehavior : MonoBehaviour
     {
         yield return new WaitForSeconds(0.5f);
 
-        if(EnemyIsActive() && cooldown <= 0 && healTargets.Count > 0)
+        if (EnemyIsActive() && cooldown <= 0 && healTargets.Count > 0)
         {
             StartCoroutine(Heal(healDuration));
         }
@@ -162,7 +162,7 @@ public class HealerBehavior : MonoBehaviour
     }
 
     // Returns true if the enemy with the healer behaviour is not busy attacking, waking up, or dead or with no target.
-    bool EnemyIsActive()
+    private bool EnemyIsActive()
     {
         return enemyScript.attackTime > 0 && enemyScript.wakeUpTimer <= 0 && enemyHealth.isDead == false && enemyScript.target != null;
     }

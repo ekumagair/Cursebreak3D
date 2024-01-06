@@ -17,7 +17,7 @@ public class LevelSelect : MonoBehaviour
 
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.LeftArrow))
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             StaticClass.difficulty--;
         }

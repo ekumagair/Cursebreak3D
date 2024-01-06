@@ -43,20 +43,20 @@ public static class StaticClass
     public static bool loadSavedMapData = false;
     public static int pendingLoad = -1;
 
-    // Misc rules
+    // Misc rules.
     public static bool canPause = true;
     public static bool debug = false;
 
     // If true, disable chapter unlocking checks. This would make everything unlocked from the start. If false, the player must beat all chapters in order, from first to last.
     public static bool ignoreUnlockedChapter = false;
 
-    // Minimap type
+    // Minimap type.
     public static int minimapType = 2;
     // 0 = Minimap disabled
     // 1 = All revealed from the start
     // 2 = Gradual reveal
 
-    // Intermission display type
+    // Intermission display type.
     public static int intermissionDisplayType = 1;
     // 0 = Show numbers instantly
     // 1 = Show numbers gradually
@@ -75,7 +75,7 @@ public static class StaticClass
         enemiesKilled = 0;
         enemiesTotal = 0;
 
-        if(resetChapterProgress == true)
+        if (resetChapterProgress == true)
         {
             Player.score = 0;
             Player.damageStopsSprint = false;

@@ -17,20 +17,6 @@ public static class SaveSystem
 
     public static void SaveGame(int slot)
     {
-        /*
-        PlayerPrefs.SetString(StaticClass.SLOT_PREFIX + slot.ToString() + "_scene_name", SceneManager.GetActiveScene().name);
-        PlayerPrefs.SetInt(StaticClass.SLOT_PREFIX + slot.ToString() + "_difficulty", StaticClass.difficulty);
-        PlayerPrefs.SetInt(StaticClass.SLOT_PREFIX + slot.ToString() + "_score", Player.score);
-        PlayerPrefs.SetInt(StaticClass.SLOT_PREFIX + slot.ToString() + "_scoreThisLevel", Player.scoreThisLevel);
-        PlayerPrefs.SetInt(StaticClass.SLOT_PREFIX + slot.ToString() + "_timeSeconds", Player.timeSeconds);
-        PlayerPrefs.SetInt(StaticClass.SLOT_PREFIX + slot.ToString() + "_timeMinutes", Player.timeMinutes);
-
-        PlayerPrefs.DeleteAll();
-        PlayerPrefs.Save();
-
-        Debug.Log("Score this chapter: " + PlayerPrefs.GetInt(StaticClass.SLOT_PREFIX + slot.ToString() + "_score"));
-        Debug.Log("Score this level: " + PlayerPrefs.GetInt(StaticClass.SLOT_PREFIX + slot.ToString() + "_scoreThisLevel"));*/
-
         GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().SaveToPlayerData(slot);
     }
 
@@ -84,20 +70,6 @@ public static class SaveSystem
 
     public static PlayerData LoadPlayer(int slot)
     {
-        if (PlayerPrefs.HasKey(StaticClass.SLOT_PREFIX + slot.ToString() + "_scene_name"))
-        {
-            // Load player prefs from old version.
-            StaticClass.difficulty = PlayerPrefs.GetInt(StaticClass.SLOT_PREFIX + slot.ToString() + "_difficulty");
-            Player.score = PlayerPrefs.GetInt(StaticClass.SLOT_PREFIX + slot.ToString() + "_score");
-            Player.scoreThisLevel = PlayerPrefs.GetInt(StaticClass.SLOT_PREFIX + slot.ToString() + "_scoreThisLevel");
-            Player.timeSeconds = PlayerPrefs.GetInt(StaticClass.SLOT_PREFIX + slot.ToString() + "_timeSeconds");
-            Player.timeMinutes = PlayerPrefs.GetInt(StaticClass.SLOT_PREFIX + slot.ToString() + "_timeMinutes");
-
-            // Delete player prefs because they shouldn't be used in the newer versions.
-            PlayerPrefs.DeleteAll();
-            PlayerPrefs.Save();
-        }
-
         string path = SaveSlotPath(slot, "player");
 
         if (File.Exists(path))
@@ -194,7 +166,6 @@ public static class SaveSystem
             {
                 Debug.Log("LOADED global info at " + GlobalSavePath());
             }
-
             return data;
         }
         else
@@ -225,6 +196,15 @@ public static class SaveSystem
             {
                 StaticClass.chapterHighScore[i] = data.chapterHighScore[i];
             }
+
+            if (data.gameResolution.GetType() != null)
+            {
+                Options.gameResolution = data.gameResolution;
+            }
+        }
+        else
+        {
+            Options.ResetOptions();
         }
 
         SaveGlobal();

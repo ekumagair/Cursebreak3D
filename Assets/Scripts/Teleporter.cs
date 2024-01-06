@@ -15,7 +15,11 @@ public class Teleporter : MonoBehaviour
 
     void Start()
     {
-        Debug.Log(gameObject + " destination: " + teleporterDestination.transform.position);
+        if (StaticClass.debug == true)
+        {
+            Debug.Log(gameObject + " destination: " + teleporterDestination.transform.position);
+        }
+
         GetComponent<Animator>().Play("Teleporter" + teleporterAnimation.ToString());
     }
 
@@ -25,7 +29,7 @@ public class Teleporter : MonoBehaviour
 
         user.transform.position = new Vector3(teleporterDestination.transform.position.x, user.transform.position.y, teleporterDestination.transform.position.z);
 
-        if(changeRotation)
+        if (changeRotation)
         {
             user.transform.rotation = teleporterDestination.transform.rotation;
         }
@@ -35,7 +39,7 @@ public class Teleporter : MonoBehaviour
             Instantiate(soundOnTeleport, transform.position, transform.rotation);
             Instantiate(soundOnTeleport, teleporterDestination.transform.position, teleporterDestination.transform.rotation);
         }
-        if(particleOnTeleport != null)
+        if (particleOnTeleport != null)
         {
             Instantiate(particleOnTeleport, transform.position + (transform.up * 2), transform.rotation);
             Instantiate(particleOnTeleport, teleporterDestination.transform.position + (user.transform.forward * 1.5f) + (transform.up * 2), teleporterDestination.transform.rotation);

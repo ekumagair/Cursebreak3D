@@ -7,6 +7,12 @@ using System;
 
 public class HUD : MonoBehaviour
 {
+    [Header("Target Texture")]
+    public RawImage targetTextureImage;
+
+    [Header("Overlays")]
+    public RectTransform overlaysRoot;
+
     [Header("Status Bar")]
     public Text hpText;
     public Text armorText;
@@ -158,16 +164,16 @@ public class HUD : MonoBehaviour
         }
 
         // Message on the center of the screen.
-        if(messageTimer > 0.0f)
+        if (messageTimer > 0.0f)
         {
             messageTimer -= Time.deltaTime;
         }
-        if(messageTimer < 0.0f)
+        if (messageTimer < 0.0f)
         {
             messageTimer = 0.0f;
         }
 
-        if(messageTimer > 0.0f && Time.timeScale != 0.0f)
+        if (messageTimer > 0.0f && Time.timeScale != 0.0f)
         {
             messageText.enabled = true;
         }
@@ -177,7 +183,7 @@ public class HUD : MonoBehaviour
         }
 
         // If player script is valid
-        if(targetPlayer != null)
+        if (targetPlayer != null)
         {
             // For every first person sprite
             for (int i = 0; i < firstPersonSprites.Length; i++)
@@ -201,7 +207,7 @@ public class HUD : MonoBehaviour
         }
 
         // If paused
-        if(Time.timeScale == 0.0f)
+        if (Time.timeScale == 0.0f)
         {
             pauseGeneral.SetActive(true);
             minimapEnabled = false;
@@ -215,7 +221,7 @@ public class HUD : MonoBehaviour
         }
 
         // Toggle minimap
-        if(Input.GetKeyDown(KeyCode.Tab) && StaticClass.gameState == 0 && StaticClass.minimapType != 0)
+        if (Input.GetKeyDown(KeyCode.Tab) && StaticClass.gameState == 0 && StaticClass.minimapType != 0)
         {
             minimapEnabled = !minimapEnabled;
         }
@@ -236,7 +242,6 @@ public class HUD : MonoBehaviour
         sectionOptions.SetActive(false);
         pauseSelectIcon.enabled = false;
         SaveSystem.SaveGlobal();
-        //PlayerPrefs.Save();
     }
 
     public void GoToSelectSave()
@@ -278,7 +283,7 @@ public class HUD : MonoBehaviour
     {
         var msg = Instantiate(logMessagePrefab, gameObject.transform);
         msg.GetComponent<Text>().text = message;
-        msg.GetComponent<RectTransform>().position = new Vector3(0, (-32 * logCurrentPosition) + 800, 0);
+        msg.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, -32 * logCurrentPosition, 0);
         logCurrentPosition++;
 
         if (logCurrentPosition > 4)
@@ -286,8 +291,11 @@ public class HUD : MonoBehaviour
             HudMoveUpLog();
         }
 
-        Debug.Log(message);
-        Debug.Log("Log position: " + logCurrentPosition);
+        if (StaticClass.debug == true)
+        {
+            Debug.Log(message);
+            Debug.Log("Log position: " + logCurrentPosition);
+        }
     }
 
     public void HudMoveUpLog()
@@ -304,6 +312,9 @@ public class HUD : MonoBehaviour
             logCurrentPosition = 0;
         }
 
-        Debug.Log("Log position: " + logCurrentPosition);
+        if (StaticClass.debug == true)
+        {
+            Debug.Log("Log position: " + logCurrentPosition);
+        }
     }
 }

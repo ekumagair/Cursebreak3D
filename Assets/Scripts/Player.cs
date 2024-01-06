@@ -28,6 +28,7 @@ public class Player : MonoBehaviour
     public GameObject extraDamageSound;
     public bool isInvisible = false;
     public RenderTexture canvasTargetTexture;
+    public RenderTexture canvasTargetTextureWide;
 
     // score: Total chapter score. Only resets after a chapter is completed. Is only actually updated after a level ends.
     public static int score = 0;
@@ -129,7 +130,7 @@ public class Player : MonoBehaviour
         minimapScript = gameCanvasScript.mapRoot.GetComponent<Minimap>();
         characterController = GetComponent<CharacterController>();
         mapProperties = GameObject.Find("MapProperties").GetComponent<MapProperties>();
-        Camera.main.targetTexture = canvasTargetTexture;
+        SetRenderTexture();
         isInvisible = false;
         weaponsUnlocked[0] = true;
         scrolledMouse = false;
@@ -235,7 +236,7 @@ public class Player : MonoBehaviour
         }
 
         // If difficulty is normal or easier.
-        if(StaticClass.difficulty <= 1)
+        if (StaticClass.difficulty <= 1)
         {
             damageStopsSprint = false;
         }
@@ -264,7 +265,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         // Select weapon with keyboard.
-        if(Input.GetKeyDown(KeyCode.Alpha1) && CanSelectWeapon(1))
+        if (Input.GetKeyDown(KeyCode.Alpha1) && CanSelectWeapon(1))
         {
             currentWeapon = 1;
             weaponDelaysCurrent[4] = weaponDelaysDefault[4];
@@ -315,7 +316,7 @@ public class Player : MonoBehaviour
                 p.GetComponent<Projectile>().ignoreTag = tag;
                 p.GetComponent<Projectile>().damage *= DamageMultiplier();
 
-                if(currentWeapon == 3)
+                if (currentWeapon == 3)
                 {
                     var p2 = Instantiate(weaponProjectile[currentWeapon], transform.position + transform.forward, transform.rotation);
                     p2.GetComponent<Projectile>().ignoreTag = tag;
@@ -353,14 +354,17 @@ public class Player : MonoBehaviour
                 RaycastHit hit;
                 if (Physics.Raycast(transform.position, transform.forward, out hit, weaponRayRange[currentWeapon], attackRayMask))
                 {
-                    Debug.DrawRay(transform.position, transform.forward * hit.distance, Color.green, weaponRayRange[currentWeapon]);
-                    Debug.Log("Player Hit " + hit.collider.name);
+                    if (StaticClass.debug == true)
+                    {
+                        Debug.DrawRay(transform.position, transform.forward * hit.distance, Color.green, weaponRayRange[currentWeapon]);
+                        Debug.Log("Player Hit " + hit.collider.name);
+                    }
 
                     if (hit.collider.gameObject != null)
                     {
                         GameObject hitObject = hit.collider.gameObject;
 
-                        if(hitObject.tag == "Enemy")
+                        if (hitObject.tag == "Enemy")
                         {
                             hitObject.GetComponent<Health>().TakeDamage(rayDamage, false);
                         }
@@ -378,7 +382,7 @@ public class Player : MonoBehaviour
             }
 
             // Enemies can hear the attack.
-            if(weaponType[currentWeapon] != -1)
+            if (weaponType[currentWeapon] != -1)
             {
                 GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
@@ -401,7 +405,7 @@ public class Player : MonoBehaviour
             }
 
             // If the player has an extra damage power-up, play an additional sound.
-            if(extraDamageSound != null && (conditionTimer[3] > 0 || conditionTimer[4] > 0))
+            if (extraDamageSound != null && (conditionTimer[3] > 0 || conditionTimer[4] > 0))
             {
                 Instantiate(extraDamageSound, transform.position, transform.rotation);
             }
@@ -428,18 +432,18 @@ public class Player : MonoBehaviour
         // Weapon delays
         for (int i = 0; i < weaponDelaysDefault.Length; i++)
         {
-            if(weaponDelaysCurrent[i] > 0 && currentWeapon == i)
+            if (weaponDelaysCurrent[i] > 0 && currentWeapon == i)
             {
                 weaponDelaysCurrent[i] -= Time.deltaTime;
             }
-            if(weaponDelaysCurrent[i] < 0)
+            if (weaponDelaysCurrent[i] < 0)
             {
                 weaponDelaysCurrent[i] = 0;
             }
         }
 
         // Change to staff if your hand is empty.
-        if(weaponsUnlocked[1] == true && currentWeapon == 0)
+        if (weaponsUnlocked[1] == true && currentWeapon == 0)
         {
             currentWeapon = 1;
         }
@@ -454,11 +458,11 @@ public class Player : MonoBehaviour
         }
 
         // Armor limits
-        if(healthScript.armor < 0)
+        if (healthScript.armor < 0)
         {
             healthScript.armor = 0;
         }
-        if(healthScript.armor == 0)
+        if (healthScript.armor == 0)
         {
             healthScript.armorMult = 1;
         }
@@ -468,7 +472,7 @@ public class Player : MonoBehaviour
         }
 
         // Death
-        if(healthScript.isDead == true && StaticClass.gameState == 0)
+        if (healthScript.isDead == true && StaticClass.gameState == 0)
         {
             StaticClass.gameState = 2;
             StartCoroutine(PlayerDeath());
@@ -540,9 +544,9 @@ public class Player : MonoBehaviour
         }
 
         // Pause
-        if(Input.GetKeyDown(KeyCode.Escape) && !Input.GetKey(KeyCode.Alpha1) && StaticClass.canPause && StaticClass.gameState != 1 && StaticClass.gameState != 2)
+        if (Input.GetKeyDown(KeyCode.Escape) && !Input.GetKey(KeyCode.Alpha1) && StaticClass.canPause && StaticClass.gameState != 1 && StaticClass.gameState != 2)
         {
-            if(Time.timeScale == 0.0f)
+            if (Time.timeScale == 0.0f)
             {
                 PauseEnd();
             }
@@ -553,7 +557,7 @@ public class Player : MonoBehaviour
         }
 
         // Show score
-        if(gotScoreTimer > 0)
+        if (gotScoreTimer > 0)
         {
             gotScoreTimer -= Time.deltaTime;
         }
@@ -562,7 +566,7 @@ public class Player : MonoBehaviour
             gotScoreTimer = 0;
         }
 
-        // Reveal walls on minimap
+        // Reveal walls on minimap.
         if (StaticClass.minimapType == 2 && HUD.minimapEnabled == false)
         {
             for (float i = -1; i <= 1; i += 0.1f)
@@ -571,20 +575,20 @@ public class Player : MonoBehaviour
             }
         }
 
-        // Reveal floor on minimap
+        // Reveal floor on minimap.
         //minimapScript.AddFloorToMinimap(gameObject);
 
         // Debug
         if (StaticClass.debug == true)
         {
             // Toggle canvas
-            if(Input.GetKeyDown(KeyCode.U))
+            if (Input.GetKeyDown(KeyCode.U))
             {
                 gameCanvas.SetActive(!gameCanvas.activeSelf);
 
                 if (gameCanvas.activeSelf)
                 {
-                    Camera.main.targetTexture = canvasTargetTexture;
+                    SetRenderTexture();
                 }
                 else
                 {
@@ -593,31 +597,31 @@ public class Player : MonoBehaviour
             }
 
             // Add object in front of player to minimap.
-            if(Input.GetKeyDown(KeyCode.M))
+            if (Input.GetKeyDown(KeyCode.M) && !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl))
             {
                 RevealMinimapRay(0, true);
             }
 
             // Add health
-            if(Input.GetKeyDown(KeyCode.H) && !Input.GetKey(KeyCode.LeftShift))
+            if (Input.GetKeyDown(KeyCode.H) && !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl))
             {
                 healthScript.health += 10;
             }
             // Add armor
-            if (Input.GetKeyDown(KeyCode.R) && !Input.GetKey(KeyCode.LeftShift))
+            if (Input.GetKeyDown(KeyCode.R) && !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl))
             {
                 healthScript.armorMult = 0.75f;
                 healthScript.armor += 10;
             }
-            if (Input.GetKeyDown(KeyCode.G) && !Input.GetKey(KeyCode.LeftShift))
+            if (Input.GetKeyDown(KeyCode.G) && !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl))
             {
                 healthScript.armorMult = 0.5f;
                 healthScript.armor += 10;
             }
 
-            // Save and Load tests
-            if(Input.GetKey(KeyCode.LeftShift))
+            if (Input.GetKey(KeyCode.LeftShift))
             {
+                // Save and Load tests.
                 if (Input.GetKeyDown(KeyCode.G))
                 {
                     SaveToPlayerData(0);
@@ -635,14 +639,26 @@ public class Player : MonoBehaviour
                     SaveSystem.LoadGame(0);
                 }
             }
+            else if (Input.GetKey(KeyCode.LeftControl))
+            {
+                // Add time
+                if (Input.GetKeyDown(KeyCode.M))
+                {
+                    timeMinutes += 10;
+                }
+                if (Input.GetKeyDown(KeyCode.K))
+                {
+                    timeMinutes += 1000;
+                }
+            }
 
-            if (Input.GetKeyDown(KeyCode.R))
+            // Misc info report.
+            if (Input.GetKeyDown(KeyCode.R) && !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl))
             {
                 Debug.Log("Player Y rotation: " + transform.rotation.y);
                 Debug.Log("Difficulty is " + StaticClass.difficulty);
                 Debug.Log("Level score: " + Player.scoreThisLevel);
                 Debug.Log("Chapter score: " + Player.score);
-                Debug.Log("Slot 1 level score: " + PlayerPrefs.GetInt("slot1_scoreThisLevel"));
             }
         }
     }
@@ -651,7 +667,7 @@ public class Player : MonoBehaviour
     {
         GameObject otherObject = other.gameObject;
 
-        if(otherObject.tag == "Item")
+        if (otherObject.tag == "Item")
         {
             Item itemScript = otherObject.GetComponent<Item>();
 
@@ -663,7 +679,7 @@ public class Player : MonoBehaviour
                     healthScript.health += itemScript.giveHealth;
 
                     // Don't autosave if the map properties forbid it.
-                    if(mapProperties.healthItemDoesNotAutosave == true)
+                    if (mapProperties.healthItemDoesNotAutosave == true)
                     {
                         itemScript.triggersAutosave = false;
                     }
@@ -699,7 +715,7 @@ public class Player : MonoBehaviour
                     healthScript.armor += itemScript.giveArmor;
 
                     // Replace current armor with better armor.
-                    if(itemScript.giveArmorMult < healthScript.armorMult)
+                    if (itemScript.giveArmorMult < healthScript.armorMult)
                     {
                         healthScript.armorMult = itemScript.giveArmorMult;
                     }
@@ -739,7 +755,7 @@ public class Player : MonoBehaviour
                 // Pickup flash.
                 if (itemScript.createOnCollect != null && (Options.flashingEffects == 0 || Options.flashingEffects == 1))
                 {
-                    Instantiate(itemScript.createOnCollect, gameCanvas.transform);
+                    Instantiate(itemScript.createOnCollect, gameCanvasScript.overlaysRoot.transform);
                 }
 
                 if (itemScript.createOnCollectGameWorld != null)
@@ -798,7 +814,7 @@ public class Player : MonoBehaviour
 
         timeSeconds++;
 
-        if(timeSeconds >= 60)
+        if (timeSeconds >= 60)
         {
             timeSeconds = 0;
             timeMinutes++;
@@ -827,16 +843,16 @@ public class Player : MonoBehaviour
     // When the player takes damage.
     public void PlayerPain(int amount)
     {
-        if(StaticClass.difficulty > 0 && amount > 9 && damageStopsSprint == true)
+        if (StaticClass.difficulty > 0 && amount > 9 && damageStopsSprint == true)
         {
             // Don't let player sprint for a limited time if more than 9 damage was taken.
             conditionTimer[2] = 1f;
         }
 
         // Damage flash.
-        if(damageOverlayObject != null && (Options.flashingEffects == 0 || Options.flashingEffects == 2))
+        if (damageOverlayObject != null && (Options.flashingEffects == 0 || Options.flashingEffects == 2))
         {
-            Instantiate(damageOverlayObject, gameCanvas.transform);
+            Instantiate(damageOverlayObject, gameCanvasScript.overlaysRoot.transform);
         }
     }
 
@@ -994,6 +1010,13 @@ public class Player : MonoBehaviour
                 }
             }
         }
+    }
+
+    // Render texture
+    public void SetRenderTexture()
+    {
+        Camera.main.targetTexture = Options.gameResolution < 2 ? canvasTargetTexture : canvasTargetTextureWide;
+        gameCanvasScript.targetTextureImage.texture = Camera.main.targetTexture;
     }
 
     // Save to player data.

@@ -7,40 +7,41 @@ using UnityEngine.UI;
 
 public class Options : MonoBehaviour
 {
+    [Header("Mouse sensitivity")]
     public Slider mouseSensitivitySlider;
-    public Slider musicSlider;
-    public Slider soundSlider;
-
     public Text mouseSensitivityValue;
+
+    [Header("Music")]
+    public Slider musicSlider;
     public Text musicValue;
+
+    [Header("Sound")]
+    public Slider soundSlider;
     public Text soundValue;
 
+    [Header("Crosshair")]
     public Text crosshairText;
     public Button crosshairAdd;
     public Button crosshairSubtract;
 
+    [Header("Flashing")]
     public Text flashingText;
     public Button flashingAdd;
     public Button flashingSubtract;
+
+    [Header("Resolution")]
+    public Text resolutionText;
+    public Button resolutionAdd;
+    public Button resolutionSubtract;
 
     public static float mouseSensitivity = 1.0f;
     public static float musicVolume = 0.5f;
     public static float soundVolume = 1.0f;
     public static int flashingEffects = 0;
+    public static int gameResolution = 2;
 
     void Start()
     {
-        if (PlayerPrefs.HasKey("global_mouse_sensitivity"))
-        {
-            // Load saved settings from old version.
-            mouseSensitivity = PlayerPrefs.GetFloat("global_mouse_sensitivity");
-            musicVolume = PlayerPrefs.GetFloat("global_music_volume");
-            soundVolume = PlayerPrefs.GetFloat("global_sfx_volume");
-            Crosshair.sprite = PlayerPrefs.GetInt("global_crosshair");
-            flashingEffects = PlayerPrefs.GetInt("global_flashing");
-            // Player prefs should not be used on new versions.
-        }
-
         if (File.Exists(SaveSystem.GlobalSavePath()))
         {
             GlobalData data = SaveSystem.GetSavedGlobal();
@@ -59,12 +60,12 @@ public class Options : MonoBehaviour
 
     void Update()
     {
-        // Slider-controlled settings
+        // Slider-controlled settings.
         mouseSensitivityValue.text = "(" + mouseSensitivity + "x)";
         musicValue.text = "(" + musicSlider.value + "%)";
         soundValue.text = "(" + soundSlider.value + "%)";
 
-        // Crosshair settings
+        // Crosshair settings.
         crosshairText.text = "Crosshair: ";
         switch (Crosshair.sprite)
         {
@@ -105,7 +106,7 @@ public class Options : MonoBehaviour
             crosshairSubtract.interactable = true;
         }
 
-        // Flashing effects settings
+        // Flashing effects settings.
         flashingText.text = "Flashes: ";
         switch (flashingEffects)
         {
@@ -145,6 +146,45 @@ public class Options : MonoBehaviour
         {
             flashingSubtract.interactable = true;
         }
+
+        // Game resolution settings.
+        resolutionText.text = "";
+        switch (gameResolution)
+        {
+            case 0:
+                resolutionText.text += "1280x800";
+                break;
+            case 1:
+                resolutionText.text += "1728x1080";
+                break;
+            case 2:
+                resolutionText.text += "1920x1080";
+                break;
+            case 3:
+                resolutionText.text += "3840x2160";
+                break;
+            default:
+                resolutionText.text += "1280x800";
+                break;
+        }
+
+        if (gameResolution >= 3)
+        {
+            resolutionAdd.interactable = false;
+        }
+        else
+        {
+            resolutionAdd.interactable = true;
+        }
+
+        if (gameResolution <= 0)
+        {
+            resolutionSubtract.interactable = false;
+        }
+        else
+        {
+            resolutionSubtract.interactable = true;
+        }
     }
 
     public void SetMouseSensitivity()
@@ -172,6 +212,43 @@ public class Options : MonoBehaviour
         flashingEffects += increment;
     }
 
+    public void ChangeResolution(int increment)
+    {
+        gameResolution += increment;
+        SetResolution();
+    }
+
+    public static void SetResolution()
+    {
+        switch (gameResolution)
+        {
+            case 0:
+                Screen.SetResolution(1280, 800, true);
+                break;
+
+            case 1:
+                Screen.SetResolution(1728, 1080, true);
+                break;
+
+            case 2:
+                Screen.SetResolution(1920, 1080, true);
+                break;
+
+            case 3:
+                Screen.SetResolution(3840, 2160, true);
+                break;
+
+            default:
+                Screen.SetResolution(1280, 800, true);
+                break;
+        }
+
+        if (FindObjectOfType<Player>() != null)
+        {
+            FindObjectOfType<Player>().SetRenderTexture();
+        }
+    }
+
     public static void ResetOptions()
     {
         mouseSensitivity = 1.0f;
@@ -179,6 +256,7 @@ public class Options : MonoBehaviour
         soundVolume = 1.0f;
         Crosshair.sprite = 0;
         flashingEffects = 0;
+        gameResolution = 2;
 
         SaveSystem.SaveGlobal();
 

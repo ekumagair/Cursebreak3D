@@ -22,9 +22,9 @@ public class TitleScreen : MonoBehaviour
     public GameObject[] loadGameDeleteButtons;
     public GameObject loadingScreen;
     
-    string[] loadGameTextsDefault = new string[4];
-    float deleteEverything = 0;
-    AudioSource audioSource;
+    private string[] _loadGameTextsDefault = new string[4];
+    private float _deleteEverything = 0;
+    private AudioSource _audioSource;
 
     public static bool startFromChapterSelect = false;
 
@@ -33,25 +33,18 @@ public class TitleScreen : MonoBehaviour
         Time.timeScale = 1.0f;
         Cursor.lockState = CursorLockMode.None;
         MenuSectionSelectLevel.levelWarp = false;
-        deleteEverything = 0;
-        audioSource = GetComponent<AudioSource>();
+        _deleteEverything = 0;
+        _audioSource = GetComponent<AudioSource>();
         versionText.text = "v " + Application.version.ToString();
 
         SaveSystem.LoadGlobal();
+        Options.SetResolution();
 
         // Sets default load game button text to the string set in the editor.
         for (int i = 0; i < loadGameSlotsText.Length; i++)
         {
-            loadGameTextsDefault[i] = loadGameSlotsText[i].text;
+            _loadGameTextsDefault[i] = loadGameSlotsText[i].text;
         }
-
-        /*
-        // Load unlocked chapter varaible. Old version.
-        if (PlayerPrefs.HasKey("global_unlocked_chapter"))
-        {
-            StaticClass.unlockedChapter = PlayerPrefs.GetInt("global_unlocked_chapter");
-        }
-        */
 
         // Load serialized unlocked chapter variable.
         if (File.Exists(SaveSystem.GlobalSavePath()))
@@ -63,7 +56,6 @@ public class TitleScreen : MonoBehaviour
         if (StaticClass.unlockedChapter < 1)
         {
             StaticClass.unlockedChapter = 1;
-            //PlayerPrefs.SetInt("global_unlocked_chapter", 1);
             Debug.LogWarning("unlockedChapter variable was lower than 1! Resetting to default.");
         }
 
@@ -79,6 +71,11 @@ public class TitleScreen : MonoBehaviour
         }
 
         SetSaveSlotsTexts();
+
+        if (StaticClass.debug == true)
+        {
+            Debug.LogWarning("**Debug mode is ON**");
+        }
     }
 
     void Update()
@@ -92,9 +89,9 @@ public class TitleScreen : MonoBehaviour
         // Delete all saved data. Must hold the "delete" key for 5 seconds and then press the "enter" key.
         if (Input.GetKey(KeyCode.Delete))
         {
-            deleteEverything += Time.deltaTime;
+            _deleteEverything += Time.deltaTime;
 
-            if (deleteEverything > 5 && Input.GetKeyDown(KeyCode.Return))
+            if (_deleteEverything > 5 && Input.GetKeyDown(KeyCode.Return))
             {
                 PlayerPrefs.DeleteAll();
                 SaveSystem.DeleteSave(0, "player");
@@ -114,18 +111,18 @@ public class TitleScreen : MonoBehaviour
                     Debug.Log("ignoreUnlockedChapter is set to true. All chapters are still unlocked.");
                 }
 
-                if (audioSource != null && audioSource.clip != null)
+                if (_audioSource != null && _audioSource.clip != null)
                 {
-                    audioSource.Play();
+                    _audioSource.Play();
                 }
 
                 SaveSystem.SaveGlobal();
-                deleteEverything = 0;
+                _deleteEverything = 0;
             }
         }
         else
         {
-            deleteEverything = 0;
+            _deleteEverything = 0;
         }
 
         if (StaticClass.debug == true)
@@ -151,6 +148,25 @@ public class TitleScreen : MonoBehaviour
                     SaveSystem.LoadGame(0);
                 }
             }
+            if (Input.GetKey(KeyCode.R))
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha1))
+                {
+                    Screen.SetResolution(1280, 800, true);
+                }
+                if (Input.GetKeyDown(KeyCode.Alpha2))
+                {
+                    Screen.SetResolution(1280, 800, false);
+                }
+                if (Input.GetKeyDown(KeyCode.Alpha3))
+                {
+                    Screen.SetResolution(1920, 1080, true);
+                }
+                if (Input.GetKeyDown(KeyCode.Alpha4))
+                {
+                    Screen.SetResolution(3840, 2160, true);
+                }
+            }
         }
     }
 
@@ -161,7 +177,7 @@ public class TitleScreen : MonoBehaviour
         foreach (Text preview in loadGameSlotsText)
         {
             // Must reset the button's text before adding the information.
-            preview.text = loadGameTextsDefault[i];
+            preview.text = _loadGameTextsDefault[i];
 
             Button slotButton = preview.transform.parent.gameObject.GetComponent<Button>();
             EventTrigger eventTrigger = preview.transform.parent.gameObject.GetComponent<EventTrigger>();
@@ -316,7 +332,7 @@ public class TitleScreen : MonoBehaviour
 
     public void StartChapter(bool story)
     {
-        CreateLoadingScreen(loadingScreen, transform);
+        loadingScreen.SetActive(true);
 
         StaticClass.ResetStats(false);
         StaticClass.pendingLoad = -1;
@@ -363,7 +379,7 @@ public class TitleScreen : MonoBehaviour
     {
         if (SaveSystem.SaveExists(slot, "player"))
         {
-            CreateLoadingScreen(loadingScreen, transform);
+            loadingScreen.SetActive(true);
             StaticClass.ResetStats(true);
             SaveSystem.LoadGame(slot);
         }
@@ -407,16 +423,5 @@ public class TitleScreen : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
-    }
-
-    private void OnApplicationQuit()
-    {
-        //PlayerPrefs.Save();
-    }
-
-    public static void CreateLoadingScreen(GameObject screen, Transform refTransform)
-    {
-        var ls = Instantiate(screen, new Vector3(640, 400, 0), refTransform.rotation);
-        ls.transform.SetParent(refTransform);
     }
 }

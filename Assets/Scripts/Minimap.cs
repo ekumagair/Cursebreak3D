@@ -90,14 +90,14 @@ public class Minimap : MonoBehaviour
                 if (Input.GetAxis("Mouse ScrollWheel") > 0 && mapObjectsRoot.transform.localScale.x < 8f)
                 {
                     mapObjectsRoot.transform.localScale += new Vector3(zoomScale, zoomScale, zoomScale);
-                    mapObjectsRoot.transform.position -= transform.right * playerObject.transform.position.x * zoomScale;
-                    mapObjectsRoot.transform.position -= transform.up * playerObject.transform.position.z * zoomScale;
+                    mapObjectsRoot.transform.localPosition -= transform.right * playerObject.transform.position.x * zoomScale;
+                    mapObjectsRoot.transform.localPosition -= transform.up * playerObject.transform.position.z * zoomScale;
                 }
                 else if (Input.GetAxis("Mouse ScrollWheel") < 0 && mapObjectsRoot.transform.localScale.x > 0.8f)
                 {
                     mapObjectsRoot.transform.localScale -= new Vector3(zoomScale, zoomScale, zoomScale);
-                    mapObjectsRoot.transform.position += transform.right * playerObject.transform.position.x * zoomScale;
-                    mapObjectsRoot.transform.position += transform.up * playerObject.transform.position.z * zoomScale;
+                    mapObjectsRoot.transform.localPosition += transform.right * playerObject.transform.position.x * zoomScale;
+                    mapObjectsRoot.transform.localPosition += transform.up * playerObject.transform.position.z * zoomScale;
                 }
             }
         }
@@ -154,11 +154,11 @@ public class Minimap : MonoBehaviour
         {
             GameObject prefabToAdd = wallSpritePrefab;
 
-            if(obj.GetComponent<Door>() != null)
+            if (obj.GetComponent<Door>() != null)
             {
                 prefabToAdd = doorSpritePrefab[obj.GetComponent<Door>().key];
             }
-            if(obj.tag == "Player")
+            if (obj.tag == "Player")
             {
                 prefabToAdd = floorSpritePrefab;
             }
@@ -175,7 +175,7 @@ public class Minimap : MonoBehaviour
 
             // Instantiate prefab on the minimap
             var ws = Instantiate(prefabToAdd, mapObjectsRoot.transform);
-            ws.transform.position = new Vector3(pos.x + posOffset.x, pos.z + posOffset.y, 0);
+            ws.transform.localPosition = new Vector3(pos.x + posOffset.x, pos.z + posOffset.y, 0);
             usedPositions.Add(ws.transform.position);
 
             if (filtered == true)

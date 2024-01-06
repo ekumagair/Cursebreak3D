@@ -7,19 +7,19 @@ public class Exit : MonoBehaviour
     public GameObject fade;
     public GameObject useSound;
 
-    Animator anim;
+    private Animator _anim;
 
     void Start()
     {
-        anim = GetComponent<Animator>();
-        anim.Play("ExitDefault");
+        _anim = GetComponent<Animator>();
+        _anim.Play("ExitDefault");
     }
 
     public void UsedExit()
     {
-        anim.Play("ExitUsed");
+        _anim.Play("ExitUsed");
 
-        if(useSound != null)
+        if (useSound != null)
         {
             Instantiate(useSound, transform.position, transform.rotation);
         }

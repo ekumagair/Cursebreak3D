@@ -14,7 +14,7 @@ public class MapProperties : MonoBehaviour
     public bool armorItemDoesNotAutosave = false;
 
     // Controls the level's music.
-    AudioSource _as;
+    private AudioSource _as;
 
     private void Start()
     {

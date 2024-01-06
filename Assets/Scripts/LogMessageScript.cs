@@ -5,39 +5,39 @@ using UnityEngine.UI;
 
 public class LogMessageScript : MonoBehaviour
 {
-    HUD hudScript;
-    RectTransform rt;
-    Text txt;
+    private HUD _hudScript;
+    private RectTransform _rt;
+    private Text _txt;
 
     void Start()
     {
-        txt = GetComponent<Text>();
-        hudScript = GameObject.FindGameObjectWithTag("Canvas").GetComponent<HUD>();
+        _txt = GetComponent<Text>();
+        _hudScript = GameObject.FindGameObjectWithTag("Canvas").GetComponent<HUD>();
         StartCoroutine(RemoveThis());
     }
 
     void Update()
     {
-        if(Time.timeScale == 0.0f)
+        if (Time.timeScale == 0.0f)
         {
-            txt.enabled = false;
+            _txt.enabled = false;
         }
         else
         {
-            txt.enabled = true;
+            _txt.enabled = true;
         }
     }
 
     public void MoveUp()
     {
-        rt = GetComponent<RectTransform>();
-        rt.position += new Vector3(0, rt.rect.height, 0);
+        _rt = GetComponent<RectTransform>();
+        _rt.anchoredPosition += new Vector2(0, _rt.rect.height);
     }
 
-    IEnumerator RemoveThis()
+    private IEnumerator RemoveThis()
     {
         yield return new WaitForSeconds(3f);
-        hudScript.HudMoveUpLog();
+        _hudScript.HudMoveUpLog();
 
         Destroy(gameObject);
     }

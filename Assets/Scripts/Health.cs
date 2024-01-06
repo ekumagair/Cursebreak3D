@@ -11,7 +11,7 @@ public class Health : MonoBehaviour
     public float overallDamageMult = 1f;
     public bool disableCollisionWhileDead = false;
 
-    Collider col;
+    private Collider _col;
 
     [HideInInspector]
     public int startHealth;
@@ -25,19 +25,20 @@ public class Health : MonoBehaviour
 
     void Start()
     {
-        col = GetComponent<Collider>();
+        _col = GetComponent<Collider>();
         startHealth = health;
     }
 
     void Update()
     {
         // Health minimum
-        if(health < 0)
+        if (health < 0)
         {
             health = 0;
         }
 
-        if(health <= 0)
+        // Death
+        if (health <= 0)
         {
             isDead = true;
         }
@@ -46,13 +47,13 @@ public class Health : MonoBehaviour
             isDead = false;
         }
 
-        if(isDead == true && disableCollisionWhileDead == true)
+        if (isDead == true && disableCollisionWhileDead == true)
         {
-            col.enabled = false;
+            _col.enabled = false;
         }
 
         // Armor minimum
-        if(armor < 0)
+        if (armor < 0)
         {
             armor = 0;
         }

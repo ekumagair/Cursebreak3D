@@ -15,8 +15,8 @@ public class StoryScreen : MonoBehaviour
     public static int whichText = 0;
     public static bool goToTitle = false;
 
-    AudioSource _as;
-    bool continued = false;
+    private AudioSource _as;
+    private bool _continued = false;
 
     void Start()
     {
@@ -26,7 +26,7 @@ public class StoryScreen : MonoBehaviour
 
         _as = GetComponent<AudioSource>();
         _as.mute = false;
-        continued = false;
+        _continued = false;
 
         switch (whichText)
         {
@@ -34,7 +34,7 @@ public class StoryScreen : MonoBehaviour
                 storyText.text = "";
                 break;
             case 0:
-                storyText.text = "As a scavenger, you are constantly on the move. The sparsely populated grass fields are the best way for you to move from town to town.\n\nAlthough they are home to some monsters, crossing them once again shouldn't be a problem.";
+                storyText.text = "As a scavenger, you are constantly on the move. The sparsely populated grass fields are the best way for you to move from one town to another.\n\nAlthough they are home to some monsters, crossing them once again shouldn't be a problem.";
                 break;
             case 1:
                 storyText.text = "The fortress is a lot quieter than you expected. The entrance gates are opened. You were hoping to find help, yet this place seems abandoned.\n\nHowever, turning back means you'll have to face the infestation of creatures by yourself. With little choice, you enter the building, now unsure of what to expect inside.";
@@ -58,21 +58,24 @@ public class StoryScreen : MonoBehaviour
 
     void Update()
     {
-        if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) && continued == false && Time.timeSinceLevelLoad >= 1)
+        if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) && _continued == false && Time.timeSinceLevelLoad >= 1)
         {
             StartCoroutine(Continue());
         }
     }
 
-    IEnumerator Continue()
+    private IEnumerator Continue()
     {
-        continued = true;
+        _continued = true;
 
-        Instantiate(fadeTo, gameObject.transform);
+        GameObject continueFade = Instantiate(fadeTo, gameObject.transform);
 
         yield return new WaitForSeconds(1.85f);
 
-        TitleScreen.CreateLoadingScreen(loadingScreen, transform);
+        loadingScreen.SetActive(true);
+        continueFade.SetActive(false);
+
+        yield return null;
 
         _as.mute = true;
 

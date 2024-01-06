@@ -9,7 +9,7 @@ public class Projectile : MonoBehaviour
     public string ignoreTag = "";
     public GameObject[] createObjectOnHit;
 
-    bool canEnterTrigger = true;
+    private bool _canEnterTrigger = true;
 
     void Update()
     {
@@ -20,9 +20,9 @@ public class Projectile : MonoBehaviour
     {
         GameObject hitObj = other.gameObject;
 
-        if (canEnterTrigger && hitObj.tag != ignoreTag && hitObj.tag != "Projectile" && hitObj.tag != "Canvas" && hitObj.tag != "Item" && hitObj.tag != "Teleporter" && hitObj.tag != "ProjectileIgnores" && hitObj.tag != "EditorOnly")
+        if (_canEnterTrigger && hitObj.tag != ignoreTag && hitObj.tag != "Projectile" && hitObj.tag != "Canvas" && hitObj.tag != "Item" && hitObj.tag != "Teleporter" && hitObj.tag != "ProjectileIgnores" && hitObj.tag != "EditorOnly")
         {
-            canEnterTrigger = false;
+            _canEnterTrigger = false;
 
             if (hitObj.GetComponent<Health>() != null)
             {

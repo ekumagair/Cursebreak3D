@@ -20,15 +20,15 @@ public class IntermissionScreen : MonoBehaviour
     public Text continueText;
     public AudioSource bonusSound;
 
-    bool secretsBonus = false;
-    bool enemiesBonus = false;
+    private bool _secretsBonus = false;
+    private bool _enemiesBonus = false;
 
-    int intermissionState = 0;
-    int displayNumber = 0;
-    int displayNumber2 = 0;
+    private int _intermissionState = 0;
+    private int _displayNumber = 0;
+    private int _displayNumber2 = 0;
 
-    AudioSource _as;
-    bool endedIntermission = false;
+    private AudioSource _as;
+    private bool _endedIntermission = false;
 
     void Start()
     {
@@ -38,8 +38,8 @@ public class IntermissionScreen : MonoBehaviour
 
         Instantiate(fadeFrom, gameObject.transform);
 
-        intermissionState = 0;
-        endedIntermission = false;
+        _intermissionState = 0;
+        _endedIntermission = false;
 
         secretsRating.enabled = false;
         enemiesRating.enabled = false;
@@ -51,7 +51,7 @@ public class IntermissionScreen : MonoBehaviour
             enemies.text = "FOES: " + StaticClass.enemiesKilled.ToString() + " / " + StaticClass.enemiesTotal.ToString();
             scoreTotal.text = "TOTAL SCORE: " + Player.score.ToString();
             ShowTimeText(Player.timeMinutes, Player.timeSeconds);
-            intermissionState = 5;
+            _intermissionState = 5;
         }
         else if (StaticClass.intermissionDisplayType == 1)
         {
@@ -67,30 +67,11 @@ public class IntermissionScreen : MonoBehaviour
         if (StaticClass.currentChapter == StaticClass.unlockedChapter && StaticClass.currentMap >= 5)
         {
             StaticClass.unlockedChapter++;
-            //PlayerPrefs.SetInt("global_unlocked_chapter", StaticClass.unlockedChapter);
             if (StaticClass.debug == true)
             {
                 Debug.Log("Unlocked new chapter!");
             }
         }
-
-        /*
-        // Save chapter high score. Old version.
-        string key = "global_c" + StaticClass.currentChapter.ToString() + "_high_score";
-
-        // Create saved high score key if it doesn't exist. Old version.
-        if (PlayerPrefs.HasKey(key) == false)
-        {
-            PlayerPrefs.SetInt(key, 0);
-        }
-        // Save new high score if current record is smaller than current score. Old version.
-        if (PlayerPrefs.GetInt(key) < Player.score)
-        {
-            PlayerPrefs.SetInt(key, Player.score);
-        }
-
-        PlayerPrefs.Save();
-        */
 
         SaveChapterHighScore();
     }
@@ -99,24 +80,24 @@ public class IntermissionScreen : MonoBehaviour
     {
         if (StaticClass.intermissionDisplayType == 1)
         {
-            if (intermissionState > 1)
+            if (_intermissionState > 1)
             {
                 ShowScoreText(Player.scoreThisLevel);
                 ShowScoreTotalText(Player.score);
             }
-            if (intermissionState > 2)
+            if (_intermissionState > 2)
             {
                 ShowSecretText(StaticClass.secretsDiscovered, false);
             }
-            if (intermissionState > 3)
+            if (_intermissionState > 3)
             {
                 ShowEnemyText(StaticClass.enemiesKilled, false);
             }
-            if (intermissionState > 4)
+            if (_intermissionState > 4)
             {
                 ShowTimeText(Player.timeMinutes, Player.timeSeconds);
             }
-            if (intermissionState >= 5)
+            if (_intermissionState >= 5)
             {
                 continueText.enabled = true;
             }
@@ -128,9 +109,9 @@ public class IntermissionScreen : MonoBehaviour
 
         if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) && Time.timeSinceLevelLoad >= 1)
         {
-            if (intermissionState >= 5)
+            if (_intermissionState >= 5)
             {
-                if(endedIntermission == false)
+                if (_endedIntermission == false)
                 {
                     StartCoroutine(EndIntermission());
                 }
@@ -144,79 +125,115 @@ public class IntermissionScreen : MonoBehaviour
 
     IEnumerator GradualDisplay()
     {
-        yield return new WaitForSeconds(0.05f);
+        yield return new WaitForSeconds(0.04f);
 
-        if (intermissionState == 0)
+        if (_intermissionState == 0)
         {
             NextIntermissionState();
         }
-        else if (intermissionState == 1)
+        else if (_intermissionState == 1)
         {
-            ShowScoreText(displayNumber);
-            ShowScoreTotalText((Player.score - Player.scoreThisLevel) + displayNumber2);
+            // Level score.
+            ShowScoreText(_displayNumber);
+            ShowScoreTotalText((Player.score - Player.scoreThisLevel) + _displayNumber2);
 
-            if (displayNumber > Player.scoreThisLevel)
+            if (_displayNumber >= Player.scoreThisLevel)
             {
                 NextIntermissionState();
                 yield return new WaitForSeconds(0.75f);
             }
             else
             {
-                displayNumber += 655;
-                displayNumber2 += 655;
+                _displayNumber += 655;
+                _displayNumber2 += 655;
             }
         }
-        else if (intermissionState == 2)
+        else if (_intermissionState == 2)
         {
-            ShowSecretText(displayNumber, true);
+            // Secrets.
+            ShowSecretText(_displayNumber, true);
 
-            if (displayNumber > StaticClass.secretsDiscovered)
+            if (_displayNumber >= StaticClass.secretsDiscovered)
             {
                 NextIntermissionState();
                 yield return new WaitForSeconds(0.75f);
             }
             else
             {
-                displayNumber += 1;
+                _displayNumber += 1;
             }
         }
-        else if (intermissionState == 3)
+        else if (_intermissionState == 3)
         {
-            ShowEnemyText(displayNumber, true);
+            // Enemies killed.
+            ShowEnemyText(_displayNumber, true);
 
-            if (displayNumber > StaticClass.enemiesKilled)
+            if (_displayNumber >= StaticClass.enemiesKilled)
             {
                 NextIntermissionState();
                 yield return new WaitForSeconds(0.75f);
             }
             else
             {
-                displayNumber += 1;
+                _displayNumber += 1;
             }
         }
-        else if (intermissionState == 4)
+        else if (_intermissionState == 4)
         {
-            ShowTimeText(displayNumber2, displayNumber);
+            // Time taken.
+            ShowTimeText(_displayNumber2, _displayNumber);
 
-            if(displayNumber > 59)
+            if (_displayNumber > 59)
             {
-                displayNumber2++;
-                displayNumber = 0;
+                _displayNumber2++;
+                _displayNumber = 0;
             }
 
-            if(displayNumber == Player.timeSeconds && displayNumber2 >= Player.timeMinutes)
+            if (_displayNumber + (_displayNumber2 * 60) >= Player.timeSeconds + (Player.timeMinutes * 60))
             {
                 NextIntermissionState();
             }
             else
             {
-                displayNumber += 1;
+                // Time ticking animation. Adds in greater increments the longer the player took to complete the level.
+
+                // Add seconds.
+                if (Player.timeMinutes < 1)
+                {
+                    _displayNumber += 1;
+                }
+                else if (Player.timeMinutes < 10)
+                {
+                    _displayNumber += 3;
+                }
+                else if (Player.timeMinutes < 20)
+                {
+                    _displayNumber += 6;
+                }
+                else if (Player.timeMinutes < 30)
+                {
+                    _displayNumber += 12;
+                }
+                else if (Player.timeMinutes < 40)
+                {
+                    _displayNumber += 24;
+                }
+                else
+                {
+                    _displayNumber += 48;
+                }
+
+                // Add minutes.
+                if (Player.timeMinutes >= 300)
+                {
+                    _displayNumber2 += 1;
+                }
             }
         }
 
         PlayTickSound();
 
-        if(intermissionState < 5)
+        if (_intermissionState < 5)
         {
             StartCoroutine(GradualDisplay());
         }
@@ -239,10 +256,10 @@ public class IntermissionScreen : MonoBehaviour
         {
             secretsRating.enabled = true;
 
-            if (secretsBonus == false)
+            if (_secretsBonus == false)
             {
-                secretsBonus = true;
-                Player.score += 5000;
+                _secretsBonus = true;
+                Player.score += 8000;
                 PlayBonusSound();
                 SaveChapterHighScore();
             }
@@ -260,10 +277,10 @@ public class IntermissionScreen : MonoBehaviour
         {
             enemiesRating.enabled = true;
 
-            if (enemiesBonus == false)
+            if (_enemiesBonus == false)
             {
-                enemiesBonus = true;
-                Player.score += 5000;
+                _enemiesBonus = true;
+                Player.score += 8000;
                 PlayBonusSound();
                 SaveChapterHighScore();
             }
@@ -290,9 +307,9 @@ public class IntermissionScreen : MonoBehaviour
 
     void NextIntermissionState()
     {
-        displayNumber = 0;
-        displayNumber2 = 0;
-        intermissionState++;
+        _displayNumber = 0;
+        _displayNumber2 = 0;
+        _intermissionState++;
     }
 
     void PlayTickSound()
@@ -308,8 +325,8 @@ public class IntermissionScreen : MonoBehaviour
 
     IEnumerator EndIntermission()
     {
-        endedIntermission = true;
-        intermissionState = 5;
+        _endedIntermission = true;
+        _intermissionState = 5;
         SaveChapterHighScore();
         SaveSystem.SaveGlobal();
 

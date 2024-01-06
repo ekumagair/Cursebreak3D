@@ -12,17 +12,17 @@ public class MovingWall : MonoBehaviour
     public bool isSecret = true;
     public bool canBeAddedToMinimap = true;
 
-    string initialPositionToString;
-    Player player;
-    BoxCollider boxCollider;
+    private string _initialPositionToString;
+    private Player _player;
+    private BoxCollider _boxCollider;
 
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        boxCollider = GetComponent<BoxCollider>();
+        _player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        _boxCollider = GetComponent<BoxCollider>();
 
         defaultPosition = transform.position;
-        initialPositionToString = transform.position.x.ToString() + transform.position.y.ToString() + transform.position.z.ToString();
+        _initialPositionToString = transform.position.x.ToString() + transform.position.y.ToString() + transform.position.z.ToString();
 
         if (isSecret)
         {
@@ -44,8 +44,8 @@ public class MovingWall : MonoBehaviour
         else if (transform.position == defaultPosition + openPosition)
         {
             wallState = 2;
-            boxCollider.center = new Vector3(0, 1, 0);
-            boxCollider.size = new Vector3(2, 2, 2);
+            _boxCollider.center = new Vector3(0, 1, 0);
+            _boxCollider.size = new Vector3(2, 2, 2);
         }
         else
         {
@@ -53,7 +53,7 @@ public class MovingWall : MonoBehaviour
         }
 
         // If this secret has been discovered in this save slot.
-        if (player.discoveredSecrets.Contains(initialPositionToString) && wallState == 0)
+        if (_player.discoveredSecrets.Contains(_initialPositionToString) && wallState == 0)
         {
             InstantMove();
         }
@@ -62,7 +62,7 @@ public class MovingWall : MonoBehaviour
     public IEnumerator MoveWall()
     {
         // Remember that this secret has been discovered.
-        player.discoveredSecrets.Add(initialPositionToString);
+        _player.discoveredSecrets.Add(_initialPositionToString);
 
         // Move the wall.
         Vector3 targetPos = defaultPosition + openPosition;
@@ -73,7 +73,7 @@ public class MovingWall : MonoBehaviour
         float offsetX = 0;
         float offsetZ = 0;
 
-        if(openPosition.x != 0)
+        if (openPosition.x != 0)
         {
             sizeX = 4;
             offsetX = 1 * Mathf.Clamp(openPosition.x, -1f, 1f);
@@ -84,8 +84,8 @@ public class MovingWall : MonoBehaviour
             offsetZ = 1 * Mathf.Clamp(openPosition.z, -1f, 1f);
         }
 
-        boxCollider.size = new Vector3(sizeX, 2, sizeZ);
-        boxCollider.center = new Vector3(offsetX, 1, offsetZ);
+        _boxCollider.size = new Vector3(sizeX, 2, sizeZ);
+        _boxCollider.center = new Vector3(offsetX, 1, offsetZ);
 
         if (isSecret)
         {

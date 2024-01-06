@@ -33,7 +33,7 @@ public class Item : MonoBehaviour
         {
             if (player.destroyedItemsPositions.Contains(transform.position.x.ToString() + transform.position.y.ToString() + transform.position.z.ToString()))
             {
-                if(giveKey > 0)
+                if (giveKey > 0)
                 {
                     player.keys[giveKey] = true;
                 }

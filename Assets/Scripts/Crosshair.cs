@@ -8,24 +8,24 @@ public class Crosshair : MonoBehaviour
     public static int sprite = 0;
     public Sprite[] spriteList;
 
-    Image img;
+    private Image _img;
 
     void Start()
     {
-        img = GetComponent<Image>();
+        _img = GetComponent<Image>();
     }
 
     void Update()
     {
-        img.sprite = spriteList[sprite];
+        _img.sprite = spriteList[sprite];
 
-        if(HUD.minimapEnabled == false && sprite > 0 && Time.timeScale > 0.0f)
+        if (HUD.minimapEnabled == false && sprite > 0 && Time.timeScale > 0.0f)
         {
-            img.enabled = true;
+            _img.enabled = true;
         }
         else
         {
-            img.enabled = false;
+            _img.enabled = false;
         }
     }
 }
