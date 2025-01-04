@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Item : MonoBehaviour
 {
+    #region Variables
+
     public int giveHealth = 0;
     public int giveWeapon = -1;
     public int giveAmmo = 0;
@@ -22,12 +24,16 @@ public class Item : MonoBehaviour
 
     Player player;
 
-    private void Start()
+    #endregion
+
+    #region Default Methods
+
+    void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
     }
 
-    private void Update()
+    void Update()
     {
         if (StaticClass.loadSavedMapData == true)
         {
@@ -42,4 +48,6 @@ public class Item : MonoBehaviour
             }
         }
     }
+
+    #endregion
 }

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Health : MonoBehaviour
 {
+    #region Variables
+
     public int health = 100;
     public bool isDead = false;
     public int armor = 0;
@@ -22,6 +24,10 @@ public class Health : MonoBehaviour
     // 0.5 = Armor takes 50% of the damage. Character takes 50%.
     // 0.75 = Armor takes 25% of the damage. Character takes 75%.
     // 1.0 = Armor takes 100% of the damage.
+
+    #endregion
+
+    #region Default Methods
 
     void Start()
     {
@@ -58,6 +64,10 @@ public class Health : MonoBehaviour
             armor = 0;
         }
     }
+
+    #endregion
+
+    #region Damage
 
     public void TakeDamage(int amount, bool ignoreArmor)
     {
@@ -100,4 +110,6 @@ public class Health : MonoBehaviour
             }
         }
     }
+
+    #endregion
 }

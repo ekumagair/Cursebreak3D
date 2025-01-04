@@ -5,15 +5,35 @@ using UnityEngine.UI;
 
 public class MenuSectionSelectLevel : MonoBehaviour
 {
+    #region Variables
+
+    public AudioSource clickSound;
+    public GameObject section;
+
+    [Space]
+
     public Text chapterText;
     public Button chapterAdd;
     public Button chapterSubtract;
+
+    [Space]
 
     public Text mapText;
     public Button mapAdd;
     public Button mapSubtract;
 
+    [Space]
+
+    public Toggle toggleAllWeapons;
+    public Toggle toggleFullArmor;
+
     public static bool levelWarp = false;
+    public static bool allWeapons = false;
+    public static bool fullArmor = false;
+
+    #endregion
+
+    #region Default Methods
 
     void Update()
     {
@@ -54,4 +74,41 @@ public class MenuSectionSelectLevel : MonoBehaviour
         chapterText.text = "Chapter " + StaticClass.currentChapter.ToString();
         mapText.text = "Map " + StaticClass.currentMap.ToString();
     }
+
+    #endregion
+
+    #region Configurations
+
+    public void ResetConfigurations()
+    {
+        allWeapons = false;
+        fullArmor = false;
+
+        toggleAllWeapons.isOn = false;
+        toggleFullArmor.isOn = false;
+    }
+
+    public void SetAllWeaponsToggle()
+    {
+        allWeapons = toggleAllWeapons.isOn;
+    }
+
+    public void SetFullArmorToggle()
+    {
+        fullArmor = toggleFullArmor.isOn;
+    }
+
+    #endregion
+
+    #region Sounds
+
+    public void PlayClickSound()
+    {
+        if (section.activeInHierarchy == true && clickSound.gameObject.activeInHierarchy == true)
+        {
+            clickSound.Play();
+        }
+    }
+
+    #endregion
 }

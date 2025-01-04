@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Minimap : MonoBehaviour
 {
+    #region Variables
+
     public GameObject mapObjectsRoot;
     public GameObject wallSpritePrefab;
     public GameObject playerSpritePrefab;
@@ -24,6 +26,10 @@ public class Minimap : MonoBehaviour
 
     List<Vector3> usedPositions = new List<Vector3>();
     List<GameObject> filteredObjects = new List<GameObject>();
+
+    #endregion
+
+    #region Default Methods
 
     void Start()
     {
@@ -102,6 +108,10 @@ public class Minimap : MonoBehaviour
             }
         }
     }
+
+    #endregion
+
+    #region Add
 
     // Check conditions and then add to minimap.
     public void AddToMinimapFilter(GameObject obj)
@@ -193,4 +203,6 @@ public class Minimap : MonoBehaviour
             ////// Restore position end //////
         }
     }
+
+    #endregion
 }

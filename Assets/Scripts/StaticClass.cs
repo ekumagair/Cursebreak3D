@@ -45,7 +45,7 @@ public static class StaticClass
 
     // Misc rules.
     public static bool canPause = true;
-    public static bool debug = false;
+    public static bool debugRays = false;
 
     // If true, disable chapter unlocking checks. This would make everything unlocked from the start. If false, the player must beat all chapters in order, from first to last.
     public static bool ignoreUnlockedChapter = false;
@@ -69,6 +69,7 @@ public static class StaticClass
         Player.timeMinutes = 0;
         Player.gotScoreTimer = 0;
         HUD.minimapEnabled = false;
+        Enemy.sightSoundsPlaying = 0;
         gameState = 0;
         secretsDiscovered = 0;
         secretsTotal = 0;

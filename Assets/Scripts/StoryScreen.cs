@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class StoryScreen : MonoBehaviour
 {
+    #region Variables
+
     public GameObject fadeFrom;
     public GameObject fadeTo;
     public GameObject loadingScreen;
@@ -17,6 +19,10 @@ public class StoryScreen : MonoBehaviour
 
     private AudioSource _as;
     private bool _continued = false;
+
+    #endregion
+
+    #region Default Methods
 
     void Start()
     {
@@ -64,6 +70,10 @@ public class StoryScreen : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Navigation
+
     private IEnumerator Continue()
     {
         _continued = true;
@@ -98,4 +108,6 @@ public class StoryScreen : MonoBehaviour
             }
         }
     }
+
+    #endregion
 }

@@ -7,6 +7,9 @@ using UnityEngine.SceneManagement;
 public class IntermissionScreen : MonoBehaviour
 {
     // Intermission screen script. This script does not change the currentChapter and currentMap variables. Only the MapProperties script does that.
+
+    #region Variables
+
     public GameObject fadeFrom;
     public GameObject fadeTo;
 
@@ -30,10 +33,15 @@ public class IntermissionScreen : MonoBehaviour
     private AudioSource _as;
     private bool _endedIntermission = false;
 
+    #endregion
+
+    #region Default Methods
+
     void Start()
     {
         Time.timeScale = 1.0f;
         Cursor.lockState = CursorLockMode.None;
+        Enemy.sightSoundsPlaying = 0;
         _as = GetComponent<AudioSource>();
 
         Instantiate(fadeFrom, gameObject.transform);
@@ -67,7 +75,8 @@ public class IntermissionScreen : MonoBehaviour
         if (StaticClass.currentChapter == StaticClass.unlockedChapter && StaticClass.currentMap >= 5)
         {
             StaticClass.unlockedChapter++;
-            if (StaticClass.debug == true)
+
+            if (Debug.isDebugBuild == true)
             {
                 Debug.Log("Unlocked new chapter!");
             }
@@ -122,6 +131,10 @@ public class IntermissionScreen : MonoBehaviour
             }
         }
     }
+
+    #endregion
+
+    #region Info Display
 
     IEnumerator GradualDisplay()
     {
@@ -312,6 +325,10 @@ public class IntermissionScreen : MonoBehaviour
         _intermissionState++;
     }
 
+    #endregion
+
+    #region Sounds
+
     void PlayTickSound()
     {
         _as.Stop();
@@ -322,6 +339,10 @@ public class IntermissionScreen : MonoBehaviour
     {
         bonusSound.Play();
     }
+
+    #endregion
+
+    #region Navigation
 
     IEnumerator EndIntermission()
     {
@@ -382,4 +403,6 @@ public class IntermissionScreen : MonoBehaviour
 
         SaveSystem.SaveGlobal();
     }
+
+    #endregion
 }

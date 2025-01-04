@@ -13,7 +13,7 @@ public class RevealMinimapTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject != null)
+        if (other.gameObject != null)
         {
             _minimapScript.AddToMinimapFilter(other.gameObject);
         }

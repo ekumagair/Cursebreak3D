@@ -5,6 +5,8 @@ using static UnityEngine.GraphicsBuffer;
 
 public class HealerBehavior : MonoBehaviour
 {
+    #region Variables
+
     public Enemy enemyScript;
     public Health enemyHealth;
     public string healAnimation;
@@ -19,6 +21,10 @@ public class HealerBehavior : MonoBehaviour
 
     Animator spriteAnimator;
     List<GameObject> healTargets = new List<GameObject>();
+
+    #endregion
+
+    #region Default Methods
 
     void Start()
     {
@@ -51,6 +57,10 @@ public class HealerBehavior : MonoBehaviour
             }
         }
     }
+
+    #endregion
+
+    #region Heal
 
     // Occasionally check if should heal. Can't heal if the healTargets list is empty.
     IEnumerator DecideToHeal()
@@ -161,9 +171,15 @@ public class HealerBehavior : MonoBehaviour
         healTargets.Clear();
     }
 
+    #endregion
+
+    #region Conditions
+
     // Returns true if the enemy with the healer behaviour is not busy attacking, waking up, or dead or with no target.
     private bool EnemyIsActive()
     {
         return enemyScript.attackTime > 0 && enemyScript.wakeUpTimer <= 0 && enemyHealth.isDead == false && enemyScript.target != null;
     }
+
+    #endregion
 }

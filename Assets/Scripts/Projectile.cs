@@ -4,12 +4,18 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
+    #region Variables
+
     public float speed;
     public int damage;
     public string ignoreTag = "";
     public GameObject[] createObjectOnHit;
 
     private bool _canEnterTrigger = true;
+
+    #endregion
+
+    #region Default Methods
 
     void Update()
     {
@@ -43,4 +49,6 @@ public class Projectile : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+    #endregion
 }

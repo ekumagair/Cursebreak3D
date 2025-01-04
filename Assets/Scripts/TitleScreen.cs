@@ -9,8 +9,16 @@ using System.IO;
 
 public class TitleScreen : MonoBehaviour
 {
+    #region Variables
+
+    [Header("Generic")]
+
     public Text versionText;
     public Image selectIcon;
+    public Color defaultButtonColor;
+
+    [Header("Sections")]
+
     public GameObject sectionStart;
     public GameObject sectionChooseChapter;
     public GameObject sectionDifficulty;
@@ -18,6 +26,9 @@ public class TitleScreen : MonoBehaviour
     public GameObject sectionOptions;
     public GameObject sectionSelectLevel;
     public GameObject sectionCredits;
+
+    [Header("Save slots")]
+
     public Text[] loadGameSlotsText;
     public GameObject[] loadGameDeleteButtons;
     public GameObject loadingScreen;
@@ -28,11 +39,20 @@ public class TitleScreen : MonoBehaviour
 
     public static bool startFromChapterSelect = false;
 
+    #endregion
+
+    #region Default Methods
+
     void Start()
     {
         Time.timeScale = 1.0f;
         Cursor.lockState = CursorLockMode.None;
+        Enemy.sightSoundsPlaying = 0;
+
         MenuSectionSelectLevel.levelWarp = false;
+        MenuSectionSelectLevel.allWeapons = false;
+        MenuSectionSelectLevel.fullArmor = false;
+
         _deleteEverything = 0;
         _audioSource = GetComponent<AudioSource>();
         versionText.text = "v " + Application.version.ToString();
@@ -71,11 +91,6 @@ public class TitleScreen : MonoBehaviour
         }
 
         SetSaveSlotsTexts();
-
-        if (StaticClass.debug == true)
-        {
-            Debug.LogWarning("**Debug mode is ON**");
-        }
     }
 
     void Update()
@@ -106,7 +121,7 @@ public class TitleScreen : MonoBehaviour
                 SetSaveSlotsTexts();
                 Debug.Log("Cleared all saved data!");
 
-                if (StaticClass.ignoreUnlockedChapter == true && StaticClass.debug == true)
+                if (StaticClass.ignoreUnlockedChapter == true && Debug.isDebugBuild == true)
                 {
                     Debug.Log("ignoreUnlockedChapter is set to true. All chapters are still unlocked.");
                 }
@@ -125,7 +140,7 @@ public class TitleScreen : MonoBehaviour
             _deleteEverything = 0;
         }
 
-        if (StaticClass.debug == true)
+        if (Debug.isDebugBuild == true)
         {
             if (Input.GetKeyDown(KeyCode.V))
             {
@@ -170,7 +185,11 @@ public class TitleScreen : MonoBehaviour
         }
     }
 
-    void SetSaveSlotsTexts()
+    #endregion
+
+    #region Save Slots
+
+    private void SetSaveSlotsTexts()
     {
         // Adds the save slot information to the button's text.
         int i = 0;
@@ -188,7 +207,6 @@ public class TitleScreen : MonoBehaviour
             {
                 PlayerData data = SaveSystem.LoadPlayer(i);
 
-                //preview.text += "(" + PlayerPrefs.GetString(StaticClass.SLOT_PREFIX + i.ToString() + "_scene_name") + ", SCORE: " + (PlayerPrefs.GetInt(StaticClass.SLOT_PREFIX + i.ToString() + "_scoreThisLevel") + PlayerPrefs.GetInt(StaticClass.SLOT_PREFIX + i.ToString() + "_score")).ToString() + ")"; Old player pref version.
                 preview.text += "(" + data.scene.ToString() + ", SCORE: " + (data.score + data.scoreThisLevel).ToString() + ")";
                 slotButton.interactable = true;
                 eventTrigger.enabled = true;
@@ -206,9 +224,72 @@ public class TitleScreen : MonoBehaviour
                 loadGameDeleteButtons[i].GetComponent<EventTrigger>().enabled = false;
             }
 
+            SetSaveSlotTextDefaultColor(i);
+
             i++;
         }
     }
+
+    public void SetSaveSlotTextDeleteColor(int index)
+    {
+        loadGameSlotsText[index].color = Color.red;
+        loadGameDeleteButtons[index].GetComponentInChildren<Text>().color = Color.red;
+    }
+
+    public void SetSaveSlotTextDefaultColor(int index)
+    {
+        loadGameSlotsText[index].color = defaultButtonColor;
+        loadGameDeleteButtons[index].GetComponentInChildren<Text>().color = defaultButtonColor;
+    }
+
+    public void LoadGame(int slot)
+    {
+        if (SaveSystem.SaveExists(slot, "player"))
+        {
+            loadingScreen.SetActive(true);
+            StaticClass.ResetStats(true);
+            SaveSystem.LoadGame(slot);
+        }
+        else if (Debug.isDebugBuild == true)
+        {
+            Debug.Log("Title screen: No save found.");
+        }
+    }
+
+    public void DeleteSave(int slot)
+    {
+        SaveSystem.DeleteSave(slot, "player");
+
+        string prefix = StaticClass.SLOT_PREFIX + slot.ToString();
+
+        PlayerPrefs.DeleteKey(prefix + "_scene_name");
+        PlayerPrefs.DeleteKey(prefix + "_difficulty");
+        PlayerPrefs.DeleteKey(prefix + "_score");
+        PlayerPrefs.DeleteKey(prefix + "_health");
+        PlayerPrefs.DeleteKey(prefix + "_armor");
+        PlayerPrefs.DeleteKey(prefix + "_armor_mult");
+
+        for (int i = 0; i < Player.savedAmmo.Length; i++)
+        {
+            PlayerPrefs.DeleteKey(prefix + "_ammo" + i.ToString());
+        }
+
+        for (int i = 0; i < Player.savedWeaponsUnlocked.Length; i++)
+        {
+            PlayerPrefs.DeleteKey(prefix + "_weapon_unlocked" + i);
+        }
+
+        if (Debug.isDebugBuild == true)
+        {
+            Debug.Log("Deleted save on slot " + slot.ToString());
+        }
+
+        SetSaveSlotsTexts();
+    }
+
+    #endregion
+
+    #region Sections
 
     public void SectionStart()
     {
@@ -310,6 +391,10 @@ public class TitleScreen : MonoBehaviour
         //PlayerPrefs.Save();
     }
 
+    #endregion
+
+    #region Level Control
+
     public void SetChapter(int c)
     {
         StaticClass.currentChapter = c;
@@ -375,53 +460,14 @@ public class TitleScreen : MonoBehaviour
         }
     }
 
-    public void LoadGame(int slot)
-    {
-        if (SaveSystem.SaveExists(slot, "player"))
-        {
-            loadingScreen.SetActive(true);
-            StaticClass.ResetStats(true);
-            SaveSystem.LoadGame(slot);
-        }
-        else if (StaticClass.debug == true)
-        {
-            Debug.Log("Title screen: No save found.");
-        }
-    }
+    #endregion
 
-    public void DeleteSave(int slot)
-    {
-        SaveSystem.DeleteSave(slot, "player");
-
-        string prefix = StaticClass.SLOT_PREFIX + slot.ToString();
-
-        PlayerPrefs.DeleteKey(prefix + "_scene_name");
-        PlayerPrefs.DeleteKey(prefix + "_difficulty");
-        PlayerPrefs.DeleteKey(prefix + "_score");
-        PlayerPrefs.DeleteKey(prefix + "_health");
-        PlayerPrefs.DeleteKey(prefix + "_armor");
-        PlayerPrefs.DeleteKey(prefix + "_armor_mult");
-
-        for (int i = 0; i < Player.savedAmmo.Length; i++)
-        {
-            PlayerPrefs.DeleteKey(prefix + "_ammo" + i.ToString());
-        }
-
-        for (int i = 0; i < Player.savedWeaponsUnlocked.Length; i++)
-        {
-            PlayerPrefs.DeleteKey(prefix + "_weapon_unlocked" + i);
-        }
-
-        if (StaticClass.debug == true)
-        {
-            Debug.Log("Deleted save on slot " + slot.ToString());
-        }
-
-        SetSaveSlotsTexts();
-    }
+    #region Quit
 
     public void QuitGame()
     {
         Application.Quit();
     }
+
+    #endregion
 }

@@ -13,6 +13,7 @@ public class GlobalData
     public int crosshairSprite;
     public int flashingEffects;
     public int gameResolution;
+    public bool gameplayLowRes;
 
     public int unlockedChapters;
     public int[] chapterHighScore = new int[3];
@@ -27,6 +28,7 @@ public class GlobalData
         crosshairSprite = Crosshair.sprite;
         flashingEffects = Options.flashingEffects;
         gameResolution = Options.gameResolution;
+        gameplayLowRes = Options.gameplayLowRes;
 
         unlockedChapters = StaticClass.unlockedChapter;
 

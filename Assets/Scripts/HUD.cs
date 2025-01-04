@@ -7,6 +7,8 @@ using System;
 
 public class HUD : MonoBehaviour
 {
+    #region Variables
+
     [Header("Target Texture")]
     public RawImage targetTextureImage;
 
@@ -62,6 +64,10 @@ public class HUD : MonoBehaviour
     GameObject statTarget;
     Health targetHealth;
     Player targetPlayer;
+
+    #endregion
+
+    #region Default Methods
 
     void Awake()
     {
@@ -228,12 +234,20 @@ public class HUD : MonoBehaviour
         mapRoot.SetActive(minimapEnabled);
     }
 
+    #endregion
+
+    #region Pause
+
     public void PauseEnd()
     {
         targetPlayer.PauseEnd();
         StaticClass.gameState = 0;
         SaveSystem.SaveGlobal();
     }
+
+    #endregion
+
+    #region Navigation
 
     public void GoToPauseRoot()
     {
@@ -261,15 +275,23 @@ public class HUD : MonoBehaviour
         pauseSelectIcon.enabled = false;
     }
 
+    public void QuitToMenu()
+    {
+        SceneManager.LoadScene("TitleScreen");
+    }
+
+    #endregion
+
+    #region Save
+
     public void SaveToSlot(int s)
     {
         SaveSystem.SaveGame(s);
     }
 
-    public void QuitToMenu()
-    {
-        SceneManager.LoadScene("TitleScreen");
-    }
+    #endregion
+
+    #region Text
 
     // Message on the center of the screen.
     public void HudMessage(string message, float duration)
@@ -291,7 +313,7 @@ public class HUD : MonoBehaviour
             HudMoveUpLog();
         }
 
-        if (StaticClass.debug == true)
+        if (Debug.isDebugBuild == true)
         {
             Debug.Log(message);
             Debug.Log("Log position: " + logCurrentPosition);
@@ -312,9 +334,11 @@ public class HUD : MonoBehaviour
             logCurrentPosition = 0;
         }
 
-        if (StaticClass.debug == true)
+        if (Debug.isDebugBuild == true)
         {
             Debug.Log("Log position: " + logCurrentPosition);
         }
     }
+
+    #endregion
 }

@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class WeaponSelectText : MonoBehaviour
 {
+    #region Variables
+
     public int id;
     public int ammoType;
 
@@ -12,14 +14,18 @@ public class WeaponSelectText : MonoBehaviour
     private GameObject _playerObject;
     private Player _player;
 
-    private void Start()
+    #endregion
+
+    #region Default Methods
+
+    void Start()
     {
         _playerObject = GameObject.FindGameObjectWithTag("Player");
         _player = _playerObject.GetComponent<Player>();
         _txt = GetComponent<Text>();
     }
 
-    private void Update()
+    void Update()
     {
         if (_player.currentWeapon == id)
         {
@@ -53,4 +59,6 @@ public class WeaponSelectText : MonoBehaviour
             _txt.color = new Color(0.4f, 0.4f, 0.4f, 1);
         }
     }
+
+    #endregion
 }

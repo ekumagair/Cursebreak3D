@@ -30,7 +30,7 @@ public static class SaveSystem
         if (GameObject.FindGameObjectWithTag("Player") == null)
         {
             // If loading the game from a scene without the player object. (A menu)
-            if (StaticClass.debug == true)
+            if (Debug.isDebugBuild == true)
             {
                 Debug.Log("Loading slot " + slot + "... (Scene " + LoadPlayer(slot).scene.ToString() + ")");
             }
@@ -44,7 +44,7 @@ public static class SaveSystem
             StaticClass.pendingLoad = -1;
             GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().LoadFromPlayerData(slot);
 
-            if (StaticClass.debug == true)
+            if (Debug.isDebugBuild == true)
             {
                 Debug.Log("Loaded slot " + slot);
             }
@@ -62,7 +62,7 @@ public static class SaveSystem
         formatter.Serialize(stream, data);
         stream.Close();
 
-        if (StaticClass.debug == true)
+        if (Debug.isDebugBuild == true)
         {
             Debug.Log("SAVED player info on slot " + slot + " at " + path);
         }
@@ -80,7 +80,7 @@ public static class SaveSystem
             PlayerData data = formatter.Deserialize(stream) as PlayerData;
             stream.Close();
 
-            if (StaticClass.debug == true)
+            if (Debug.isDebugBuild == true)
             {
                 Debug.Log("LOADED player info on slot " + slot + " at " + path);
             }
@@ -89,7 +89,7 @@ public static class SaveSystem
         }
         else
         {
-            if (StaticClass.debug == true)
+            if (Debug.isDebugBuild == true)
             {
                 Debug.Log("Player save file not found in " + path);
             }
@@ -106,7 +106,7 @@ public static class SaveSystem
         {
             File.Delete(path);
 
-            if (StaticClass.debug == true)
+            if (Debug.isDebugBuild == true)
             {
                 Debug.Log("DELETED " + identifier + " info on slot " + slot + " at " + path);
             }
@@ -146,7 +146,7 @@ public static class SaveSystem
         formatter.Serialize(stream, data);
         stream.Close();
 
-        if (StaticClass.debug == true)
+        if (Debug.isDebugBuild == true)
         {
             Debug.Log("SAVED global info at " + GlobalSavePath());
         }
@@ -162,18 +162,20 @@ public static class SaveSystem
             GlobalData data = formatter.Deserialize(stream) as GlobalData;
             stream.Close();
 
-            if (StaticClass.debug == true)
+            /*
+            if (Debug.isDebugBuild == true)
             {
                 Debug.Log("LOADED global info at " + GlobalSavePath());
-            }
+            }*/
             return data;
         }
         else
         {
-            if (StaticClass.debug == true)
+            /*
+            if (Debug.isDebugBuild == true)
             {
                 Debug.Log("Global file not found in " + GlobalSavePath());
-            }
+            }*/
             return null;
         }
     }
@@ -189,6 +191,7 @@ public static class SaveSystem
             Options.soundVolume = data.soundVolume;
             Crosshair.sprite = data.crosshairSprite;
             Options.flashingEffects = data.flashingEffects;
+            Options.gameplayLowRes = data.gameplayLowRes;
 
             StaticClass.unlockedChapter = GetSavedGlobal().unlockedChapters;
 

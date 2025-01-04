@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
+    #region Public Instance Variables
+
     public int currentWeapon = 0;
     public bool[] weaponsUnlocked;
     public int[] weaponType;
@@ -29,6 +31,10 @@ public class Player : MonoBehaviour
     public bool isInvisible = false;
     public RenderTexture canvasTargetTexture;
     public RenderTexture canvasTargetTextureWide;
+
+    #endregion
+
+    #region Static Variables
 
     // score: Total chapter score. Only resets after a chapter is completed. Is only actually updated after a level ends.
     public static int score = 0;
@@ -57,6 +63,10 @@ public class Player : MonoBehaviour
     // Damage prevents player from sprinting for a short time.
     public static bool damageStopsSprint = false;
 
+    #endregion
+
+    #region Private Instance Variables
+
     bool scrolledMouse = false;
 
     Health healthScript;
@@ -66,6 +76,10 @@ public class Player : MonoBehaviour
     Minimap minimapScript;
     CharacterController characterController;
     MapProperties mapProperties;
+
+    #endregion
+
+    #region Interaction Variables
 
     // Register interaction with objects in the map.
     public List<string> enemyStartPositions;
@@ -78,6 +92,8 @@ public class Player : MonoBehaviour
     public static string[] savedDiscoveredSecrets = new string[1];
     public List<string> enemiesWithTargets;
     public static string[] savedEnemiesWithTargets = new string[1];
+
+    #endregion
 
     // Weapon list
     // 0 = Empty hand (Always unlocked)
@@ -113,6 +129,8 @@ public class Player : MonoBehaviour
     // 5 = Can't aim horizontally
     // 6 = Can't aim vertically
 
+    #region Default Methods
+
     private void Awake()
     {
         StaticClass.enemiesKilled = 0;
@@ -130,10 +148,13 @@ public class Player : MonoBehaviour
         minimapScript = gameCanvasScript.mapRoot.GetComponent<Minimap>();
         characterController = GetComponent<CharacterController>();
         mapProperties = GameObject.Find("MapProperties").GetComponent<MapProperties>();
+
         SetRenderTexture();
+
         isInvisible = false;
         weaponsUnlocked[0] = true;
         scrolledMouse = false;
+
         StaticClass.gameState = 0;
         TitleScreen.startFromChapterSelect = false;
 
@@ -235,19 +256,20 @@ public class Player : MonoBehaviour
             healthScript.overallDamageMult = 2.0f;
         }
 
-        // If difficulty is normal or easier.
         if (StaticClass.difficulty <= 1)
         {
+            // If difficulty is normal or easier.
             damageStopsSprint = false;
         }
         else
         {
+            // If difficulty is harder than normal.
             damageStopsSprint = true;
         }
 
         StartCoroutine(CheckEnemyVision());
         StartCoroutine(Timer());
-
+        
         if (StaticClass.pendingLoad > -1)
         {
             // If loaded slot from a menu that doesn't have the player.
@@ -257,6 +279,17 @@ public class Player : MonoBehaviour
         else
         {
             StartCoroutine(Autosave(0.25f));
+
+            if (MenuSectionSelectLevel.allWeapons == true)
+            {
+                ReceiveAllWeapons();
+                MenuSectionSelectLevel.allWeapons = false;
+            }
+            if (MenuSectionSelectLevel.fullArmor == true)
+            {
+                ReceiveFullArmor();
+                MenuSectionSelectLevel.fullArmor = false;
+            }
         }
 
         characterController.enabled = true;
@@ -294,7 +327,7 @@ public class Player : MonoBehaviour
         }
 
         // Select weapon with mouse wheel.
-        if (Input.GetAxis("Mouse ScrollWheel") != 0.0f && HUD.minimapEnabled == false)
+        if (Input.GetAxis("Mouse ScrollWheel") != 0.0f && HUD.minimapEnabled == false && StaticClass.gameState == 0)
         {
             if (scrolledMouse == false)
             {
@@ -354,7 +387,7 @@ public class Player : MonoBehaviour
                 RaycastHit hit;
                 if (Physics.Raycast(transform.position, transform.forward, out hit, weaponRayRange[currentWeapon], attackRayMask))
                 {
-                    if (StaticClass.debug == true)
+                    if (StaticClass.debugRays == true)
                     {
                         Debug.DrawRay(transform.position, transform.forward * hit.distance, Color.green, weaponRayRange[currentWeapon]);
                         Debug.Log("Player Hit " + hit.collider.name);
@@ -579,7 +612,7 @@ public class Player : MonoBehaviour
         //minimapScript.AddFloorToMinimap(gameObject);
 
         // Debug
-        if (StaticClass.debug == true)
+        if (Debug.isDebugBuild == true)
         {
             // Toggle canvas
             if (Input.GetKeyDown(KeyCode.U))
@@ -783,6 +816,10 @@ public class Player : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Enemy Vision
+
     public IEnumerator CheckEnemyVision()
     {
         yield return new WaitForSeconds(0.05f);
@@ -807,6 +844,10 @@ public class Player : MonoBehaviour
         StartCoroutine(CheckEnemyVision());
     }
 
+    #endregion
+
+    #region Level Timer
+
     // Time spent on this level.
     public IEnumerator Timer()
     {
@@ -823,22 +864,9 @@ public class Player : MonoBehaviour
         StartCoroutine(Timer());
     }
 
-    // Auto save on slot 0.
-    public IEnumerator Autosave(float t)
-    {
-        yield return new WaitForSeconds(t);
+    #endregion
 
-        // Can only autosave if the player is alive.
-        if (StaticClass.gameState != 2)
-        {
-            Debug.Log("Autosaved on slot 0.");
-            SaveSystem.SaveGame(0);
-        }
-        else
-        {
-            Debug.Log("Tried to autosave on slot 0, but the player is dead. Autosave cancelled.");
-        }
-    }
+    #region Health
 
     // When the player takes damage.
     public void PlayerPain(int amount)
@@ -875,6 +903,10 @@ public class Player : MonoBehaviour
         SaveSystem.LoadGame(0);
         SceneManager.LoadScene("C" + StaticClass.currentChapter + "M" + StaticClass.currentMap);
     }
+
+    #endregion
+
+    #region Level Exit
 
     // Exit level.
     public IEnumerator Exit(GameObject fade)
@@ -921,6 +953,10 @@ public class Player : MonoBehaviour
         SceneManager.LoadScene("Intermission");
     }
 
+    #endregion
+
+    #region Pause
+
     // Pause
     public void PauseStart()
     {
@@ -939,9 +975,18 @@ public class Player : MonoBehaviour
         Time.timeScale = 1.0f;
     }
 
+    #endregion
+
+    #region Conditions/Checks
+
     // Check if a weapon can be selected.
     bool CanSelectWeapon(int w)
     {
+        if (StaticClass.gameState != 0)
+        {
+            return false;
+        }
+
         return currentWeapon != w && weaponsUnlocked[w] && ammo[weaponAmmoType[w]] >= weaponAmmoCost[w];
     }
 
@@ -993,6 +1038,29 @@ public class Player : MonoBehaviour
         return mult;
     }
 
+    #endregion
+
+    #region Level Warp Options
+
+    void ReceiveAllWeapons()
+    {
+        for (int i = 0; i < weaponsUnlocked.Length; i++)
+        {
+            weaponsUnlocked[i] = true;
+            ammo[weaponAmmoType[i]] = ammoLimit[weaponAmmoType[i]];
+        }
+    }
+
+    void ReceiveFullArmor()
+    {
+        healthScript.armor = 100;
+        healthScript.armorMult = 0.5f;
+    }
+
+    #endregion
+
+    #region Minimap
+
     // Reveal minimap with sight.
     void RevealMinimapRay(float spread, bool addToLog)
     {
@@ -1003,7 +1071,7 @@ public class Player : MonoBehaviour
             {
                 minimapScript.AddToMinimapFilter(minimapHit.collider.gameObject);
 
-                if (addToLog == true && StaticClass.debug == true)
+                if (addToLog == true && Debug.isDebugBuild == true)
                 {
                     gameCanvas.GetComponent<HUD>().HudAddLog(minimapHit.collider.gameObject.ToString());
                     gameCanvas.GetComponent<HUD>().HudAddLog(minimapHit.collider.gameObject.transform.position.ToString());
@@ -1012,11 +1080,58 @@ public class Player : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Render Texture
+
     // Render texture
     public void SetRenderTexture()
     {
-        Camera.main.targetTexture = Options.gameResolution < 2 ? canvasTargetTexture : canvasTargetTextureWide;
+        if (Camera.main == null)
+        {
+            return;
+        }
+        if (gameCanvasScript == null)
+        {
+            return;
+        }
+        if (gameCanvasScript.targetTextureImage == null)
+        {
+            return;
+        }
+
+        if (Options.gameplayLowRes == true)
+        {
+            Camera.main.targetTexture = Options.gameResolution < 2 ? canvasTargetTexture : canvasTargetTextureWide;
+        }
+        else
+        {
+            Camera.main.targetTexture = null;
+        }
+
         gameCanvasScript.targetTextureImage.texture = Camera.main.targetTexture;
+        gameCanvasScript.targetTextureImage.enabled = Options.gameplayLowRes;
+    }
+
+    #endregion
+
+    #region Save/Load
+
+    // Auto save on slot 0.
+    public IEnumerator Autosave(float t)
+    {
+        yield return new WaitForSeconds(t);
+
+        // Can only autosave if the player is alive.
+        if (StaticClass.gameState != 2)
+        {
+            Debug.Log("Autosaved on slot 0.");
+            SaveSystem.SaveGame(0);
+        }
+        else
+        {
+            Debug.Log("Tried to autosave on slot 0, but the player is dead. Autosave cancelled.");
+        }
     }
 
     // Save to player data.
@@ -1101,4 +1216,6 @@ public class Player : MonoBehaviour
 
         SceneManager.LoadScene(data.scene);
     }
+
+    #endregion
 }

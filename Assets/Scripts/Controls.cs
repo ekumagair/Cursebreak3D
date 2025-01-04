@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class Controls : MonoBehaviour
 {
-    CharacterController controller;
-    Camera mainCam;
+    #region Variables
 
     [Header("Physics")]
     public float vel = 12f;
@@ -39,11 +38,17 @@ public class Controls : MonoBehaviour
     public KeyCode useKey;
     public AudioClip cantUse;
 
+    CharacterController controller;
+    Camera mainCam;
     HUD hudScript;
     Player playerScript;
     Health healthScript;
 
-    private void Start()
+    #endregion
+
+    #region Default Methods
+
+    void Start()
     {
         audioSource = GetComponent<AudioSource>();
         controller = GetComponent<CharacterController>();
@@ -52,6 +57,7 @@ public class Controls : MonoBehaviour
         playerScript = GetComponent<Player>();
         healthScript = GetComponent<Health>();
         isSprinting = false;
+
         StartCoroutine(Footstep());
     }
 
@@ -100,7 +106,7 @@ public class Controls : MonoBehaviour
         }
 
         // Jump
-        if (Input.GetButtonDown("Jump") && isGrounded && canJump)
+        if (Input.GetButtonDown("Jump") && isGrounded && canJump && StaticClass.gameState == 0)
         {
             velocityV3.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             FootstepSFX();
@@ -115,9 +121,9 @@ public class Controls : MonoBehaviour
         }
 
         // Use
-        if (Input.GetKeyDown(useKey))
+        if (Input.GetKeyDown(useKey) && StaticClass.gameState == 0 && Time.timeScale > 0.0f)
         {
-            if (StaticClass.debug == true)
+            if (StaticClass.debugRays == true)
             {
                 Debug.DrawRay(transform.position, mainCam.transform.forward * 4, Color.white, 5f);
             }
@@ -129,7 +135,7 @@ public class Controls : MonoBehaviour
                 {
                     if (hit.collider.gameObject.GetComponent<Door>() != null)
                     {
-                        if (StaticClass.debug == true)
+                        if (Debug.isDebugBuild == true)
                         {
                             Debug.Log("Used door");
                         }
@@ -159,7 +165,7 @@ public class Controls : MonoBehaviour
                     }
                     if (hit.collider.gameObject.GetComponent<MovingWall>() != null)
                     {
-                        if (StaticClass.debug == true)
+                        if (Debug.isDebugBuild == true)
                         {
                             Debug.Log("Used moving wall");
                         }
@@ -173,7 +179,7 @@ public class Controls : MonoBehaviour
                     }
                     if (hit.collider.gameObject.GetComponent<Exit>() != null)
                     {
-                        if (StaticClass.debug == true)
+                        if (Debug.isDebugBuild == true)
                         {
                             Debug.Log("Used exit");
                         }
@@ -198,6 +204,10 @@ public class Controls : MonoBehaviour
             }
         }
     }
+
+    #endregion
+
+    #region Footsteps
 
     IEnumerator Footstep()
     {
@@ -235,18 +245,6 @@ public class Controls : MonoBehaviour
         StartCoroutine(Footstep());
     }
 
-    float GetCurrentVelocity()
-    {
-        if (!isSprinting)
-        {
-            return vel;
-        }
-        else
-        {
-            return vel * velSprintMult;
-        }
-    }
-
     void FootstepSFX()
     {
         if (healthScript.health > 0 && StaticClass.gameState == 0)
@@ -261,4 +259,22 @@ public class Controls : MonoBehaviour
             }
         }
     }
+
+    #endregion
+
+    #region Checks
+
+    float GetCurrentVelocity()
+    {
+        if (!isSprinting)
+        {
+            return vel;
+        }
+        else
+        {
+            return vel * velSprintMult;
+        }
+    }
+
+    #endregion
 }

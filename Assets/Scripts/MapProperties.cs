@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class MapProperties : MonoBehaviour
 {
+    #region Variables
+
     // Sets the current chapter and map variables.
     public int chapter = 1;
     public int map = 1;
@@ -16,14 +18,18 @@ public class MapProperties : MonoBehaviour
     // Controls the level's music.
     private AudioSource _as;
 
-    private void Start()
+    #endregion
+
+    #region Default Methods
+
+    void Start()
     {
         StaticClass.currentChapter = chapter;
         StaticClass.currentMap = map;
         _as = GetComponent<AudioSource>();
     }
 
-    private void Update()
+    void Update()
     {
         // Fade out music volume on death.
         if (_as != null)
@@ -34,4 +40,6 @@ public class MapProperties : MonoBehaviour
             }
         }
     }
+
+    #endregion
 }

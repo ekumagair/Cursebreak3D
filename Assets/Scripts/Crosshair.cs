@@ -5,10 +5,16 @@ using UnityEngine.UI;
 
 public class Crosshair : MonoBehaviour
 {
+    #region Variables
+
     public static int sprite = 0;
     public Sprite[] spriteList;
 
     private Image _img;
+
+    #endregion
+
+    #region Default Methods
 
     void Start()
     {
@@ -28,4 +34,6 @@ public class Crosshair : MonoBehaviour
             _img.enabled = false;
         }
     }
+
+    #endregion
 }

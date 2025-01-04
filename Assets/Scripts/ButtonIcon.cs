@@ -13,6 +13,7 @@ public class ButtonIcon : MonoBehaviour
 
     public void IconPos(RectTransform t)
     {
-        _rect.anchoredPosition = new Vector2(t.anchoredPosition.x - (t.sizeDelta.x / 2) - _rect.sizeDelta.x - 10, t.anchoredPosition.y);
+        _rect.SetParent(t, false);
+        _rect.anchoredPosition = new Vector3((t.sizeDelta.x * -0.5f) - (_rect.sizeDelta.x * 1.5f), 1, 0);
     }
 }

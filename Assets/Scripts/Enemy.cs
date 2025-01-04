@@ -5,6 +5,8 @@ using UnityEngine.AI;
 
 public class Enemy : MonoBehaviour
 {
+    #region Variables
+
     public GameObject sprite;
     public GameObject target;
 
@@ -40,7 +42,7 @@ public class Enemy : MonoBehaviour
     public RangedAttackType attackType = 0;
 
     public bool attackRefire = false;
-    private Coroutine _attackCoroutine;
+    private Coroutine _attackCoroutine = null;
 
     // Melee attack
     [Header("Melee Attack")]
@@ -63,6 +65,8 @@ public class Enemy : MonoBehaviour
     public LayerMask sightMask;
     public GameObject sightSound;
     public bool noSightSoundOnHard = false;
+    private Coroutine _sightSoundCooldownCoroutine = null;
+    public static int sightSoundsPlaying = 0;
 
     // Drop item
     [Header("Item Drop")]
@@ -116,12 +120,17 @@ public class Enemy : MonoBehaviour
 
     // Related to saving and loading
     private string _initialPositionToString;
+    private bool _loadedTarget = false;
 
     private Vector3 _dir;
     private NavMeshAgent _agent;
     private Health _healthScript;
     private Animator _animator;
     private Player _player;
+
+    #endregion
+
+    #region Default Methods
 
     void Start()
     {
@@ -187,7 +196,7 @@ public class Enemy : MonoBehaviour
             _agent.speed *= 1.25f;
             attackTimeDefault *= 0.75f;
 
-            if(healthNotAffectedByDifficulty == false)
+            if (healthNotAffectedByDifficulty == false)
             {
                 _healthScript.health = Mathf.RoundToInt(_healthScript.health * 1.1f);
             }
@@ -316,7 +325,7 @@ public class Enemy : MonoBehaviour
                             attackTime -= Time.deltaTime;
 
                             // If you are playing on Very Hard difficulty, this makes the attack even faster.
-                            if(StaticClass.difficulty >= 3)
+                            if (StaticClass.difficulty >= 3)
                             {
                                 attackTime -= Time.deltaTime * 2;
                             }
@@ -337,7 +346,17 @@ public class Enemy : MonoBehaviour
 
                 if (sightSound != null)
                 {
-                    Instantiate(sightSound, transform.position, transform.rotation);
+                    if (sightSoundsPlaying < 8 && _loadedTarget == false && _sightSoundCooldownCoroutine == null)
+                    {
+                        sightSoundsPlaying++;
+                        Instantiate(sightSound, transform.position, transform.rotation);
+                        _sightSoundCooldownCoroutine = StartCoroutine(SightSoundCooldown());
+
+                        if (Debug.isDebugBuild)
+                        {
+                            Debug.Log("Sight sounds: " + sightSoundsPlaying.ToString());
+                        }
+                    }
                 }
             }
             if (wakeUpTimer > 0f)
@@ -397,6 +416,7 @@ public class Enemy : MonoBehaviour
         if (_healthScript.isDead == true && _died == false && StaticClass.gameState == 0)
         {
             _died = true;
+            StopSightSoundCooldown();
             StopAllCoroutines();
             Death(false);
         }
@@ -406,6 +426,7 @@ public class Enemy : MonoBehaviour
         // Disable this enemy if the player completed the current level or died.
         if (StaticClass.gameState == 1 || StaticClass.gameState == 2)
         {
+            StopSightSoundCooldown();
             StopAllCoroutines();
             _agent.enabled = false;
             target = null;
@@ -432,18 +453,36 @@ public class Enemy : MonoBehaviour
         }
 
         // If enemy was killed on this save slot.
-        if (_player.killedEnemies.Contains(_initialPositionToString) && _healthScript.isDead == false)
+        if (_player.killedEnemies.Contains(_initialPositionToString) && _died == false && _healthScript.isDead == false)
         {
             _died = true;
             Death(true);
         }
 
         // If enemy spotted the player on this save slot.
-        if (_player.enemiesWithTargets.Contains(_initialPositionToString) && _healthScript.isDead == false)
+        if (_player.enemiesWithTargets.Contains(_initialPositionToString) && StaticClass.loadSavedMapData == true && target == null && _healthScript.isDead == false)
         {
+            _loadedTarget = true;
             target = _player.gameObject;
         }
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Teleporter")
+        {
+            Teleporter teleScript = other.gameObject.GetComponent<Teleporter>();
+
+            if (teleScript.enemyCanUse)
+            {
+                teleScript.Teleport(gameObject);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Attack
 
     public IEnumerator Attack()
     {
@@ -554,7 +593,7 @@ public class Enemy : MonoBehaviour
             RaycastHit hitMelee;
             if (Physics.Raycast(transform.position, transform.forward, out hitMelee, meleeRange * 1.25f, sightMask))
             {
-                if (StaticClass.debug == true)
+                if (StaticClass.debugRays == true)
                 {
                     Debug.DrawRay(transform.position, transform.forward * hitMelee.distance, Color.yellow, 5f);
                     Debug.Log("Enemy Melee Hit " + hitMelee.collider.name);
@@ -602,7 +641,7 @@ public class Enemy : MonoBehaviour
         RaycastHit hitRanged;
         if (Physics.Raycast(transform.position, (transform.forward + (transform.right * maxSpread)), out hitRanged, 1000f, sightMask))
         {
-            if (StaticClass.debug == true)
+            if (StaticClass.debugRays == true)
             {
                 Debug.DrawRay(transform.position, (transform.forward + (transform.right * maxSpread)) * hitRanged.distance, Color.cyan, 20f);
                 Debug.Log("Enemy Ranged Hit " + hitRanged.collider.name);
@@ -671,6 +710,18 @@ public class Enemy : MonoBehaviour
         _attacking = false;
     }
 
+    void StopAttackSound()
+    {
+        if (_attackSoundInstance != null)
+        {
+            Destroy(_attackSoundInstance);
+        }
+    }
+
+    #endregion
+
+    #region Pain
+
     public IEnumerator Pain()
     {
         if (Random.Range(0, painChance) == 0 && _inPain == false)
@@ -707,6 +758,10 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Pathfinding
+
     IEnumerator AddPositionToListCoroutine()
     {
         AddPositionToList();
@@ -732,6 +787,10 @@ public class Enemy : MonoBehaviour
         previousPositionSelected = Random.Range(0, previousPositions.Length);
     }
 
+    #endregion
+
+    #region Senses
+
     public bool CanSee(GameObject which, float dist)
     {
         Vector3 dir;
@@ -754,7 +813,7 @@ public class Enemy : MonoBehaviour
 
             if (hitObj == which && (hitObj.GetComponent<Player>() == null || hitObj.GetComponent<Player>().isInvisible == false) || hitObj == target)
             {
-                if (StaticClass.debug == true)
+                if (StaticClass.debugRays == true)
                 {
                     Debug.Log(gameObject + " saw " + which);
                     Debug.DrawRay(transform.position, dir * hit.distance, Color.green);
@@ -763,7 +822,7 @@ public class Enemy : MonoBehaviour
             }
             else
             {
-                if (StaticClass.debug == true)
+                if (StaticClass.debugRays == true)
                 {
                     Debug.DrawRay(transform.position, dir * 500, Color.red);
                 }
@@ -774,6 +833,38 @@ public class Enemy : MonoBehaviour
         {
             return false;
         }
+    }
+
+    private IEnumerator SightSoundCooldown()
+    {
+        yield return new WaitForSeconds(1.0f);
+
+        sightSoundsPlaying--;
+
+        if (sightSoundsPlaying < 0)
+        {
+            sightSoundsPlaying = 0;
+        }
+
+        yield return null;
+
+        _sightSoundCooldownCoroutine = null;
+    }
+
+    private void StopSightSoundCooldown()
+    {
+        if (_sightSoundCooldownCoroutine != null)
+        {
+            StopCoroutine(_sightSoundCooldownCoroutine);
+            sightSoundsPlaying--;
+        }
+
+        if (sightSoundsPlaying < 0)
+        {
+            sightSoundsPlaying = 0;
+        }
+
+        _sightSoundCooldownCoroutine = null;
     }
 
     public bool CanHear(GameObject which, float dist)
@@ -787,7 +878,7 @@ public class Enemy : MonoBehaviour
 
         if (Vector3.Distance(transform.position, which.transform.position) < dist && hearPath.status == NavMeshPathStatus.PathComplete)
         {
-            if (StaticClass.debug == true)
+            if (Debug.isDebugBuild == true)
             {
                 Debug.Log(gameObject + " can hear " + which);
             }
@@ -799,26 +890,9 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.tag == "Teleporter")
-        {
-            Teleporter teleScript = other.gameObject.GetComponent<Teleporter>();
+    #endregion
 
-            if (teleScript.enemyCanUse)
-            {
-                teleScript.Teleport(gameObject);
-            }
-        }
-    }
-
-    void StopAttackSound()
-    {
-        if (_attackSoundInstance != null)
-        {
-            Destroy(_attackSoundInstance);
-        }
-    }
+    #region Health
 
     public void Revive()
     {
@@ -842,7 +916,7 @@ public class Enemy : MonoBehaviour
         _player.killedEnemies.Remove(_initialPositionToString);
     }
 
-    void Death(bool instant)
+    private void Death(bool instant)
     {
         // Disable components.
         GetComponent<Collider>().isTrigger = true;
@@ -886,6 +960,7 @@ public class Enemy : MonoBehaviour
             Destroy(GetComponent<Collider>());
         }
 
+        // Item drop.
         if (dropItem != null)
         {
             Instantiate(dropItem, transform.position - (transform.up * 2) + (transform.forward / 2), transform.rotation);
@@ -905,4 +980,6 @@ public class Enemy : MonoBehaviour
             Instantiate(deathSound, transform.position, transform.rotation);
         }
     }
+
+    #endregion
 }

@@ -5,6 +5,9 @@ using UnityEngine;
 public class GenericSetVolume : MonoBehaviour
 {
     // Changes the volume of this object's AudioSource based on the settings.
+
+    #region Variables
+
     private AudioSource _as;
     private float _baseVolume;
 
@@ -26,6 +29,10 @@ public class GenericSetVolume : MonoBehaviour
 
     public bool constantlyUpdateVolume = true;
 
+    #endregion
+
+    #region Default Methods
+
     void Start()
     {
         _as = GetComponent<AudioSource>();
@@ -41,6 +48,10 @@ public class GenericSetVolume : MonoBehaviour
             SetVolume();
         }
     }
+
+    #endregion
+
+    #region Volume
 
     void SetVolume()
     {
@@ -67,4 +78,6 @@ public class GenericSetVolume : MonoBehaviour
                 break;
         }
     }
+
+    #endregion
 }

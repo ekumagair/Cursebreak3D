@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class Door : MonoBehaviour
 {
-    Vector3 closedPosition;
+    #region Variables
+
+    private Vector3 closedPosition;
     public Vector3 openPosition;
     public int doorState;
     public GameObject soundObject;
@@ -12,10 +14,14 @@ public class Door : MonoBehaviour
     public int key = 0;
     public bool canUse = true;
 
+    #endregion
+
     // Door states
     // 0 = Closed
     // 1 = Moving
     // 2 = Open
+
+    #region Default Methods
 
     void Start()
     {
@@ -40,6 +46,10 @@ public class Door : MonoBehaviour
             doorState = 1;
         }
     }
+
+    #endregion
+
+    #region Door
 
     public IEnumerator OpenDoor()
     {
@@ -89,4 +99,6 @@ public class Door : MonoBehaviour
 
         canUse = true;
     }
+
+    #endregion
 }

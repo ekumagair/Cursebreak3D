@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class MouseLook : MonoBehaviour
 {
+    #region Variables
+
     public float mouseS = 1000f;
     float mouseX, mouseY;
 
@@ -12,6 +14,10 @@ public class MouseLook : MonoBehaviour
     public bool lookX = true, lookY = true;
 
     float xRot = 0f;
+
+    #endregion
+
+    #region Default Methods
 
     void Start()
     {
@@ -40,4 +46,6 @@ public class MouseLook : MonoBehaviour
             playerBody.Rotate(Vector3.up * mouseX);
         }
     }
+
+    #endregion
 }

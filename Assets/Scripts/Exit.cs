@@ -4,10 +4,16 @@ using UnityEngine;
 
 public class Exit : MonoBehaviour
 {
+    #region Variables
+
     public GameObject fade;
     public GameObject useSound;
 
     private Animator _anim;
+
+    #endregion
+
+    #region Default Methods
 
     void Start()
     {
@@ -24,4 +30,6 @@ public class Exit : MonoBehaviour
             Instantiate(useSound, transform.position, transform.rotation);
         }
     }
+
+    #endregion
 }

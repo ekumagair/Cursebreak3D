@@ -5,6 +5,8 @@ using UnityEngine.AI;
 
 public class Teleporter : MonoBehaviour
 {
+    #region Variables
+
     public int teleporterAnimation = 1;
     public GameObject soundOnTeleport;
     public GameObject particleOnTeleport;
@@ -13,15 +15,23 @@ public class Teleporter : MonoBehaviour
     public bool playerCanUse = true;
     public bool enemyCanUse = true;
 
+    #endregion
+
+    #region Default Methods
+
     void Start()
     {
-        if (StaticClass.debug == true)
+        if (Debug.isDebugBuild == true)
         {
             Debug.Log(gameObject + " destination: " + teleporterDestination.transform.position);
         }
 
         GetComponent<Animator>().Play("Teleporter" + teleporterAnimation.ToString());
     }
+
+    #endregion
+
+    #region Teleport
 
     public void Teleport(GameObject user)
     {
@@ -62,4 +72,6 @@ public class Teleporter : MonoBehaviour
             obj.GetComponent<NavMeshAgent>().enabled = changeTo;
         }
     }
+
+    #endregion
 }

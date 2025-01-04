@@ -5,9 +5,15 @@ using UnityEngine.UI;
 
 public class LogMessageScript : MonoBehaviour
 {
+    #region Variables
+
     private HUD _hudScript;
     private RectTransform _rt;
     private Text _txt;
+
+    #endregion
+
+    #region Default Methods
 
     void Start()
     {
@@ -28,6 +34,10 @@ public class LogMessageScript : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Message
+
     public void MoveUp()
     {
         _rt = GetComponent<RectTransform>();
@@ -41,4 +51,6 @@ public class LogMessageScript : MonoBehaviour
 
         Destroy(gameObject);
     }
+
+    #endregion
 }

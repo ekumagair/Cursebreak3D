@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class CastScreen : MonoBehaviour
 {
+    #region Variables
+
     public GameObject characterDisplay;
     public Text characterName;
     public Text endText;
@@ -15,6 +17,10 @@ public class CastScreen : MonoBehaviour
     Animator characterDisplayAnimator;
     Image characterDisplayImage;
     int indexValue = 0;
+
+    #endregion
+
+    #region Default Methods
 
     void Start()
     {
@@ -31,7 +37,7 @@ public class CastScreen : MonoBehaviour
     {
         characterName.text = characterNameList[indexValue];
 
-        if(characterName.text == "")
+        if (characterName.text == "")
         {
             characterDisplayImage.enabled = false;
             endText.enabled = true;
@@ -42,7 +48,7 @@ public class CastScreen : MonoBehaviour
             endText.enabled = false;
         }
 
-        if((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) && Time.timeSinceLevelLoad >= 1)
+        if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) && Time.timeSinceLevelLoad >= 1)
         {
             characterDisplayAnimator.SetTrigger("Next");
 
@@ -57,9 +63,11 @@ public class CastScreen : MonoBehaviour
             }
         }
 
-        if(Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             SceneManager.LoadScene("TitleScreen");
         }
     }
+
+    #endregion
 }

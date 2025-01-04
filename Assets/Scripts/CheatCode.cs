@@ -43,7 +43,7 @@ public class CheatCode : MonoBehaviour
                 // If typed every key.
                 if(currentButton == buttons.Length)
                 {
-                    if(debugOnly == false || (debugOnly == true && StaticClass.debug == true))
+                    if (debugOnly == false || (debugOnly == true && Debug.isDebugBuild == true))
                     {
                         ExecuteEffect();
                     }

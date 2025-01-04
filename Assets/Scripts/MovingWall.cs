@@ -4,10 +4,15 @@ using UnityEngine;
 
 public class MovingWall : MonoBehaviour
 {
-    Vector3 defaultPosition;
+    #region Variables
+
+    private Vector3 defaultPosition;
     public Vector3 openPosition;
     public int wallState;
     public GameObject soundOnMove;
+
+    [Space]
+
     [Tooltip("Whether this wall counts as a secret or not. Moving walls that are necessary for progression shouldn't count as secrets.")]
     public bool isSecret = true;
     public bool canBeAddedToMinimap = true;
@@ -15,6 +20,10 @@ public class MovingWall : MonoBehaviour
     private string _initialPositionToString;
     private Player _player;
     private BoxCollider _boxCollider;
+
+    #endregion
+
+    #region Default Methods
 
     void Start()
     {
@@ -58,6 +67,10 @@ public class MovingWall : MonoBehaviour
             InstantMove();
         }
     }
+
+    #endregion
+
+    #region Wall
 
     public IEnumerator MoveWall()
     {
@@ -120,4 +133,6 @@ public class MovingWall : MonoBehaviour
         transform.position = defaultPosition + openPosition;
         wallState = 2;
     }
+
+    #endregion
 }

@@ -14,7 +14,7 @@ public class TakeScreenshot : MonoBehaviour
 
             ScreenCapture.CaptureScreenshot(filename);
 
-            if (StaticClass.debug == true)
+            if (Debug.isDebugBuild == true)
             {
                 Debug.Log("Took screenshot. Saved it as: " + filename);
             }
