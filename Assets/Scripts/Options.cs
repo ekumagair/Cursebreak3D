@@ -55,10 +55,10 @@ public class Options : MonoBehaviour
 
     void Start()
     {
-        if (File.Exists(SaveSystem.GlobalSavePath()))
-        {
-            GlobalData data = SaveSystem.GetSavedGlobal();
+        GlobalData data = SaveSystem.GetSavedGlobal();
 
+        if (data != null)
+        {
             mouseSensitivity = data.mouseSensitivity;
             musicVolume = data.musicVolume;
             soundVolume = data.soundVolume;
@@ -120,6 +120,10 @@ public class Options : MonoBehaviour
 
     public static void SetResolution()
     {
+#if ALWAYS_FULL_HD
+        gameResolution = 2;
+#endif
+
         switch (gameResolution)
         {
             case 0:
@@ -196,8 +200,8 @@ public class Options : MonoBehaviour
     private void SetCrosshairUI()
     {
         // Crosshair settings.
-        //crosshairText.text = "Crosshair: ";
         crosshairText.text = "";
+
         switch (Crosshair.sprite)
         {
             case 0:
@@ -241,8 +245,8 @@ public class Options : MonoBehaviour
     private void SetFlashingFXUI()
     {
         // Flashing effects settings.
-        //flashingText.text = "Flashes: ";
         flashingText.text = "";
+
         switch (flashingEffects)
         {
             case 0:
@@ -287,6 +291,7 @@ public class Options : MonoBehaviour
     {
         // Game resolution settings.
         resolutionText.text = "";
+
         switch (gameResolution)
         {
             case 0:
@@ -323,6 +328,12 @@ public class Options : MonoBehaviour
         {
             resolutionSubtract.interactable = true;
         }
+
+#if ALWAYS_FULL_HD
+        resolutionText.fontStyle = FontStyle.Italic;
+        resolutionAdd.gameObject.SetActive(false);
+        resolutionSubtract.gameObject.SetActive(false);
+#endif
     }
 
     #endregion

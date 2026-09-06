@@ -10621,6 +10621,7 @@ MonoBehaviour:
   sectionOptions: {fileID: 1906935479}
   sectionSelectLevel: {fileID: 151899067}
   sectionCredits: {fileID: 294276377}
+  buttonQuit: {fileID: 207566466}
   loadGameSlotsText:
   - {fileID: 1963836443}
   - {fileID: 997838867}

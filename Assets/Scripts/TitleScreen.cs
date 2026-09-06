@@ -12,13 +12,11 @@ public class TitleScreen : MonoBehaviour
     #region Variables
 
     [Header("Generic")]
-
     public Text versionText;
     public Image selectIcon;
     public Color defaultButtonColor;
 
     [Header("Sections")]
-
     public GameObject sectionStart;
     public GameObject sectionChooseChapter;
     public GameObject sectionDifficulty;
@@ -27,8 +25,10 @@ public class TitleScreen : MonoBehaviour
     public GameObject sectionSelectLevel;
     public GameObject sectionCredits;
 
-    [Header("Save slots")]
+    [Header("Start section")]
+    public GameObject buttonQuit;
 
+    [Header("Save slots")]
     public Text[] loadGameSlotsText;
     public GameObject[] loadGameDeleteButtons;
     public GameObject loadingScreen;
@@ -67,7 +67,7 @@ public class TitleScreen : MonoBehaviour
         }
 
         // Load serialized unlocked chapter variable.
-        if (File.Exists(SaveSystem.GlobalSavePath()))
+        if (SaveSystem.GetSavedGlobal() != null)
         {
             StaticClass.unlockedChapter = SaveSystem.GetSavedGlobal().unlockedChapters;
         }
@@ -76,7 +76,7 @@ public class TitleScreen : MonoBehaviour
         if (StaticClass.unlockedChapter < 1)
         {
             StaticClass.unlockedChapter = 1;
-            Debug.LogWarning("unlockedChapter variable was lower than 1! Resetting to default.");
+            //Debug.LogWarning("unlockedChapter variable was lower than 1! Resetting to default.");
         }
 
         // Start this scene on the "select chapter" screen.
@@ -96,7 +96,7 @@ public class TitleScreen : MonoBehaviour
     void Update()
     {
         // Quit the game by pressing esc.
-        if(Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             QuitGame();
         }
@@ -108,23 +108,26 @@ public class TitleScreen : MonoBehaviour
 
             if (_deleteEverything > 5 && Input.GetKeyDown(KeyCode.Return))
             {
-                PlayerPrefs.DeleteAll();
-                SaveSystem.DeleteSave(0, "player");
-                SaveSystem.DeleteSave(1, "player");
-                SaveSystem.DeleteSave(2, "player");
-                SaveSystem.DeleteSave(3, "player");
+                for (int i = 0; i < 4; i++)
+                {
+                    SaveSystem.DeleteSave(i);
+                }
+
                 StaticClass.ResetStats(true);
                 StaticClass.unlockedChapter = 1;
+
                 Options.ResetOptions();
                 PlayerPrefs.Save();
 
                 SetSaveSlotsTexts();
+
+                /*
                 Debug.Log("Cleared all saved data!");
 
                 if (StaticClass.ignoreUnlockedChapter == true && Debug.isDebugBuild == true)
                 {
                     Debug.Log("ignoreUnlockedChapter is set to true. All chapters are still unlocked.");
-                }
+                }*/
 
                 if (_audioSource != null && _audioSource.clip != null)
                 {
@@ -203,7 +206,7 @@ public class TitleScreen : MonoBehaviour
             preview.text += " - ";
             preview.GetComponent<Shadow>().enabled = true;
 
-            if (SaveSystem.SaveExists(i, "player"))
+            if (SaveSystem.PlayerSaveExists(i))
             {
                 PlayerData data = SaveSystem.LoadPlayer(i);
 
@@ -244,7 +247,7 @@ public class TitleScreen : MonoBehaviour
 
     public void LoadGame(int slot)
     {
-        if (SaveSystem.SaveExists(slot, "player"))
+        if (SaveSystem.PlayerSaveExists(slot))
         {
             loadingScreen.SetActive(true);
             StaticClass.ResetStats(true);
@@ -258,26 +261,7 @@ public class TitleScreen : MonoBehaviour
 
     public void DeleteSave(int slot)
     {
-        SaveSystem.DeleteSave(slot, "player");
-
-        string prefix = StaticClass.SLOT_PREFIX + slot.ToString();
-
-        PlayerPrefs.DeleteKey(prefix + "_scene_name");
-        PlayerPrefs.DeleteKey(prefix + "_difficulty");
-        PlayerPrefs.DeleteKey(prefix + "_score");
-        PlayerPrefs.DeleteKey(prefix + "_health");
-        PlayerPrefs.DeleteKey(prefix + "_armor");
-        PlayerPrefs.DeleteKey(prefix + "_armor_mult");
-
-        for (int i = 0; i < Player.savedAmmo.Length; i++)
-        {
-            PlayerPrefs.DeleteKey(prefix + "_ammo" + i.ToString());
-        }
-
-        for (int i = 0; i < Player.savedWeaponsUnlocked.Length; i++)
-        {
-            PlayerPrefs.DeleteKey(prefix + "_weapon_unlocked" + i);
-        }
+        SaveSystem.DeleteSave(slot);
 
         if (Debug.isDebugBuild == true)
         {
@@ -302,6 +286,12 @@ public class TitleScreen : MonoBehaviour
         sectionCredits.SetActive(false);
         StaticClass.loadSavedPlayerInfo = false;
         SectionAny();
+
+#if UNITY_STANDALONE && !UNITY_WEBGL
+        buttonQuit.SetActive(true);
+#else
+        buttonQuit.SetActive(false);
+#endif
     }
 
     public void SectionChooseChapter()
@@ -388,10 +378,9 @@ public class TitleScreen : MonoBehaviour
         selectIcon.enabled = false;
         SetSaveSlotsTexts();
         SaveSystem.SaveGlobal();
-        //PlayerPrefs.Save();
     }
 
-    #endregion
+#endregion
 
     #region Level Control
 

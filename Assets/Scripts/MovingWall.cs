@@ -38,7 +38,7 @@ public class MovingWall : MonoBehaviour
             StaticClass.secretsTotal++;
         }
 
-        if(StaticClass.difficulty <= -2)
+        if (StaticClass.difficulty <= -2)
         {
             InstantMove();
         }

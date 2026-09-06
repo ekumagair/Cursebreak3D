@@ -1,8 +1,9 @@
-using UnityEngine;
+using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using UnityEngine.SceneManagement;
 using UnityEditor;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public static class SaveSystem
 {
@@ -10,9 +11,10 @@ public static class SaveSystem
     // Slot save
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static string SaveSlotPath(int slot, string identifier)
+    public static string SaveSlotPath(int slot)
     {
-        return Application.persistentDataPath + "/" + StaticClass.SLOT_PREFIX + slot.ToString() + "_" + identifier + StaticClass.SAVEGAME_FILETYPE;
+        string fileName = StaticClass.SLOT_PREFIX + slot.ToString() + "_" + StaticClass.PDATA_IDENTIFIER + StaticClass.PDATA_FILETYPE;
+        return Path.Combine(Application.persistentDataPath, fileName);
     }
 
     public static void SaveGame(int slot)
@@ -54,10 +56,11 @@ public static class SaveSystem
     public static void SavePlayer(Player player, int slot)
     {
         BinaryFormatter formatter = new BinaryFormatter();
-        string path = SaveSlotPath(slot, "player");
-        FileStream stream = new FileStream(path, FileMode.Create);
-
         PlayerData data = new PlayerData(player);
+
+#if !PLAYER_PREF_SAVE
+        string path = SaveSlotPath(slot);
+        FileStream stream = new FileStream(path, FileMode.Create);
 
         formatter.Serialize(stream, data);
         stream.Close();
@@ -66,15 +69,34 @@ public static class SaveSystem
         {
             Debug.Log("SAVED player info on slot " + slot + " at " + path);
         }
+#else
+        string dataAsString;
+
+        using (MemoryStream stream = new MemoryStream())
+        {
+            formatter.Serialize(stream, data);
+            dataAsString = Convert.ToBase64String(stream.ToArray());
+
+            PlayerPrefs.SetString(StaticClass.PLAYER_PREF_PDATA_KEY + slot.ToString(), dataAsString);
+            PlayerPrefs.Save();
+        }
+
+        if (Debug.isDebugBuild == true)
+        {
+            Debug.Log("SAVED player info on slot " + slot + " as player pref PlayerData: " + dataAsString);
+        }
+#endif
     }
 
     public static PlayerData LoadPlayer(int slot)
     {
-        string path = SaveSlotPath(slot, "player");
+        BinaryFormatter formatter = new BinaryFormatter();
+
+#if !PLAYER_PREF_SAVE
+        string path = SaveSlotPath(slot);
 
         if (File.Exists(path))
         {
-            BinaryFormatter formatter = new BinaryFormatter();
             FileStream stream = new FileStream(path, FileMode.Open);
 
             PlayerData data = formatter.Deserialize(stream) as PlayerData;
@@ -96,11 +118,27 @@ public static class SaveSystem
 
             return null;
         }
+#else
+        string data = PlayerPrefs.GetString(StaticClass.PLAYER_PREF_PDATA_KEY + slot.ToString(), "");
+
+        if (string.IsNullOrEmpty(data))
+        {
+            return null;
+        }
+
+        byte[] bytes = Convert.FromBase64String(data);
+
+        using (MemoryStream stream = new MemoryStream(bytes))
+        {
+            return (PlayerData)formatter.Deserialize(stream);
+        }
+#endif
     }
 
-    public static void DeleteSave(int slot, string identifier)
+    public static void DeleteSave(int slot)
     {
-        string path = SaveSlotPath(slot, identifier);
+#if !PLAYER_PREF_SAVE
+        string path = SaveSlotPath(slot);
 
         if (File.Exists(path))
         {
@@ -108,23 +146,26 @@ public static class SaveSystem
 
             if (Debug.isDebugBuild == true)
             {
-                Debug.Log("DELETED " + identifier + " info on slot " + slot + " at " + path);
+                Debug.Log("DELETED player info on slot " + slot + " at " + path);
             }
         }
+#else
+        if (PlayerSaveExists(slot))
+        {
+            PlayerPrefs.DeleteKey(StaticClass.PLAYER_PREF_PDATA_KEY + slot.ToString());
+            PlayerPrefs.Save();
+        }
+#endif
     }
 
-    public static bool SaveExists(int slot, string identifier)
+    public static bool PlayerSaveExists(int slot)
     {
-        string path = SaveSlotPath(slot, identifier);
-
-        if (File.Exists(path) || PlayerPrefs.HasKey(StaticClass.SLOT_PREFIX + slot.ToString() + "_scene_name"))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+#if !PLAYER_PREF_SAVE
+        string path = SaveSlotPath(slot);
+        return File.Exists(path);
+#else
+        return PlayerPrefs.HasKey(StaticClass.PLAYER_PREF_PDATA_KEY + slot.ToString());
+#endif
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,16 +174,16 @@ public static class SaveSystem
 
     public static string GlobalSavePath()
     {
-        return Application.persistentDataPath + "/global.dat";
+        return Path.Combine(Application.persistentDataPath, StaticClass.GDATA_IDENTIFIER + StaticClass.GDATA_FILETYPE);
     }
 
     public static void SaveGlobal()
     {
         BinaryFormatter formatter = new BinaryFormatter();
-        FileStream stream = new FileStream(GlobalSavePath(), FileMode.Create);
-
         GlobalData data = new GlobalData();
 
+#if !PLAYER_PREF_SAVE
+        FileStream stream = new FileStream(GlobalSavePath(), FileMode.Create);
         formatter.Serialize(stream, data);
         stream.Close();
 
@@ -150,34 +191,58 @@ public static class SaveSystem
         {
             Debug.Log("SAVED global info at " + GlobalSavePath());
         }
+#else
+        string dataAsString;
+
+        using (MemoryStream stream = new MemoryStream())
+        {
+            formatter.Serialize(stream, data);
+            dataAsString = Convert.ToBase64String(stream.ToArray());
+
+            PlayerPrefs.SetString(StaticClass.PLAYER_PREF_GDATA_KEY, dataAsString);
+            PlayerPrefs.Save();
+        }
+
+        if (Debug.isDebugBuild == true)
+        {
+            Debug.Log("SAVED global info as player pref GlobalData: " + dataAsString);
+        }
+#endif
     }
 
     public static GlobalData GetSavedGlobal()
     {
+        BinaryFormatter formatter = new BinaryFormatter();
+
+#if !PLAYER_PREF_SAVE
         if (File.Exists(GlobalSavePath()))
         {
-            BinaryFormatter formatter = new BinaryFormatter();
             FileStream stream = new FileStream(GlobalSavePath(), FileMode.Open);
 
             GlobalData data = formatter.Deserialize(stream) as GlobalData;
             stream.Close();
 
-            /*
-            if (Debug.isDebugBuild == true)
-            {
-                Debug.Log("LOADED global info at " + GlobalSavePath());
-            }*/
             return data;
         }
         else
         {
-            /*
-            if (Debug.isDebugBuild == true)
-            {
-                Debug.Log("Global file not found in " + GlobalSavePath());
-            }*/
             return null;
         }
+#else
+        string data = PlayerPrefs.GetString(StaticClass.PLAYER_PREF_GDATA_KEY, "");
+
+        if (string.IsNullOrEmpty(data))
+        {
+            return null;
+        }
+
+        byte[] bytes = Convert.FromBase64String(data);
+
+        using (MemoryStream stream = new MemoryStream(bytes))
+        {
+            return (GlobalData)formatter.Deserialize(stream);
+        }
+#endif
     }
 
     public static void LoadGlobal()

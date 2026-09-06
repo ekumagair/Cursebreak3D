@@ -113,10 +113,10 @@ public class Enemy : MonoBehaviour
     private bool _revived = false;
 
     // Previous position
-    int previousPositionsItem = 0;
-    int previousPositionSelected = 0;
-    Vector3[] previousPositions = new Vector3[10];
-    bool goingToPreviousPosition = false;
+    private int previousPositionsItem = 0;
+    private int previousPositionSelected = 0;
+    private Vector3[] previousPositions = new Vector3[10];
+    private bool goingToPreviousPosition = false;
 
     // Related to saving and loading
     private string _initialPositionToString;
@@ -127,6 +127,8 @@ public class Enemy : MonoBehaviour
     private Health _healthScript;
     private Animator _animator;
     private Player _player;
+    private AppearOnDifficulty _difficultyCheck;
+    private Collider _collider;
 
     #endregion
 
@@ -138,31 +140,33 @@ public class Enemy : MonoBehaviour
         _healthScript = GetComponent<Health>();
         _animator = sprite.GetComponent<Animator>();
         _player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        _difficultyCheck = GetComponent<AppearOnDifficulty>();
+        _collider = GetComponent<Collider>();
         _attacking = false;
         _died = false;
         _inPain = false;
         _revived = false;
 
-        if (StaticClass.difficulty < GetComponent<AppearOnDifficulty>().difficulty.Length && StaticClass.difficulty > -1)
+        if (StaticClass.difficulty < _difficultyCheck.difficulty.Length && StaticClass.difficulty > -1)
         {
             // Don't add this enemy to counter if it's not meant to appear in this difficulty level.
-            if (GetComponent<AppearOnDifficulty>().difficulty[StaticClass.difficulty] == true && StaticClass.gameState != 2)
+            if (_difficultyCheck.difficulty[StaticClass.difficulty] == true && StaticClass.gameState != 2)
             {
                 StaticClass.enemiesTotal++;
-                Debug.Log("Added " + gameObject.name + " to enemy count. (" + StaticClass.enemiesTotal + ")");
+                //Debug.Log("Added " + gameObject.name + " to enemy count. (" + StaticClass.enemiesTotal + ")");
             }
         }
         else if (StaticClass.difficulty <= -1)
         {
             // No enemies.
             Destroy(gameObject);
-            Debug.Log("Difficulty is " + StaticClass.difficulty.ToString() + ". Destroyed " + gameObject.name);
+            //Debug.Log("Difficulty is " + StaticClass.difficulty.ToString() + ". Destroyed " + gameObject.name);
         }
         else if (StaticClass.gameState != 2)
         {
             // Keep this enemy if difficulty value is greater than the regular limit.
             StaticClass.enemiesTotal++;
-            Debug.Log("Difficulty is " + StaticClass.difficulty.ToString() + ". This is greater than the regular limit. Kept " + gameObject.name);
+            //Debug.Log("Difficulty is " + StaticClass.difficulty.ToString() + ". This is greater than the regular limit. Kept " + gameObject.name);
         }
 
         if (painChance < 1)
@@ -279,14 +283,14 @@ public class Enemy : MonoBehaviour
                     if (_agent.pathStatus == NavMeshPathStatus.PathPartial && goingToPreviousPosition == false)
                     {
                         goingToPreviousPosition = true;
-                        Debug.Log(gameObject + " can see the target but path is partial. Going back.");
+                        //Debug.Log(gameObject + " can see the target but path is partial. Going back.");
                     }
 
                     // If this enemy can see the target but path is invalid.
                     if (_agent.pathStatus == NavMeshPathStatus.PathInvalid && goingToPreviousPosition == false)
                     {
                         goingToPreviousPosition = true;
-                        Debug.Log(gameObject + " can see the target but path is invalid. Going back.");
+                        //Debug.Log(gameObject + " can see the target but path is invalid. Going back.");
                     }
                 }
                 else
@@ -308,7 +312,6 @@ public class Enemy : MonoBehaviour
             _dir = (target.transform.position - transform.position).normalized;
             _dir.y = 0;
             transform.forward = _dir;
-
 
             // Reduce attack time
             if (CanSee(target, Mathf.Infinity))
@@ -596,7 +599,7 @@ public class Enemy : MonoBehaviour
                 if (StaticClass.debugRays == true)
                 {
                     Debug.DrawRay(transform.position, transform.forward * hitMelee.distance, Color.yellow, 5f);
-                    Debug.Log("Enemy Melee Hit " + hitMelee.collider.name);
+                    //Debug.Log("Enemy Melee Hit " + hitMelee.collider.name);
                 }
 
                 if (hitMelee.collider.gameObject != null)
@@ -644,7 +647,7 @@ public class Enemy : MonoBehaviour
             if (StaticClass.debugRays == true)
             {
                 Debug.DrawRay(transform.position, (transform.forward + (transform.right * maxSpread)) * hitRanged.distance, Color.cyan, 20f);
-                Debug.Log("Enemy Ranged Hit " + hitRanged.collider.name);
+                //Debug.Log("Enemy Ranged Hit " + hitRanged.collider.name);
             }
 
             if (hitRanged.collider.gameObject != null)
@@ -675,13 +678,15 @@ public class Enemy : MonoBehaviour
     void ProjectileAttack(float spreadMult, bool ignoreDamageOverride, bool ignoreInvisibility)
     {
         var p = Instantiate(attackProjectile, transform.position + transform.forward, transform.rotation);
-        p.GetComponent<Projectile>().ignoreTag = tag;
-        p.GetComponent<Projectile>().speed *= _projectileSpeedMult;
+        Projectile pScript = p.GetComponent<Projectile>();
+
+        pScript.ignoreTag = tag;
+        pScript.speed *= _projectileSpeedMult;
         p.transform.forward = (transform.forward + transform.right * spreadMult).normalized;
 
         if (attackDamage != 0 && !ignoreDamageOverride)
         {
-            p.GetComponent<Projectile>().damage = attackDamage;
+            pScript.damage = attackDamage;
         }
 
         if (target.GetComponent<Player>() != null)
@@ -762,7 +767,7 @@ public class Enemy : MonoBehaviour
 
     #region Pathfinding
 
-    IEnumerator AddPositionToListCoroutine()
+    private IEnumerator AddPositionToListCoroutine()
     {
         AddPositionToList();
 
@@ -771,7 +776,7 @@ public class Enemy : MonoBehaviour
         StartCoroutine(AddPositionToListCoroutine());
     }
 
-    void AddPositionToList()
+    private void AddPositionToList()
     {
         if (_healthScript.isDead == false)
         {
@@ -815,7 +820,7 @@ public class Enemy : MonoBehaviour
             {
                 if (StaticClass.debugRays == true)
                 {
-                    Debug.Log(gameObject + " saw " + which);
+                    //Debug.Log(gameObject + " saw " + which);
                     Debug.DrawRay(transform.position, dir * hit.distance, Color.green);
                 }
                 return true;
@@ -878,10 +883,11 @@ public class Enemy : MonoBehaviour
 
         if (Vector3.Distance(transform.position, which.transform.position) < dist && hearPath.status == NavMeshPathStatus.PathComplete)
         {
+            /*
             if (Debug.isDebugBuild == true)
             {
                 Debug.Log(gameObject + " can hear " + which);
-            }
+            }*/
             return true;
         }
         else
@@ -909,9 +915,9 @@ public class Enemy : MonoBehaviour
         gameObject.layer = 9;
         _animator.Play(painAnim);
 
-        GetComponent<Collider>().isTrigger = false;
-        GetComponent<Collider>().enabled = true;
-        GetComponent<NavMeshAgent>().enabled = true;
+        _collider.isTrigger = false;
+        _collider.enabled = true;
+        _agent.enabled = true;
 
         _player.killedEnemies.Remove(_initialPositionToString);
     }
@@ -919,8 +925,8 @@ public class Enemy : MonoBehaviour
     private void Death(bool instant)
     {
         // Disable components.
-        GetComponent<Collider>().isTrigger = true;
-        GetComponent<NavMeshAgent>().enabled = false;
+        _collider.isTrigger = true;
+        _agent.enabled = false;
 
         _healthScript.health = 0;
         _player.killedEnemies.Add(_initialPositionToString);
@@ -955,9 +961,9 @@ public class Enemy : MonoBehaviour
             }
         }
 
-        if (canBeRevived == false)
+        if (canBeRevived == false && _collider != null)
         {
-            Destroy(GetComponent<Collider>());
+            Destroy(_collider);
         }
 
         // Item drop.

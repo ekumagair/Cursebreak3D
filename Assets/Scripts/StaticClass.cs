@@ -4,24 +4,24 @@ using UnityEngine;
 
 public static class StaticClass
 {
-    // Game states
+    ////// Game states //////
     public static int gameState = 0;
     // State 0 = Normal gameplay
     // State 1 = Winning level
     // State 2 = Death
     // State 3 = Pause
 
-    // Chapter and Map variables
+    ////// Chapter and Map variables //////
     public static int currentChapter = 1;
     public static int currentMap = 1;
 
-    // Unlocked chapter
+    ////// Unlocked chapter //////
     public static int unlockedChapter = 1;
 
-    // Chapter high scores
+    ////// Chapter high scores //////
     public static int[] chapterHighScore = new int[3];
 
-    // Difficulty
+    ////// Difficulty //////
     public static int difficulty = 1;
     // Normal values are from 0 to 3. Values greater than 3 will be functional but won't have special properties.
     // -2 = No enemies, all push walls revealed
@@ -31,7 +31,8 @@ public static class StaticClass
     // 2 = Hard
     // 3 = Very Hard
 
-    // Current level's stats. Must be reset before starting next level.
+    ////// Current level's stats //////
+    // Must be reset before starting next level.
     public static int secretsTotal = 0;
     public static int secretsDiscovered = 0;
     public static int enemiesTotal = 0;
@@ -43,23 +44,23 @@ public static class StaticClass
     public static bool loadSavedMapData = false;
     public static int pendingLoad = -1;
 
-    // Misc rules.
+    ////// Misc rules //////
     public static bool canPause = true;
     public static bool debugRays = false;
 
     // If true, disable chapter unlocking checks. This would make everything unlocked from the start. If false, the player must beat all chapters in order, from first to last.
     public static bool ignoreUnlockedChapter = false;
 
-    // Minimap type.
+    ////// Minimap type //////
     public static int minimapType = 2;
-    // 0 = Minimap disabled
-    // 1 = All revealed from the start
-    // 2 = Gradual reveal
+    // 0 = Minimap disabled.
+    // 1 = All revealed from the start.
+    // 2 = Gradual reveal.
 
-    // Intermission display type.
+    ////// Intermission display type //////
     public static int intermissionDisplayType = 1;
-    // 0 = Show numbers instantly
-    // 1 = Show numbers gradually
+    // 0 = Show numbers instantly.
+    // 1 = Show numbers gradually.
 
     // Reset stats before starting a new level. Can reset current chapter progress or not.
     public static void ResetStats(bool resetChapterProgress)
@@ -94,7 +95,14 @@ public static class StaticClass
         Debug.Log("Reset stats!");
     }
 
-    // Constants
+    ////// Save system //////
+    // PDATA = Player Data.
+    // GDATA = Global Data.
     public const string SLOT_PREFIX = "slot";
-    public const string SAVEGAME_FILETYPE = ".cursebreaksave";
+    public const string PDATA_IDENTIFIER = "player";
+    public const string PDATA_FILETYPE = ".cursebreaksave";
+    public const string GDATA_IDENTIFIER = "global";
+    public const string GDATA_FILETYPE = ".dat";
+    public const string PLAYER_PREF_PDATA_KEY = "PlayerData";
+    public const string PLAYER_PREF_GDATA_KEY = "GlobalData";
 }

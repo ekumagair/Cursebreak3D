@@ -31,7 +31,7 @@ public class Door : MonoBehaviour
 
     void Update()
     {
-        if(transform.position == closedPosition)
+        if (transform.position == closedPosition)
         {
             StopCoroutine(MoveDoor(closedPosition));
             doorState = 0;

@@ -61,9 +61,9 @@ public class HUD : MonoBehaviour
 
     public static bool minimapEnabled = false;
 
-    GameObject statTarget;
-    Health targetHealth;
-    Player targetPlayer;
+    private GameObject statTarget;
+    private Health targetHealth;
+    private Player targetPlayer;
 
     #endregion
 
@@ -106,7 +106,7 @@ public class HUD : MonoBehaviour
         for (int i = 0; i < saveSlotText.Length; i++)
         {
             // Check for save slot "i + 1" because save slot 0 is the auto save, which isn't an option here.
-            if (SaveSystem.SaveExists(i + 1, "player") == false)
+            if (SaveSystem.PlayerSaveExists(i + 1) == false)
             {
                 saveSlotText[i].text += " (EMPTY)";
             }
@@ -205,7 +205,7 @@ public class HUD : MonoBehaviour
                 }
 
                 // Hide sprites if the player is dead
-                if(targetHealth.health <= 0)
+                if (targetHealth.health <= 0)
                 {
                     firstPersonSprites[i].enabled = false;
                 }
@@ -231,10 +231,11 @@ public class HUD : MonoBehaviour
         {
             minimapEnabled = !minimapEnabled;
         }
+
         mapRoot.SetActive(minimapEnabled);
     }
 
-    #endregion
+#endregion
 
     #region Pause
 
@@ -313,17 +314,19 @@ public class HUD : MonoBehaviour
             HudMoveUpLog();
         }
 
+        /*
         if (Debug.isDebugBuild == true)
         {
             Debug.Log(message);
             Debug.Log("Log position: " + logCurrentPosition);
-        }
+        }*/
     }
 
     public void HudMoveUpLog()
     {
         logCurrentPosition--;
         LogMessageScript[] logMsg = FindObjectsOfType<LogMessageScript>();
+
         foreach (LogMessageScript lm in logMsg)
         {
             lm.MoveUp();
@@ -334,10 +337,11 @@ public class HUD : MonoBehaviour
             logCurrentPosition = 0;
         }
 
+        /*
         if (Debug.isDebugBuild == true)
         {
             Debug.Log("Log position: " + logCurrentPosition);
-        }
+        }*/
     }
 
     #endregion

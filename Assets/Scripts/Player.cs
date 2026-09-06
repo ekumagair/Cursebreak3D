@@ -67,15 +67,17 @@ public class Player : MonoBehaviour
 
     #region Private Instance Variables
 
-    bool scrolledMouse = false;
+    private bool scrolledMouse = false;
 
-    Health healthScript;
-    Controls controlsScript;
-    GameObject gameCanvas;
-    HUD gameCanvasScript;
-    Minimap minimapScript;
-    CharacterController characterController;
-    MapProperties mapProperties;
+    public Health HealthScript => healthScript;
+    private Health healthScript;
+
+    private Controls controlsScript;
+    private GameObject gameCanvas;
+    private HUD gameCanvasScript;
+    private Minimap minimapScript;
+    private CharacterController characterController;
+    private MapProperties mapProperties;
 
     #endregion
 
@@ -131,22 +133,24 @@ public class Player : MonoBehaviour
 
     #region Default Methods
 
-    private void Awake()
+    void Awake()
     {
         StaticClass.enemiesKilled = 0;
         StaticClass.secretsDiscovered = 0;
         StaticClass.enemiesTotal = 0;
         StaticClass.secretsTotal = 0;
+
+        healthScript = GetComponent<Health>();
+        controlsScript = GetComponent<Controls>();
+        characterController = GetComponent<CharacterController>();
     }
 
     void Start()
     {
-        healthScript = GetComponent<Health>();
-        controlsScript = GetComponent<Controls>();
         gameCanvas = GameObject.FindGameObjectWithTag("Canvas");
         gameCanvasScript = gameCanvas.GetComponent<HUD>();
+
         minimapScript = gameCanvasScript.mapRoot.GetComponent<Minimap>();
-        characterController = GetComponent<CharacterController>();
         mapProperties = GameObject.Find("MapProperties").GetComponent<MapProperties>();
 
         SetRenderTexture();
@@ -182,7 +186,7 @@ public class Player : MonoBehaviour
                 healthScript.health = 1;
             }
 
-            Debug.Log("Loaded player inventory info.");
+            //Debug.Log("Loaded player inventory info.");
 
             // Load full player info.
             if (StaticClass.loadSavedPlayerFullInfo == true)
@@ -200,7 +204,7 @@ public class Player : MonoBehaviour
                 conditionTimer[5] = 0.5f;
                 conditionTimer[6] = 0.5f;
 
-                Debug.Log("Loaded player full info.");
+                //Debug.Log("Loaded player full info.");
             }
         }
         else
@@ -390,7 +394,7 @@ public class Player : MonoBehaviour
                     if (StaticClass.debugRays == true)
                     {
                         Debug.DrawRay(transform.position, transform.forward * hit.distance, Color.green, weaponRayRange[currentWeapon]);
-                        Debug.Log("Player Hit " + hit.collider.name);
+                        //Debug.Log("Player Hit " + hit.collider.name);
                     }
 
                     if (hit.collider.gameObject != null)
@@ -484,7 +488,7 @@ public class Player : MonoBehaviour
         // Ammo limits
         for (int i = 0; i < ammoLimit.Length; i++)
         {
-            if(ammo[i] > ammoLimit[i])
+            if (ammo[i] > ammoLimit[i])
             {
                 ammo[i] = ammoLimit[i];
             }
@@ -782,7 +786,7 @@ public class Player : MonoBehaviour
                 // Message on top left corner.
                 if (itemScript.logMessageOnCollect != "")
                 {
-                    gameCanvas.GetComponent<HUD>().HudAddLog(itemScript.logMessageOnCollect);
+                    gameCanvasScript.HudAddLog(itemScript.logMessageOnCollect);
                 }
 
                 // Pickup flash.
@@ -820,7 +824,7 @@ public class Player : MonoBehaviour
 
     #region Enemy Vision
 
-    public IEnumerator CheckEnemyVision()
+    private IEnumerator CheckEnemyVision()
     {
         yield return new WaitForSeconds(0.05f);
 
@@ -849,7 +853,7 @@ public class Player : MonoBehaviour
     #region Level Timer
 
     // Time spent on this level.
-    public IEnumerator Timer()
+    private IEnumerator Timer()
     {
         yield return new WaitForSeconds(1);
 
@@ -885,10 +889,10 @@ public class Player : MonoBehaviour
     }
 
     // When the player dies.
-    IEnumerator PlayerDeath()
+    private IEnumerator PlayerDeath()
     {
-        GetComponent<CharacterController>().enabled = false;
-        GetComponent<Controls>().enabled = false;
+        characterController.enabled = false;
+        controlsScript.enabled = false;
         Camera.main.GetComponent<MouseLook>().enabled = false;
         HUD.minimapEnabled = false;
 
@@ -915,8 +919,8 @@ public class Player : MonoBehaviour
         StaticClass.pendingLoad = -1;
         Time.timeScale = 1.0f;
 
-        GetComponent<CharacterController>().enabled = false;
-        GetComponent<Controls>().enabled = false;
+        characterController.enabled = false;
+        controlsScript.enabled = false;
         Camera.main.GetComponent<MouseLook>().enabled = false;
 
         if (fade != null)
@@ -964,7 +968,7 @@ public class Player : MonoBehaviour
         StaticClass.gameState = 3;
         Time.timeScale = 0.0f;
 
-        gameCanvas.GetComponent<HUD>().GoToPauseRoot();
+        gameCanvasScript.GoToPauseRoot();
     }
 
     // Unpause
@@ -980,7 +984,7 @@ public class Player : MonoBehaviour
     #region Conditions/Checks
 
     // Check if a weapon can be selected.
-    bool CanSelectWeapon(int w)
+    public bool CanSelectWeapon(int w)
     {
         if (StaticClass.gameState != 0)
         {
@@ -1062,7 +1066,7 @@ public class Player : MonoBehaviour
     #region Minimap
 
     // Reveal minimap with sight.
-    void RevealMinimapRay(float spread, bool addToLog)
+    private void RevealMinimapRay(float spread, bool addToLog)
     {
         RaycastHit minimapHit;
         if (Physics.Raycast(transform.position, transform.forward + (spread * transform.right), out minimapHit, Mathf.Infinity, attackRayMask))
@@ -1073,8 +1077,8 @@ public class Player : MonoBehaviour
 
                 if (addToLog == true && Debug.isDebugBuild == true)
                 {
-                    gameCanvas.GetComponent<HUD>().HudAddLog(minimapHit.collider.gameObject.ToString());
-                    gameCanvas.GetComponent<HUD>().HudAddLog(minimapHit.collider.gameObject.transform.position.ToString());
+                    gameCanvasScript.HudAddLog(minimapHit.collider.gameObject.ToString());
+                    gameCanvasScript.HudAddLog(minimapHit.collider.gameObject.transform.position.ToString());
                 }
             }
         }
@@ -1125,7 +1129,7 @@ public class Player : MonoBehaviour
         // Can only autosave if the player is alive.
         if (StaticClass.gameState != 2)
         {
-            Debug.Log("Autosaved on slot 0.");
+            //Debug.Log("Autosaved on slot 0.");
             SaveSystem.SaveGame(0);
         }
         else

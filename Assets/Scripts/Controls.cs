@@ -184,8 +184,10 @@ public class Controls : MonoBehaviour
                             Debug.Log("Used exit");
                         }
 
-                        hit.collider.gameObject.GetComponent<Exit>().UsedExit();
-                        StartCoroutine(GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().Exit(hit.collider.gameObject.GetComponent<Exit>().fade));
+                        Exit exitScript = hit.collider.gameObject.GetComponent<Exit>();
+
+                        exitScript.UsedExit();
+                        StartCoroutine(GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().Exit(exitScript.fade));
                     }
                     if (hit.collider.gameObject.name == "HeartDoor")
                     {
@@ -209,7 +211,7 @@ public class Controls : MonoBehaviour
 
     #region Footsteps
 
-    IEnumerator Footstep()
+    private IEnumerator Footstep()
     {
         yield return new WaitForSeconds(4.5f / GetCurrentVelocity());
 

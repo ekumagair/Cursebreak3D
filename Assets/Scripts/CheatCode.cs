@@ -22,11 +22,13 @@ public class CheatCode : MonoBehaviour
     public KeyCode[] buttons;
     public int currentButton;
 
-    Player playerScript;
+    private AudioSource audioSource;
+    private Player playerScript;
 
     void Start()
     {
         currentButton = 0;
+        audioSource = GetComponent<AudioSource>();
         playerScript = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
     }
 
@@ -35,13 +37,13 @@ public class CheatCode : MonoBehaviour
         Event e = Event.current;
         if (e.isKey && Event.current.type == EventType.KeyUp)
         {
-            if(buttons[currentButton] == e.keyCode)
+            if (buttons[currentButton] == e.keyCode)
             {
                 // Check next key.
                 currentButton++;
 
                 // If typed every key.
-                if(currentButton == buttons.Length)
+                if (currentButton == buttons.Length)
                 {
                     if (debugOnly == false || (debugOnly == true && Debug.isDebugBuild == true))
                     {
@@ -75,8 +77,8 @@ public class CheatCode : MonoBehaviour
         }
         if (giveArmor > 0)
         {
-            playerScript.GetComponent<Health>().armor += giveArmor;
-            playerScript.GetComponent<Health>().armorMult = giveArmorMult;
+            playerScript.HealthScript.armor += giveArmor;
+            playerScript.HealthScript.armorMult = giveArmorMult;
         }
         if (giveKey > 0)
         {
@@ -106,11 +108,11 @@ public class CheatCode : MonoBehaviour
             SceneManager.LoadScene(goToScene);
         }
 
-        playerScript.GetComponent<Health>().overallDamageMult = giveOverallMult;
+        playerScript.HealthScript.overallDamageMult = giveOverallMult;
 
-        if (playSound == true)
+        if (playSound == true && audioSource != null)
         {
-            GetComponent<AudioSource>().Play();
+            audioSource.Play();
         }
         if (once == true)
         {

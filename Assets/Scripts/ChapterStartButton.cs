@@ -34,7 +34,7 @@ public class ChapterStartButton : MonoBehaviour
             _buttonText.text = fullStringOverride;
         }
 
-        if(StaticClass.unlockedChapter >= chapterNumber || StaticClass.ignoreUnlockedChapter == true)
+        if (StaticClass.unlockedChapter >= chapterNumber || StaticClass.ignoreUnlockedChapter == true)
         {
             _btn.interactable = true;
             _events.enabled = true;
