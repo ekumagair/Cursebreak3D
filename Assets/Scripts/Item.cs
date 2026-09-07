@@ -22,7 +22,7 @@ public class Item : MonoBehaviour
     public bool canAlwaysCollect = false;
     public bool triggersAutosave = false;
 
-    Player player;
+    private Player _player;
 
     #endregion
 
@@ -30,18 +30,18 @@ public class Item : MonoBehaviour
 
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        _player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
     }
 
     void Update()
     {
         if (StaticClass.loadSavedMapData == true)
         {
-            if (player.destroyedItemsPositions.Contains(transform.position.x.ToString() + transform.position.y.ToString() + transform.position.z.ToString()))
+            if (_player.destroyedItemsPositions.Contains(transform.position.x.ToString() + transform.position.y.ToString() + transform.position.z.ToString()))
             {
                 if (giveKey > 0)
                 {
-                    player.keys[giveKey] = true;
+                    _player.keys[giveKey] = true;
                 }
 
                 Destroy(gameObject);

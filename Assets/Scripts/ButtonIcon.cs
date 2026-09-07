@@ -6,7 +6,7 @@ public class ButtonIcon : MonoBehaviour
 {
     private RectTransform _rect;
 
-    private void Awake()
+    void Awake()
     {
         _rect = GetComponent<RectTransform>();
     }

@@ -34,6 +34,14 @@ public class Player : MonoBehaviour
 
     #endregion
 
+    #region Public Properties
+
+    public Health HealthScript => _healthScript;
+    public Controls ControlsScript => _controlsScript;
+    public CharacterController CharacterController => _characterController;
+
+    #endregion
+
     #region Static Variables
 
     // score: Total chapter score. Only resets after a chapter is completed. Is only actually updated after a level ends.
@@ -67,17 +75,11 @@ public class Player : MonoBehaviour
 
     #region Private Instance Variables
 
-    private bool scrolledMouse = false;
+    private bool _scrolledMouse = false;
 
-    public Health HealthScript => healthScript;
-    private Health healthScript;
-
-    private Controls controlsScript;
-    private GameObject gameCanvas;
-    private HUD gameCanvasScript;
-    private Minimap minimapScript;
-    private CharacterController characterController;
-    private MapProperties mapProperties;
+    private Health _healthScript;
+    private Controls _controlsScript;
+    private CharacterController _characterController;
 
     #endregion
 
@@ -140,24 +142,18 @@ public class Player : MonoBehaviour
         StaticClass.enemiesTotal = 0;
         StaticClass.secretsTotal = 0;
 
-        healthScript = GetComponent<Health>();
-        controlsScript = GetComponent<Controls>();
-        characterController = GetComponent<CharacterController>();
+        _healthScript = GetComponent<Health>();
+        _controlsScript = GetComponent<Controls>();
+        _characterController = GetComponent<CharacterController>();
     }
 
     void Start()
     {
-        gameCanvas = GameObject.FindGameObjectWithTag("Canvas");
-        gameCanvasScript = gameCanvas.GetComponent<HUD>();
-
-        minimapScript = gameCanvasScript.mapRoot.GetComponent<Minimap>();
-        mapProperties = GameObject.Find("MapProperties").GetComponent<MapProperties>();
-
         SetRenderTexture();
 
         isInvisible = false;
         weaponsUnlocked[0] = true;
-        scrolledMouse = false;
+        _scrolledMouse = false;
 
         StaticClass.gameState = 0;
         TitleScreen.startFromChapterSelect = false;
@@ -165,9 +161,9 @@ public class Player : MonoBehaviour
         if (StaticClass.loadSavedPlayerInfo == true)
         {
             // Load player info.
-            healthScript.health = savedHealth;
-            healthScript.armor = savedArmor;
-            healthScript.armorMult = savedArmorMult;
+            _healthScript.health = savedHealth;
+            _healthScript.armor = savedArmor;
+            _healthScript.armorMult = savedArmorMult;
             currentWeapon = savedCurrentWeapon;
 
             for (int i = 0; i < savedAmmo.Length; i++)
@@ -181,9 +177,9 @@ public class Player : MonoBehaviour
             }
 
             // Fail-safe, in case the player's saved health is 0 or less.
-            if (healthScript.health <= 0)
+            if (_healthScript.health <= 0)
             {
-                healthScript.health = 1;
+                _healthScript.health = 1;
             }
 
             //Debug.Log("Loaded player inventory info.");
@@ -191,7 +187,7 @@ public class Player : MonoBehaviour
             // Load full player info.
             if (StaticClass.loadSavedPlayerFullInfo == true)
             {
-                characterController.enabled = false;
+                _characterController.enabled = false;
                 transform.position = new Vector3(savedPosition.x, savedPosition.y, savedPosition.z);
                 transform.rotation = Quaternion.Euler(0, savedRotation, 0);
 
@@ -245,19 +241,19 @@ public class Player : MonoBehaviour
         // Reduce damage vulnerability on easier difficulties. Increase damage vulnerability on harder difficulties.
         if (StaticClass.difficulty <= 0) // Easy
         {
-            healthScript.overallDamageMult = 0.5f;
+            _healthScript.overallDamageMult = 0.5f;
         }
         else if (StaticClass.difficulty == 1) // Normal
         {
-            healthScript.overallDamageMult = 1.0f;
+            _healthScript.overallDamageMult = 1.0f;
         }
         else if (StaticClass.difficulty == 2) // Hard
         {
-            healthScript.overallDamageMult = 1.5f;
+            _healthScript.overallDamageMult = 1.5f;
         }
         else if (StaticClass.difficulty >= 3) // Very hard
         {
-            healthScript.overallDamageMult = 2.0f;
+            _healthScript.overallDamageMult = 2.0f;
         }
 
         if (StaticClass.difficulty <= 1)
@@ -296,7 +292,7 @@ public class Player : MonoBehaviour
             }
         }
 
-        characterController.enabled = true;
+        _characterController.enabled = true;
     }
 
     void Update()
@@ -333,19 +329,19 @@ public class Player : MonoBehaviour
         // Select weapon with mouse wheel.
         if (Input.GetAxis("Mouse ScrollWheel") != 0.0f && HUD.minimapEnabled == false && StaticClass.gameState == 0)
         {
-            if (scrolledMouse == false)
+            if (_scrolledMouse == false)
             {
                 currentWeapon = NextAvailableWeapon(-Input.GetAxisRaw("Mouse ScrollWheel"));
-                scrolledMouse = true;
+                _scrolledMouse = true;
             }
         }
         else
         {
-            scrolledMouse = false;
+            _scrolledMouse = false;
         }
 
         // Attack
-        if (Input.GetMouseButton(0) && weaponsUnlocked[currentWeapon] == true && weaponDelaysCurrent[currentWeapon] == 0 && (ammo[weaponAmmoType[currentWeapon]] >= weaponAmmoCost[currentWeapon] || weaponAmmoType[currentWeapon] == -1) && healthScript.isDead == false && StaticClass.gameState == 0)
+        if (Input.GetMouseButton(0) && weaponsUnlocked[currentWeapon] == true && weaponDelaysCurrent[currentWeapon] == 0 && (ammo[weaponAmmoType[currentWeapon]] >= weaponAmmoCost[currentWeapon] || weaponAmmoType[currentWeapon] == -1) && _healthScript.isDead == false && StaticClass.gameState == 0)
         {
             if (weaponType[currentWeapon] == 0 && weaponProjectile[currentWeapon] != null)
             {
@@ -495,21 +491,21 @@ public class Player : MonoBehaviour
         }
 
         // Armor limits
-        if (healthScript.armor < 0)
+        if (_healthScript.armor < 0)
         {
-            healthScript.armor = 0;
+            _healthScript.armor = 0;
         }
-        if (healthScript.armor == 0)
+        if (_healthScript.armor == 0)
         {
-            healthScript.armorMult = 1;
+            _healthScript.armorMult = 1;
         }
-        if (healthScript.armor > 100)
+        if (_healthScript.armor > 100)
         {
-            healthScript.armor = 100;
+            _healthScript.armor = 100;
         }
 
         // Death
-        if (healthScript.isDead == true && StaticClass.gameState == 0)
+        if (_healthScript.isDead == true && StaticClass.gameState == 0)
         {
             StaticClass.gameState = 2;
             StartCoroutine(PlayerDeath());
@@ -534,34 +530,34 @@ public class Player : MonoBehaviour
                 conditionTimer[i] -= Time.deltaTime;
 
                 // Show condition overlay.
-                if (gameCanvasScript.conditionOverlays[i] != null)
+                if (HUD.Instance.conditionOverlays[i] != null)
                 {
-                    gameCanvasScript.conditionOverlays[i].enabled = true;
+                    HUD.Instance.conditionOverlays[i].enabled = true;
 
-                    if (gameCanvasScript.conditionOverlaysAnimators[i] != null)
+                    if (HUD.Instance.conditionOverlaysAnimators[i] != null)
                     {
                         if (conditionTimer[i] > 3)
                         {
                             // Show overlay.
-                            gameCanvasScript.conditionOverlaysAnimators[i].Play("FlashImageShow");
+                            HUD.Instance.conditionOverlaysAnimators[i].Play("FlashImageShow");
                         }
                         else
                         {
                             // Make overlay blink to show that the condition timer is running out. Don't blink if power-up flashing is disabled.
                             if (Options.flashingEffects == 0 || Options.flashingEffects == 3)
                             {
-                                gameCanvasScript.conditionOverlaysAnimators[i].Play("FlashImage");
+                                HUD.Instance.conditionOverlaysAnimators[i].Play("FlashImage");
                             }
                             else
                             {
-                                gameCanvasScript.conditionOverlaysAnimators[i].Play("FlashImageShow");
+                                HUD.Instance.conditionOverlaysAnimators[i].Play("FlashImageShow");
                             }
                         }
                     }
                 }
 
                 // Invisibility runs out faster if sprinting.
-                if (i == 0 && controlsScript.isSprinting == true)
+                if (i == 0 && _controlsScript.isSprinting == true)
                 {
                     conditionTimer[i] -= Time.deltaTime * 0.5f;
                 }
@@ -573,15 +569,15 @@ public class Player : MonoBehaviour
             if (conditionTimer[i] <= 0)
             {
                 // Hide condition overlay.
-                if (gameCanvasScript.conditionOverlays[i] != null)
+                if (HUD.Instance.conditionOverlays[i] != null)
                 {
-                    gameCanvasScript.conditionOverlays[i].enabled = false;
+                    HUD.Instance.conditionOverlays[i].enabled = false;
                 }
             }
         }
 
         // Pause
-        if (Input.GetKeyDown(KeyCode.Escape) && !Input.GetKey(KeyCode.Alpha1) && StaticClass.canPause && StaticClass.gameState != 1 && StaticClass.gameState != 2)
+        if (HasPauseInput() && StaticClass.canPause && StaticClass.gameState != 1 && StaticClass.gameState != 2)
         {
             if (Time.timeScale == 0.0f)
             {
@@ -621,9 +617,9 @@ public class Player : MonoBehaviour
             // Toggle canvas
             if (Input.GetKeyDown(KeyCode.U))
             {
-                gameCanvas.SetActive(!gameCanvas.activeSelf);
+                HUD.Instance.gameObject.SetActive(!HUD.Instance.gameObject.activeSelf);
 
-                if (gameCanvas.activeSelf)
+                if (HUD.Instance.gameObject.activeSelf)
                 {
                     SetRenderTexture();
                 }
@@ -642,18 +638,18 @@ public class Player : MonoBehaviour
             // Add health
             if (Input.GetKeyDown(KeyCode.H) && !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl))
             {
-                healthScript.health += 10;
+                _healthScript.health += 10;
             }
             // Add armor
             if (Input.GetKeyDown(KeyCode.R) && !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl))
             {
-                healthScript.armorMult = 0.75f;
-                healthScript.armor += 10;
+                _healthScript.armorMult = 0.75f;
+                _healthScript.armor += 10;
             }
             if (Input.GetKeyDown(KeyCode.G) && !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl))
             {
-                healthScript.armorMult = 0.5f;
-                healthScript.armor += 10;
+                _healthScript.armorMult = 0.5f;
+                _healthScript.armor += 10;
             }
 
             if (Input.GetKey(KeyCode.LeftShift))
@@ -708,24 +704,24 @@ public class Player : MonoBehaviour
         {
             Item itemScript = otherObject.GetComponent<Item>();
 
-            if ((itemScript.giveHealth > 0 && healthScript.health < 100) || (itemScript.giveArmor > 0 && healthScript.armor < 100) || (itemScript.giveAmmo > 0 && ammo[itemScript.giveAmmoType] < ammoLimit[itemScript.giveAmmoType]) || itemScript.giveWeapon != -1 || itemScript.giveKey != -1 || itemScript.canAlwaysCollect == true)
+            if ((itemScript.giveHealth > 0 && _healthScript.health < 100) || (itemScript.giveArmor > 0 && _healthScript.armor < 100) || (itemScript.giveAmmo > 0 && ammo[itemScript.giveAmmoType] < ammoLimit[itemScript.giveAmmoType]) || itemScript.giveWeapon != -1 || itemScript.giveKey != -1 || itemScript.canAlwaysCollect == true)
             {
                 // Give health.
                 if (itemScript.giveHealth != 0)
                 {
-                    healthScript.health += itemScript.giveHealth;
+                    _healthScript.health += itemScript.giveHealth;
 
                     // Don't autosave if the map properties forbid it.
-                    if (mapProperties.healthItemDoesNotAutosave == true)
+                    if (MapProperties.Instance.healthItemDoesNotAutosave == true)
                     {
                         itemScript.triggersAutosave = false;
                     }
                 }
 
                 // Limits player health.
-                if (healthScript.health > 100)
+                if (_healthScript.health > 100)
                 {
-                    healthScript.health = 100;
+                    _healthScript.health = 100;
                 }
 
                 // Give weapon.
@@ -749,16 +745,16 @@ public class Player : MonoBehaviour
                 // Give armor.
                 if (itemScript.giveArmor != 0)
                 {
-                    healthScript.armor += itemScript.giveArmor;
+                    _healthScript.armor += itemScript.giveArmor;
 
                     // Replace current armor with better armor.
-                    if (itemScript.giveArmorMult < healthScript.armorMult)
+                    if (itemScript.giveArmorMult < _healthScript.armorMult)
                     {
-                        healthScript.armorMult = itemScript.giveArmorMult;
+                        _healthScript.armorMult = itemScript.giveArmorMult;
                     }
 
                     // Don't autosave if the map properties forbid it.
-                    if (mapProperties.armorItemDoesNotAutosave == true)
+                    if (MapProperties.Instance.armorItemDoesNotAutosave == true)
                     {
                         itemScript.triggersAutosave = false;
                     }
@@ -786,13 +782,13 @@ public class Player : MonoBehaviour
                 // Message on top left corner.
                 if (itemScript.logMessageOnCollect != "")
                 {
-                    gameCanvasScript.HudAddLog(itemScript.logMessageOnCollect);
+                    HUD.Instance.HudAddLog(itemScript.logMessageOnCollect);
                 }
 
                 // Pickup flash.
                 if (itemScript.createOnCollect != null && (Options.flashingEffects == 0 || Options.flashingEffects == 1))
                 {
-                    Instantiate(itemScript.createOnCollect, gameCanvasScript.overlaysRoot.transform);
+                    Instantiate(itemScript.createOnCollect, HUD.Instance.overlaysRoot.transform);
                 }
 
                 if (itemScript.createOnCollectGameWorld != null)
@@ -884,19 +880,19 @@ public class Player : MonoBehaviour
         // Damage flash.
         if (damageOverlayObject != null && (Options.flashingEffects == 0 || Options.flashingEffects == 2))
         {
-            Instantiate(damageOverlayObject, gameCanvasScript.overlaysRoot.transform);
+            Instantiate(damageOverlayObject, HUD.Instance.overlaysRoot.transform);
         }
     }
 
     // When the player dies.
     private IEnumerator PlayerDeath()
     {
-        characterController.enabled = false;
-        controlsScript.enabled = false;
+        _characterController.enabled = false;
+        _controlsScript.enabled = false;
         Camera.main.GetComponent<MouseLook>().enabled = false;
         HUD.minimapEnabled = false;
 
-        Instantiate(deathFadeObject, gameCanvas.transform);
+        Instantiate(deathFadeObject, HUD.Instance.gameObject.transform);
 
         StaticClass.gameState = 2;
         StaticClass.enemiesTotal = 0;
@@ -919,22 +915,22 @@ public class Player : MonoBehaviour
         StaticClass.pendingLoad = -1;
         Time.timeScale = 1.0f;
 
-        characterController.enabled = false;
-        controlsScript.enabled = false;
+        _characterController.enabled = false;
+        _controlsScript.enabled = false;
         Camera.main.GetComponent<MouseLook>().enabled = false;
 
         if (fade != null)
         {
-            Instantiate(fade, gameCanvas.transform);
+            Instantiate(fade, HUD.Instance.gameObject.transform);
         }
 
         // Add score from this level to chapter total.
         score += scoreThisLevel;
 
         // Save info.
-        savedHealth = healthScript.health;
-        savedArmor = healthScript.armor;
-        savedArmorMult = healthScript.armorMult;
+        savedHealth = _healthScript.health;
+        savedArmor = _healthScript.armor;
+        savedArmorMult = _healthScript.armorMult;
         savedCurrentWeapon = currentWeapon;
 
         for (int i = 0; i < ammo.Length; i++)
@@ -961,6 +957,16 @@ public class Player : MonoBehaviour
 
     #region Pause
 
+    private bool HasPauseInput()
+    {
+        if (Input.GetKey(KeyCode.Alpha1))
+        {
+            return false;
+        }
+
+        return Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Backspace);
+    }
+
     // Pause
     public void PauseStart()
     {
@@ -968,7 +974,7 @@ public class Player : MonoBehaviour
         StaticClass.gameState = 3;
         Time.timeScale = 0.0f;
 
-        gameCanvasScript.GoToPauseRoot();
+        HUD.Instance.GoToPauseRoot();
     }
 
     // Unpause
@@ -995,7 +1001,7 @@ public class Player : MonoBehaviour
     }
 
     // Check what weapon can be selected next while using the mouse wheel. Skips weapons you can't choose.
-    int NextAvailableWeapon(float direction)
+    private int NextAvailableWeapon(float direction)
     {
         int select = currentWeapon;
 
@@ -1026,7 +1032,7 @@ public class Player : MonoBehaviour
     }
 
     // Multiply damage for the player's attacks, depending on certain conditions.
-    int DamageMultiplier()
+    private int DamageMultiplier()
     {
         int mult = 1;
 
@@ -1057,8 +1063,8 @@ public class Player : MonoBehaviour
 
     void ReceiveFullArmor()
     {
-        healthScript.armor = 100;
-        healthScript.armorMult = 0.5f;
+        _healthScript.armor = 100;
+        _healthScript.armorMult = 0.5f;
     }
 
     #endregion
@@ -1073,12 +1079,12 @@ public class Player : MonoBehaviour
         {
             if (minimapHit.collider.gameObject != null)
             {
-                minimapScript.AddToMinimapFilter(minimapHit.collider.gameObject);
+                HUD.Instance.Minimap.AddToMinimapFilter(minimapHit.collider.gameObject);
 
                 if (addToLog == true && Debug.isDebugBuild == true)
                 {
-                    gameCanvasScript.HudAddLog(minimapHit.collider.gameObject.ToString());
-                    gameCanvasScript.HudAddLog(minimapHit.collider.gameObject.transform.position.ToString());
+                    HUD.Instance.HudAddLog(minimapHit.collider.gameObject.ToString());
+                    HUD.Instance.HudAddLog(minimapHit.collider.gameObject.transform.position.ToString());
                 }
             }
         }
@@ -1095,11 +1101,11 @@ public class Player : MonoBehaviour
         {
             return;
         }
-        if (gameCanvasScript == null)
+        if (HUD.Instance == null)
         {
             return;
         }
-        if (gameCanvasScript.targetTextureImage == null)
+        if (HUD.Instance.targetTextureImage == null)
         {
             return;
         }
@@ -1113,8 +1119,8 @@ public class Player : MonoBehaviour
             Camera.main.targetTexture = null;
         }
 
-        gameCanvasScript.targetTextureImage.texture = Camera.main.targetTexture;
-        gameCanvasScript.targetTextureImage.enabled = Options.gameplayLowRes;
+        HUD.Instance.targetTextureImage.texture = Camera.main.targetTexture;
+        HUD.Instance.targetTextureImage.enabled = Options.gameplayLowRes;
     }
 
     #endregion
@@ -1149,7 +1155,7 @@ public class Player : MonoBehaviour
     {
         PlayerData data = SaveSystem.LoadPlayer(slot);
 
-        characterController.enabled = false;
+        _characterController.enabled = false;
 
         savedHealth = data.health;
         savedArmor = data.armor;

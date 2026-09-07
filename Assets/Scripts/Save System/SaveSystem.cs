@@ -273,8 +273,7 @@ public static class SaveSystem
         else
         {
             Options.ResetOptions();
+            SaveGlobal();
         }
-
-        SaveGlobal();
     }
 }

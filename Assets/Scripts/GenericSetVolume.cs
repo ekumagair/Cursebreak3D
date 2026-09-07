@@ -53,7 +53,7 @@ public class GenericSetVolume : MonoBehaviour
 
     #region Volume
 
-    void SetVolume()
+    private void SetVolume()
     {
         float mult = 1.0f;
 

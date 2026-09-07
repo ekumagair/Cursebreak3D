@@ -89,10 +89,10 @@ public static class StaticClass
             loadSavedPlayerFullInfo = false;
             loadSavedMapData = false;
 
-            Debug.Log("Reset chapter progress!");
+            //Debug.Log("Reset chapter progress!");
         }
 
-        Debug.Log("Reset stats!");
+        //Debug.Log("Reset stats!");
     }
 
     ////// Save system //////

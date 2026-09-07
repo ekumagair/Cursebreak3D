@@ -1,11 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.SceneManagement;
-using System;
-using UnityEngine.EventSystems;
 using System.IO;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class TitleScreen : MonoBehaviour
 {
@@ -95,11 +96,13 @@ public class TitleScreen : MonoBehaviour
 
     void Update()
     {
+#if !UNITY_EDITOR && !UNITY_WEBGL
         // Quit the game by pressing esc.
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             QuitGame();
         }
+#endif
 
         // Delete all saved data. Must hold the "delete" key for 5 seconds and then press the "enter" key.
         if (Input.GetKey(KeyCode.Delete))
@@ -284,7 +287,10 @@ public class TitleScreen : MonoBehaviour
         sectionOptions.SetActive(false);
         sectionSelectLevel.SetActive(false);
         sectionCredits.SetActive(false);
+
         StaticClass.loadSavedPlayerInfo = false;
+        SaveSystem.SaveGlobal();
+
         SectionAny();
 
 #if UNITY_STANDALONE && !UNITY_WEBGL
@@ -377,10 +383,9 @@ public class TitleScreen : MonoBehaviour
     {
         selectIcon.enabled = false;
         SetSaveSlotsTexts();
-        SaveSystem.SaveGlobal();
     }
 
-#endregion
+    #endregion
 
     #region Level Control
 
@@ -455,7 +460,11 @@ public class TitleScreen : MonoBehaviour
 
     public void QuitGame()
     {
+#if !UNITY_EDITOR
         Application.Quit();
+#else
+        EditorApplication.ExitPlaymode();
+#endif
     }
 
     #endregion

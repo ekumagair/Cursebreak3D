@@ -355,10 +355,11 @@ public class Enemy : MonoBehaviour
                         Instantiate(sightSound, transform.position, transform.rotation);
                         _sightSoundCooldownCoroutine = StartCoroutine(SightSoundCooldown());
 
+                        /*
                         if (Debug.isDebugBuild)
                         {
                             Debug.Log("Sight sounds: " + sightSoundsPlaying.ToString());
-                        }
+                        }*/
                     }
                 }
             }

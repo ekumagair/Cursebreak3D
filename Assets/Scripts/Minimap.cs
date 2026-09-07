@@ -15,17 +15,17 @@ public class Minimap : MonoBehaviour
     public float scrollScale = 1f;
     public float zoomScale;
 
-    GameObject[] everyGameObject;
-    GameObject playerObject;
-    GameObject playerSprite;
+    private GameObject[] _everyGameObject;
+    private GameObject _playerObject;
+    private GameObject _playerSprite;
 
-    Vector3 previousMinimapPosition;
-    Vector3 previousMinimapScale;
+    private Vector3 _previousMinimapPosition;
+    private Vector3 _previousMinimapScale;
 
-    Vector3 lastFloorPosition = Vector3.zero;
+    private Vector3 _lastFloorPosition = Vector3.zero;
 
-    List<Vector3> usedPositions = new List<Vector3>();
-    List<GameObject> filteredObjects = new List<GameObject>();
+    private List<Vector3> _usedPositions = new List<Vector3>();
+    private List<GameObject> _filteredObjects = new List<GameObject>();
 
     #endregion
 
@@ -33,16 +33,16 @@ public class Minimap : MonoBehaviour
 
     void Start()
     {
-        everyGameObject = GameObject.FindObjectsOfType<GameObject>();
+        _everyGameObject = GameObject.FindObjectsOfType<GameObject>();
         mapObjectsRoot.transform.localScale = new Vector3(1, 1, 1);
-        usedPositions.Clear();
-        filteredObjects.Clear();
+        _usedPositions.Clear();
+        _filteredObjects.Clear();
 
         if (StaticClass.minimapType == 1)
         {
             Vector3 posLatest = new Vector3(0, 0, 0);
 
-            foreach (GameObject obj in everyGameObject)
+            foreach (GameObject obj in _everyGameObject)
             {
                 if (obj.name != "Floor" && obj.name != "Ceiling" && obj.GetComponent<Transform>() != null && obj.GetComponent<RectTransform>() == null && StaticClass.minimapType == 1)
                 {
@@ -54,16 +54,16 @@ public class Minimap : MonoBehaviour
                     }
                     else if (obj.tag == "Player")
                     {
-                        playerObject = obj;
-                        playerSprite = Instantiate(playerSpritePrefab, mapObjectsRoot.transform);
+                        _playerObject = obj;
+                        _playerSprite = Instantiate(playerSpritePrefab, mapObjectsRoot.transform);
                     }
                 }
             }
         }
         else if (StaticClass.minimapType == 2)
         {
-            playerObject = GameObject.FindGameObjectWithTag("Player");
-            playerSprite = Instantiate(playerSpritePrefab, mapObjectsRoot.transform);
+            _playerObject = GameObject.FindGameObjectWithTag("Player");
+            _playerSprite = Instantiate(playerSpritePrefab, mapObjectsRoot.transform);
         }
     }
 
@@ -73,11 +73,11 @@ public class Minimap : MonoBehaviour
         {
             if (StaticClass.minimapType == 1)
             {
-                playerSprite.transform.localPosition = new Vector3(playerObject.transform.position.x + posOffset.x - 640, playerObject.transform.position.z + posOffset.y - 400, 0);
+                _playerSprite.transform.localPosition = new Vector3(_playerObject.transform.position.x + posOffset.x - 640, _playerObject.transform.position.z + posOffset.y - 400, 0);
             }
             else if (StaticClass.minimapType == 2)
             {
-                playerSprite.transform.localPosition = new Vector3(playerObject.transform.position.x + posOffset.x, playerObject.transform.position.z + posOffset.y, 0);
+                _playerSprite.transform.localPosition = new Vector3(_playerObject.transform.position.x + posOffset.x, _playerObject.transform.position.z + posOffset.y, 0);
             }
 
             if (StaticClass.minimapType != 0)
@@ -89,21 +89,21 @@ public class Minimap : MonoBehaviour
                 {
                     if (mapObjectsRoot.transform.localPosition == Vector3.zero)
                     {
-                        mapObjectsRoot.transform.localPosition = playerSprite.transform.localPosition * -1;
+                        mapObjectsRoot.transform.localPosition = _playerSprite.transform.localPosition * -1;
                     }
                 }
 
                 if (Input.GetAxis("Mouse ScrollWheel") > 0 && mapObjectsRoot.transform.localScale.x < 8f)
                 {
                     mapObjectsRoot.transform.localScale += new Vector3(zoomScale, zoomScale, zoomScale);
-                    mapObjectsRoot.transform.localPosition -= transform.right * playerObject.transform.position.x * zoomScale;
-                    mapObjectsRoot.transform.localPosition -= transform.up * playerObject.transform.position.z * zoomScale;
+                    mapObjectsRoot.transform.localPosition -= transform.right * _playerObject.transform.position.x * zoomScale;
+                    mapObjectsRoot.transform.localPosition -= transform.up * _playerObject.transform.position.z * zoomScale;
                 }
                 else if (Input.GetAxis("Mouse ScrollWheel") < 0 && mapObjectsRoot.transform.localScale.x > 0.8f)
                 {
                     mapObjectsRoot.transform.localScale -= new Vector3(zoomScale, zoomScale, zoomScale);
-                    mapObjectsRoot.transform.localPosition += transform.right * playerObject.transform.position.x * zoomScale;
-                    mapObjectsRoot.transform.localPosition += transform.up * playerObject.transform.position.z * zoomScale;
+                    mapObjectsRoot.transform.localPosition += transform.right * _playerObject.transform.position.x * zoomScale;
+                    mapObjectsRoot.transform.localPosition += transform.up * _playerObject.transform.position.z * zoomScale;
                 }
             }
         }
@@ -116,7 +116,7 @@ public class Minimap : MonoBehaviour
     // Check conditions and then add to minimap.
     public void AddToMinimapFilter(GameObject obj)
     {
-        if (filteredObjects.Contains(obj) == false && obj.layer != 5 && Time.timeScale != 0.0f)
+        if (_filteredObjects.Contains(obj) == false && obj.layer != 5 && Time.timeScale != 0.0f)
         {
             if (obj.tag == "StaticWall")
             {
@@ -148,19 +148,19 @@ public class Minimap : MonoBehaviour
     {
         Vector3 pos = new Vector3(Mathf.RoundToInt(reference.transform.position.x), 0, Mathf.RoundToInt(reference.transform.position.z));
 
-        if (usedPositions.Contains(pos) == false && Time.timeScale != 0.0f && (pos.x % 2 == 0 || pos.z % 2 == 0))
+        if (_usedPositions.Contains(pos) == false && Time.timeScale != 0.0f && (pos.x % 2 == 0 || pos.z % 2 == 0))
         {
             AddToMinimap(reference, pos, false);
-            usedPositions.Add(pos);
-            lastFloorPosition = pos;
-            Debug.Log("Added floor to minimap at " + pos);
+            _usedPositions.Add(pos);
+            _lastFloorPosition = pos;
+            //Debug.Log("Added floor to minimap at " + pos);
         }
     }
 
     // Adds to minimap without checking conditions.
     void AddToMinimap(GameObject obj, Vector3 pos, bool filtered)
     {
-        if (usedPositions.Contains(new Vector3(pos.x + posOffset.x, pos.z + posOffset.y, 0)) == false && Time.timeScale != 0.0f)
+        if (_usedPositions.Contains(new Vector3(pos.x + posOffset.x, pos.z + posOffset.y, 0)) == false && Time.timeScale != 0.0f)
         {
             GameObject prefabToAdd = wallSpritePrefab;
 
@@ -174,10 +174,10 @@ public class Minimap : MonoBehaviour
             }
 
             ////// Reset position start //////
-            playerSprite.transform.SetParent(null);
+            _playerSprite.transform.SetParent(null);
 
-            previousMinimapPosition = mapObjectsRoot.transform.position;
-            previousMinimapScale = mapObjectsRoot.transform.localScale;
+            _previousMinimapPosition = mapObjectsRoot.transform.position;
+            _previousMinimapScale = mapObjectsRoot.transform.localScale;
 
             mapObjectsRoot.transform.position = new Vector3(0, 0, 0);
             mapObjectsRoot.transform.localScale = new Vector3(1, 1, 1);
@@ -186,20 +186,20 @@ public class Minimap : MonoBehaviour
             // Instantiate prefab on the minimap
             var ws = Instantiate(prefabToAdd, mapObjectsRoot.transform);
             ws.transform.localPosition = new Vector3(pos.x + posOffset.x, pos.z + posOffset.y, 0);
-            usedPositions.Add(ws.transform.position);
+            _usedPositions.Add(ws.transform.position);
 
             if (filtered == true)
             {
-                filteredObjects.Add(obj);
+                _filteredObjects.Add(obj);
             }
 
             //Debug.Log("Added " + obj.name + " to minimap");
 
             ////// Restore position start //////
-            mapObjectsRoot.transform.position = previousMinimapPosition;
-            mapObjectsRoot.transform.localScale = previousMinimapScale;
+            mapObjectsRoot.transform.position = _previousMinimapPosition;
+            mapObjectsRoot.transform.localScale = _previousMinimapScale;
 
-            playerSprite.transform.SetParent(mapObjectsRoot.transform);
+            _playerSprite.transform.SetParent(mapObjectsRoot.transform);
             ////// Restore position end //////
         }
     }

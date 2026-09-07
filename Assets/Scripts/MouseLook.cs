@@ -7,13 +7,13 @@ public class MouseLook : MonoBehaviour
     #region Variables
 
     public float mouseS = 1000f;
-    float mouseX, mouseY;
+    private float _mouseX, _mouseY;
 
     public Transform playerBody;
     public Player playerScript;
     public bool lookX = true, lookY = true;
 
-    float xRot = 0f;
+    private float _xRot = 0f;
 
     #endregion
 
@@ -22,28 +22,28 @@ public class MouseLook : MonoBehaviour
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        mouseX = 0;
-        mouseY = 0;
+        _mouseX = 0;
+        _mouseY = 0;
     }
 
     void Update()
     {
         if (lookX && playerScript.conditionTimer[5] <= 0)
         {
-            mouseX = Input.GetAxis("Mouse X") * mouseS * Options.mouseSensitivity * Time.deltaTime;
+            _mouseX = Input.GetAxis("Mouse X") * mouseS * Options.mouseSensitivity * Time.deltaTime;
         }
         if (lookY && playerScript.conditionTimer[6] <= 0)
         {
-            mouseY = Input.GetAxis("Mouse Y") * mouseS * Options.mouseSensitivity * Time.deltaTime;
+            _mouseY = Input.GetAxis("Mouse Y") * mouseS * Options.mouseSensitivity * Time.deltaTime;
         }
 
-        xRot -= mouseY;
-        xRot = Mathf.Clamp(xRot, -90f, 90f);
+        _xRot -= _mouseY;
+        _xRot = Mathf.Clamp(_xRot, -90f, 90f);
 
         if (HUD.minimapEnabled == false)
         {
-            transform.localRotation = Quaternion.Euler(xRot, 0f, 0f);
-            playerBody.Rotate(Vector3.up * mouseX);
+            transform.localRotation = Quaternion.Euler(_xRot, 0f, 0f);
+            playerBody.Rotate(Vector3.up * _mouseX);
         }
     }
 

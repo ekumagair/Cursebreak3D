@@ -25,6 +25,7 @@ public class LevelSelect : MonoBehaviour
         {
             StaticClass.difficulty++;
         }
+
         difficultyText.text = "Difficulty: " + StaticClass.difficulty.ToString();
     }
 

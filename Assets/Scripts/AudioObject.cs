@@ -4,21 +4,22 @@ using UnityEngine;
 
 public class AudioObject : MonoBehaviour
 {
-    AudioSource audioSource;
-    float baseVolume;
     public AudioClip[] clips;
     public float pitchMultMin = 1.0f;
     public float pitchMultMax = 1.0f;
 
+    private AudioSource _audioSource;
+    private float _baseVolume;
+
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
-        baseVolume = audioSource.volume;
+        _audioSource = GetComponent<AudioSource>();
+        _baseVolume = _audioSource.volume;
 
-        audioSource.clip = clips[Random.Range(0, clips.Length)];
-        audioSource.pitch *= Random.Range(pitchMultMin, pitchMultMax);
+        _audioSource.clip = clips[Random.Range(0, clips.Length)];
+        _audioSource.pitch *= Random.Range(pitchMultMin, pitchMultMax);
         SetVolume();
-        audioSource.Play();
+        _audioSource.Play();
 
         StartCoroutine(DestroyAfterAudio());
     }
@@ -28,14 +29,14 @@ public class AudioObject : MonoBehaviour
         SetVolume();
     }
 
-    void SetVolume()
+    private void SetVolume()
     {
-        audioSource.volume = baseVolume * Options.soundVolume;
+        _audioSource.volume = _baseVolume * Options.soundVolume;
     }
 
-    IEnumerator DestroyAfterAudio()
+    private IEnumerator DestroyAfterAudio()
     {
-        yield return new WaitForSeconds(audioSource.clip.length * 1.5f);
+        yield return new WaitForSeconds(_audioSource.clip.length * 1.5f);
         Destroy(gameObject);
     }
 }

@@ -14,9 +14,9 @@ public class CastScreen : MonoBehaviour
 
     public string[] characterNameList;
 
-    Animator characterDisplayAnimator;
-    Image characterDisplayImage;
-    int indexValue = 0;
+    private Animator _characterDisplayAnimator;
+    private Image _characterDisplayImage;
+    private int _indexValue = 0;
 
     #endregion
 
@@ -28,42 +28,42 @@ public class CastScreen : MonoBehaviour
         StaticClass.ResetStats(false);
         Cursor.lockState = CursorLockMode.None;
 
-        characterDisplayAnimator = characterDisplay.GetComponent<Animator>();
-        characterDisplayImage = characterDisplay.GetComponent<Image>();
-        indexValue = 0;
+        _characterDisplayAnimator = characterDisplay.GetComponent<Animator>();
+        _characterDisplayImage = characterDisplay.GetComponent<Image>();
+        _indexValue = 0;
     }
 
     void Update()
     {
-        characterName.text = characterNameList[indexValue];
+        characterName.text = characterNameList[_indexValue];
 
         if (characterName.text == "")
         {
-            characterDisplayImage.enabled = false;
+            _characterDisplayImage.enabled = false;
             endText.enabled = true;
         }
         else
         {
-            characterDisplayImage.enabled = true;
+            _characterDisplayImage.enabled = true;
             endText.enabled = false;
         }
 
         if ((Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) && Time.timeSinceLevelLoad >= 1)
         {
-            characterDisplayAnimator.SetTrigger("Next");
+            _characterDisplayAnimator.SetTrigger("Next");
 
-            if (indexValue < characterNameList.Length - 1)
+            if (_indexValue < characterNameList.Length - 1)
             {
-                indexValue++;
+                _indexValue++;
             }
             else
             {
-                indexValue = 0;
-                characterDisplayAnimator.ResetTrigger("Next");
+                _indexValue = 0;
+                _characterDisplayAnimator.ResetTrigger("Next");
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Backspace))
         {
             SceneManager.LoadScene("TitleScreen");
         }

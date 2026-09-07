@@ -77,7 +77,7 @@ public class Door : MonoBehaviour
         }
     }
 
-    IEnumerator MoveDoor(Vector3 target)
+    private IEnumerator MoveDoor(Vector3 target)
     {
         canUse = false;
 

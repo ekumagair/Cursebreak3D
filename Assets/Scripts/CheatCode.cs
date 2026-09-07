@@ -22,14 +22,14 @@ public class CheatCode : MonoBehaviour
     public KeyCode[] buttons;
     public int currentButton;
 
-    private AudioSource audioSource;
-    private Player playerScript;
+    private AudioSource _audioSource;
+    private Player _playerScript;
 
     void Start()
     {
         currentButton = 0;
-        audioSource = GetComponent<AudioSource>();
-        playerScript = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        _audioSource = GetComponent<AudioSource>();
+        _playerScript = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
     }
 
     void OnGUI()
@@ -64,43 +64,43 @@ public class CheatCode : MonoBehaviour
 
         if (giveWeapon > 0)
         {
-            playerScript.weaponsUnlocked[giveWeapon] = true;
-            playerScript.ammo[playerScript.weaponAmmoType[giveWeapon]] += 20;
+            _playerScript.weaponsUnlocked[giveWeapon] = true;
+            _playerScript.ammo[_playerScript.weaponAmmoType[giveWeapon]] += 20;
         }
         if (giveWeapon == -1)
         {
-            for (int i = 0; i < playerScript.weaponsUnlocked.Length; i++)
+            for (int i = 0; i < _playerScript.weaponsUnlocked.Length; i++)
             {
-                playerScript.weaponsUnlocked[i] = true;
-                playerScript.ammo[playerScript.weaponAmmoType[i]] += 20;
+                _playerScript.weaponsUnlocked[i] = true;
+                _playerScript.ammo[_playerScript.weaponAmmoType[i]] += 20;
             }
         }
         if (giveArmor > 0)
         {
-            playerScript.HealthScript.armor += giveArmor;
-            playerScript.HealthScript.armorMult = giveArmorMult;
+            _playerScript.HealthScript.armor += giveArmor;
+            _playerScript.HealthScript.armorMult = giveArmorMult;
         }
         if (giveKey > 0)
         {
-            playerScript.keys[giveKey] = true;
+            _playerScript.keys[giveKey] = true;
         }
         if (giveKey == -1)
         {
-            for (int i = 0; i < playerScript.keys.Length; i++)
+            for (int i = 0; i < _playerScript.keys.Length; i++)
             {
-                playerScript.keys[i] = true;
+                _playerScript.keys[i] = true;
             }
         }
         if (giveFullAmmo == true)
         {
-            for (int i = 0; i < playerScript.ammoLimit.Length; i++)
+            for (int i = 0; i < _playerScript.ammoLimit.Length; i++)
             {
-                playerScript.ammo[i] = playerScript.ammoLimit[i];
+                _playerScript.ammo[i] = _playerScript.ammoLimit[i];
             }
         }
         if (giveLevelWin == true)
         {
-            playerScript.StartCoroutine(playerScript.Exit(null));
+            _playerScript.StartCoroutine(_playerScript.Exit(null));
             //SceneManager.LoadScene("Intermission");
         }
         if (goToScene != "")
@@ -108,11 +108,11 @@ public class CheatCode : MonoBehaviour
             SceneManager.LoadScene(goToScene);
         }
 
-        playerScript.HealthScript.overallDamageMult = giveOverallMult;
+        _playerScript.HealthScript.overallDamageMult = giveOverallMult;
 
-        if (playSound == true && audioSource != null)
+        if (playSound == true && _audioSource != null)
         {
-            audioSource.Play();
+            _audioSource.Play();
         }
         if (once == true)
         {

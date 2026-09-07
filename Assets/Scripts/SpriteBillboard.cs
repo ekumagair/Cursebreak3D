@@ -6,7 +6,7 @@ public class SpriteBillboard : MonoBehaviour
 {
     public bool rotateY = false;
 
-    private void LateUpdate()
+    void LateUpdate()
     {
         if (rotateY == false)
         {

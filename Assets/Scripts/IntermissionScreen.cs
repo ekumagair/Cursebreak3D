@@ -42,6 +42,7 @@ public class IntermissionScreen : MonoBehaviour
         Time.timeScale = 1.0f;
         Cursor.lockState = CursorLockMode.None;
         Enemy.sightSoundsPlaying = 0;
+
         _as = GetComponent<AudioSource>();
 
         Instantiate(fadeFrom, gameObject.transform);
@@ -136,7 +137,7 @@ public class IntermissionScreen : MonoBehaviour
 
     #region Info Display
 
-    IEnumerator GradualDisplay()
+    private IEnumerator GradualDisplay()
     {
         yield return new WaitForSeconds(0.04f);
 
@@ -252,19 +253,20 @@ public class IntermissionScreen : MonoBehaviour
         }
     }
 
-    void ShowScoreText(int value)
+    private void ShowScoreText(int value)
     {
         score.text = "POINTS: " + value.ToString();
     }
 
-    void ShowScoreTotalText(int value)
+    private void ShowScoreTotalText(int value)
     {
         scoreTotal.text = "TOTAL SCORE: " + value.ToString();
     }
 
-    void ShowSecretText(int discovered, bool ignoreBonus)
+    private void ShowSecretText(int discovered, bool ignoreBonus)
     {
         secrets.text = "SECRETS: " + discovered + " / " + StaticClass.secretsTotal.ToString();
+
         if (discovered >= StaticClass.secretsTotal && discovered > 0 && StaticClass.secretsTotal > 0 && ignoreBonus == false)
         {
             secretsRating.enabled = true;
@@ -283,9 +285,10 @@ public class IntermissionScreen : MonoBehaviour
         }
     }
 
-    void ShowEnemyText(int killed, bool ignoreBonus)
+    private void ShowEnemyText(int killed, bool ignoreBonus)
     {
         enemies.text = "FOES: " + killed + " / " + StaticClass.enemiesTotal.ToString();
+
         if (killed >= StaticClass.enemiesTotal && killed > 0 && StaticClass.enemiesTotal > 0 && ignoreBonus == false)
         {
             enemiesRating.enabled = true;
@@ -304,7 +307,7 @@ public class IntermissionScreen : MonoBehaviour
         }
     }
 
-    void ShowTimeText(int minutes, int seconds)
+    private void ShowTimeText(int minutes, int seconds)
     {
         time.text = "TIME: " + minutes.ToString() + " : ";
 
@@ -318,7 +321,7 @@ public class IntermissionScreen : MonoBehaviour
         }
     }
 
-    void NextIntermissionState()
+    private void NextIntermissionState()
     {
         _displayNumber = 0;
         _displayNumber2 = 0;
@@ -329,13 +332,13 @@ public class IntermissionScreen : MonoBehaviour
 
     #region Sounds
 
-    void PlayTickSound()
+    private void PlayTickSound()
     {
         _as.Stop();
         _as.Play();
     }
 
-    void PlayBonusSound()
+    private void PlayBonusSound()
     {
         bonusSound.Play();
     }
@@ -344,7 +347,7 @@ public class IntermissionScreen : MonoBehaviour
 
     #region Navigation
 
-    IEnumerator EndIntermission()
+    private IEnumerator EndIntermission()
     {
         _endedIntermission = true;
         _intermissionState = 5;
@@ -381,13 +384,14 @@ public class IntermissionScreen : MonoBehaviour
                     StoryScreen.whichText = 5;
                     break;
             }
+
             StaticClass.loadSavedPlayerInfo = false;
             StoryScreen.goToTitle = true;
             SceneManager.LoadScene("Story");
         }
     }
 
-    void SaveChapterHighScore()
+    private void SaveChapterHighScore()
     {
         // Save chapter high score.
         if (SaveSystem.GetSavedGlobal() == null)

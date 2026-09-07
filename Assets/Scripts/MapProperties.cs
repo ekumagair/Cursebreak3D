@@ -7,6 +7,8 @@ public class MapProperties : MonoBehaviour
 {
     #region Variables
 
+    public static MapProperties Instance { get; private set; }
+
     // Sets the current chapter and map variables.
     public int chapter = 1;
     public int map = 1;
@@ -21,6 +23,11 @@ public class MapProperties : MonoBehaviour
     #endregion
 
     #region Default Methods
+
+    void Awake()
+    {
+        Instance = this;
+    }
 
     void Start()
     {

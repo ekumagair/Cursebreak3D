@@ -9,6 +9,9 @@ public class HUD : MonoBehaviour
 {
     #region Variables
 
+    public static HUD Instance { get; private set; }
+    public Minimap Minimap { get; private set; }
+
     [Header("Target Texture")]
     public RawImage targetTextureImage;
 
@@ -61,9 +64,9 @@ public class HUD : MonoBehaviour
 
     public static bool minimapEnabled = false;
 
-    private GameObject statTarget;
-    private Health targetHealth;
-    private Player targetPlayer;
+    private GameObject _statTarget;
+    private Health _targetHealth;
+    private Player _targetPlayer;
 
     #endregion
 
@@ -71,6 +74,9 @@ public class HUD : MonoBehaviour
 
     void Awake()
     {
+        Instance = this;
+        Minimap = mapRoot.GetComponent<Minimap>();
+
         if (StaticClass.pendingLoad == -1)
         {
             loadingScreen.SetActive(false);
@@ -83,23 +89,23 @@ public class HUD : MonoBehaviour
 
     void Start()
     {
-        if (statTarget == null)
+        if (_statTarget == null)
         {
-            statTarget = GameObject.FindGameObjectWithTag("Player");
+            _statTarget = GameObject.FindGameObjectWithTag("Player");
         }
 
-        targetHealth = statTarget.GetComponent<Health>();
+        _targetHealth = _statTarget.GetComponent<Health>();
         logCurrentPosition = 0;
         messageTimer = 0f;
         minimapEnabled = false;
 
-        if (statTarget.GetComponent<Player>() != null)
+        if (_statTarget.GetComponent<Player>() != null)
         {
-            targetPlayer = statTarget.GetComponent<Player>();
+            _targetPlayer = _statTarget.GetComponent<Player>();
         }
         else
         {
-            targetPlayer = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+            _targetPlayer = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         }
 
         // Tell the player if a save slot is empty.
@@ -120,9 +126,9 @@ public class HUD : MonoBehaviour
 
     void Update()
     {
-        if (targetHealth.health >= 0)
+        if (_targetHealth.health >= 0)
         {
-            hpText.text = targetHealth.health.ToString();
+            hpText.text = _targetHealth.health.ToString();
         }
         else
         {
@@ -130,9 +136,9 @@ public class HUD : MonoBehaviour
             hpText.text = "0";
         }
 
-        if (targetHealth.armor >= 0)
+        if (_targetHealth.armor >= 0)
         {
-            armorText.text = targetHealth.armor.ToString();
+            armorText.text = _targetHealth.armor.ToString();
         }
         else
         {
@@ -140,23 +146,23 @@ public class HUD : MonoBehaviour
             armorText.text = "0";
         }
 
-        ammo1Text.text = "Plasma: " + targetPlayer.ammo[0].ToString() + "/" + targetPlayer.ammoLimit[0].ToString();
-        ammo2Text.text = "Fire: " + targetPlayer.ammo[1].ToString() + "/" + targetPlayer.ammoLimit[1].ToString();
-        ammo3Text.text = "Electricity: " + targetPlayer.ammo[2].ToString() + "/" + targetPlayer.ammoLimit[2].ToString();
+        ammo1Text.text = "Plasma: " + _targetPlayer.ammo[0].ToString() + "/" + _targetPlayer.ammoLimit[0].ToString();
+        ammo2Text.text = "Fire: " + _targetPlayer.ammo[1].ToString() + "/" + _targetPlayer.ammoLimit[1].ToString();
+        ammo3Text.text = "Electricity: " + _targetPlayer.ammo[2].ToString() + "/" + _targetPlayer.ammoLimit[2].ToString();
         minimapMapNumberDisplay.text = "Chapter " + StaticClass.currentChapter.ToString() + " - Map " + StaticClass.currentMap.ToString();
         minimapEnemyText.text = "Foes: " + StaticClass.enemiesKilled.ToString() + "/" + StaticClass.enemiesTotal.ToString();
         minimapSecretsText.text = "Secrets: " + StaticClass.secretsDiscovered.ToString() + "/" + StaticClass.secretsTotal.ToString();
         minimapCurrentScoreText.text = "Current score: " + Player.scoreThisLevel.ToString();
         minimapTotalScoreText.text = "Total score: " + (Player.score + Player.scoreThisLevel).ToString();
-        weaponImage.sprite = weaponSprites[targetPlayer.currentWeapon];
+        weaponImage.sprite = weaponSprites[_targetPlayer.currentWeapon];
 
         // Show score if recently collected item that gives you score. By default, show ammo.
         if (Player.gotScoreTimer == 0)
         {
             ammoHeaderText.text = "Munition";
-            if (targetPlayer.weaponAmmoCost[targetPlayer.currentWeapon] > 0)
+            if (_targetPlayer.weaponAmmoCost[_targetPlayer.currentWeapon] > 0)
             {
-                ammoText.text = targetPlayer.ammo[targetPlayer.weaponAmmoType[targetPlayer.currentWeapon]].ToString();
+                ammoText.text = _targetPlayer.ammo[_targetPlayer.weaponAmmoType[_targetPlayer.currentWeapon]].ToString();
             }
             else
             {
@@ -189,12 +195,12 @@ public class HUD : MonoBehaviour
         }
 
         // If player script is valid
-        if (targetPlayer != null)
+        if (_targetPlayer != null)
         {
             // For every first person sprite
             for (int i = 0; i < firstPersonSprites.Length; i++)
             {
-                if (targetPlayer.conditionTimer[0] > 0)
+                if (_targetPlayer.conditionTimer[0] > 0)
                 {
                     // Apply invisibility color
                     firstPersonSprites[i].color = firstPersonSpritesInvisibleColor;
@@ -205,7 +211,7 @@ public class HUD : MonoBehaviour
                 }
 
                 // Hide sprites if the player is dead
-                if (targetHealth.health <= 0)
+                if (_targetHealth.health <= 0)
                 {
                     firstPersonSprites[i].enabled = false;
                 }
@@ -241,7 +247,7 @@ public class HUD : MonoBehaviour
 
     public void PauseEnd()
     {
-        targetPlayer.PauseEnd();
+        _targetPlayer.PauseEnd();
         StaticClass.gameState = 0;
         SaveSystem.SaveGlobal();
     }

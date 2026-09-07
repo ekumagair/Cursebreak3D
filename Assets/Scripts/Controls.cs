@@ -14,8 +14,8 @@ public class Controls : MonoBehaviour
     public bool canJump = true;
     public KeyCode sprintKeyCode;
     public bool isSprinting = false;
-    Vector3 velocityV3;
-    Vector3 recordedPosition = Vector3.zero;
+    Vector3 _velocityV3;
+    Vector3 _recordedPosition = Vector3.zero;
 
     [Header("Collision")]
     public Transform groundCheck;
@@ -32,17 +32,16 @@ public class Controls : MonoBehaviour
     public AudioClip[] steps;
     public bool hasWalkStepSFX = true;
     public bool hasSprintStepSFX = true;
-    AudioSource audioSource;
+    private AudioSource _audioSource;
 
     [Header("Use")]
     public KeyCode useKey;
     public AudioClip cantUse;
 
-    CharacterController controller;
-    Camera mainCam;
-    HUD hudScript;
-    Player playerScript;
-    Health healthScript;
+    private CharacterController _controller;
+    private Camera _mainCam;
+    private Player _playerScript;
+    private Health _healthScript;
 
     #endregion
 
@@ -50,12 +49,11 @@ public class Controls : MonoBehaviour
 
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
-        controller = GetComponent<CharacterController>();
-        mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
-        hudScript = GameObject.FindGameObjectWithTag("Canvas").GetComponent<HUD>();
-        playerScript = GetComponent<Player>();
-        healthScript = GetComponent<Health>();
+        _audioSource = GetComponent<AudioSource>();
+        _controller = GetComponent<CharacterController>();
+        _mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+        _playerScript = GetComponent<Player>();
+        _healthScript = GetComponent<Health>();
         isSprinting = false;
 
         StartCoroutine(Footstep());
@@ -66,9 +64,9 @@ public class Controls : MonoBehaviour
         // Movement
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, solidMask);
 
-        if (isGrounded && velocityV3.y < 0)
+        if (isGrounded && _velocityV3.y < 0)
         {
-            velocityV3.y = -2f;
+            _velocityV3.y = -2f;
         }
 
         float x = Input.GetAxis("Horizontal");
@@ -86,7 +84,7 @@ public class Controls : MonoBehaviour
         Vector3 move = transform.right * x + transform.forward * z;
 
         // Sprint
-        if (Input.GetKey(sprintKeyCode) && playerScript.conditionTimer[2] <= 0)
+        if (Input.GetKey(sprintKeyCode) && _playerScript.conditionTimer[2] <= 0)
         {
             move *= velSprintMult;
             isSprinting = true;
@@ -96,28 +94,28 @@ public class Controls : MonoBehaviour
             isSprinting = false;
         }
 
-        isChangingPosition = recordedPosition != transform.position;
-        recordedPosition = transform.position;
+        isChangingPosition = _recordedPosition != transform.position;
+        _recordedPosition = transform.position;
 
         // Execute horizontal movement.
-        if (controller.enabled == true && HUD.minimapEnabled == false && playerScript.conditionTimer[1] <= 0)
+        if (_controller.enabled == true && HUD.minimapEnabled == false && _playerScript.conditionTimer[1] <= 0)
         {
-            controller.Move(move * vel * Time.deltaTime);
+            _controller.Move(move * vel * Time.deltaTime);
         }
 
         // Jump
         if (Input.GetButtonDown("Jump") && isGrounded && canJump && StaticClass.gameState == 0)
         {
-            velocityV3.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            _velocityV3.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             FootstepSFX();
         }
 
-        velocityV3.y += gravity * Time.deltaTime;
+        _velocityV3.y += gravity * Time.deltaTime;
 
-        if (controller.enabled == true)
+        if (_controller.enabled == true)
         {
             // Execute vertical movement.
-            controller.Move(velocityV3 * Time.deltaTime);
+            _controller.Move(_velocityV3 * Time.deltaTime);
         }
 
         // Use
@@ -125,20 +123,21 @@ public class Controls : MonoBehaviour
         {
             if (StaticClass.debugRays == true)
             {
-                Debug.DrawRay(transform.position, mainCam.transform.forward * 4, Color.white, 5f);
+                Debug.DrawRay(transform.position, _mainCam.transform.forward * 4, Color.white, 5f);
             }
 
             RaycastHit hit;
-            if (Physics.Raycast(transform.position, mainCam.transform.forward, out hit, 4f, useMask))
+            if (Physics.Raycast(transform.position, _mainCam.transform.forward, out hit, 4f, useMask))
             {
                 if (hit.collider != null)
                 {
                     if (hit.collider.gameObject.GetComponent<Door>() != null)
                     {
+                        /*
                         if (Debug.isDebugBuild == true)
                         {
                             Debug.Log("Used door");
-                        }
+                        }*/
 
                         Door doorScript = hit.collider.gameObject.GetComponent<Door>();
 
@@ -146,29 +145,30 @@ public class Controls : MonoBehaviour
                         {
                             StartCoroutine(doorScript.OpenDoor());
 
-                            if (playerScript.keys[doorScript.key] == false)
+                            if (_playerScript.keys[doorScript.key] == false)
                             {
                                 if (doorScript.key == 1)
                                 {
-                                    hudScript.HudMessage("You need a bronze key to open this door", 3f);
+                                    HUD.Instance.HudMessage("You need a bronze key to open this door", 3f);
                                 }
                                 else if (doorScript.key == 2)
                                 {
-                                    hudScript.HudMessage("You need a silver key to open this door", 3f);
+                                    HUD.Instance.HudMessage("You need a silver key to open this door", 3f);
                                 }
                                 else if (doorScript.key == 3)
                                 {
-                                    hudScript.HudMessage("You need a golden key to open this door", 3f);
+                                    HUD.Instance.HudMessage("You need a golden key to open this door", 3f);
                                 }
                             }
                         }
                     }
                     if (hit.collider.gameObject.GetComponent<MovingWall>() != null)
                     {
+                        /*
                         if (Debug.isDebugBuild == true)
                         {
                             Debug.Log("Used moving wall");
-                        }
+                        }*/
 
                         MovingWall wallScript = hit.collider.gameObject.GetComponent<MovingWall>();
 
@@ -179,10 +179,11 @@ public class Controls : MonoBehaviour
                     }
                     if (hit.collider.gameObject.GetComponent<Exit>() != null)
                     {
+                        /*
                         if (Debug.isDebugBuild == true)
                         {
                             Debug.Log("Used exit");
-                        }
+                        }*/
 
                         Exit exitScript = hit.collider.gameObject.GetComponent<Exit>();
 
@@ -191,18 +192,18 @@ public class Controls : MonoBehaviour
                     }
                     if (hit.collider.gameObject.name == "HeartDoor")
                     {
-                        hudScript.HudMessage("You need a heart to open this door", 3f);
+                        HUD.Instance.HudMessage("You need a heart to open this door", 3f);
                     }
                 }
                 else
                 {
-                    Debug.Log("Used");
+                    //Debug.Log("Used");
                 }
             }
             else
             {
-                Debug.Log("Can't use");
-                audioSource.PlayOneShot(cantUse);
+                //Debug.Log("Can't use");
+                _audioSource.PlayOneShot(cantUse);
             }
         }
     }
@@ -247,17 +248,17 @@ public class Controls : MonoBehaviour
         StartCoroutine(Footstep());
     }
 
-    void FootstepSFX()
+    private void FootstepSFX()
     {
-        if (healthScript.health > 0 && StaticClass.gameState == 0)
+        if (_healthScript.health > 0 && StaticClass.gameState == 0)
         {
             if (!isSprinting && hasWalkStepSFX)
             {
-                audioSource.PlayOneShot(steps[Random.Range(0, steps.Length)], 0.5f);
+                _audioSource.PlayOneShot(steps[Random.Range(0, steps.Length)], 0.5f);
             }
             if (isSprinting && hasSprintStepSFX)
             {
-                audioSource.PlayOneShot(steps[Random.Range(0, steps.Length)], 0.7f);
+                _audioSource.PlayOneShot(steps[Random.Range(0, steps.Length)], 0.7f);
             }
         }
     }
@@ -266,7 +267,7 @@ public class Controls : MonoBehaviour
 
     #region Checks
 
-    float GetCurrentVelocity()
+    private float GetCurrentVelocity()
     {
         if (!isSprinting)
         {

@@ -19,8 +19,8 @@ public class HealerBehavior : MonoBehaviour
     public GameObject soundHealed;
     public GameObject soundRevived;
 
-    Animator spriteAnimator;
-    List<GameObject> healTargets = new List<GameObject>();
+    private Animator _spriteAnimator;
+    private List<GameObject> _healTargets = new List<GameObject>();
 
     #endregion
 
@@ -28,7 +28,7 @@ public class HealerBehavior : MonoBehaviour
 
     void Start()
     {
-        spriteAnimator = enemyScript.sprite.GetComponent<Animator>();
+        _spriteAnimator = enemyScript.sprite.GetComponent<Animator>();
         StartCoroutine(DecideToHeal());
     }
 
@@ -48,12 +48,12 @@ public class HealerBehavior : MonoBehaviour
     void OnTriggerStay(Collider other)
     {
         // Every enemy that gets close to this one is added to a list. The enemy that heals can't heal itself. Targets can't be added twice to the list.
-        if (EnemyIsActive() && other.gameObject.tag != "Player" && other.gameObject.GetComponent<Enemy>() != null && other.gameObject != transform.parent.gameObject && healTargets.Contains(other.gameObject) == false)
+        if (EnemyIsActive() && other.gameObject.tag != "Player" && other.gameObject.GetComponent<Enemy>() != null && other.gameObject != transform.parent.gameObject && _healTargets.Contains(other.gameObject) == false)
         {
             // Adds to targets list if the target can be healed or if the target is dead and it can be revived.
             if (other.gameObject.GetComponent<Enemy>().canBeHealed == true || (other.gameObject.GetComponent<Health>().isDead == true && other.gameObject.GetComponent<Enemy>().canBeRevived == true))
             {
-                healTargets.Add(other.gameObject);
+                _healTargets.Add(other.gameObject);
             }
         }
     }
@@ -63,11 +63,11 @@ public class HealerBehavior : MonoBehaviour
     #region Heal
 
     // Occasionally check if should heal. Can't heal if the healTargets list is empty.
-    IEnumerator DecideToHeal()
+    private IEnumerator DecideToHeal()
     {
         yield return new WaitForSeconds(0.5f);
 
-        if (EnemyIsActive() && cooldown <= 0 && healTargets.Count > 0)
+        if (EnemyIsActive() && cooldown <= 0 && _healTargets.Count > 0)
         {
             StartCoroutine(Heal(healDuration));
         }
@@ -81,7 +81,7 @@ public class HealerBehavior : MonoBehaviour
         // Play healing animation and prevent enemy from attacking while healing.
         if (enemyHealth.isDead == false)
         {
-            spriteAnimator.Play(healAnimation);
+            _spriteAnimator.Play(healAnimation);
             enemyScript.wakeUpTimer = t;
         }
 
@@ -90,7 +90,7 @@ public class HealerBehavior : MonoBehaviour
         int snd_revive_limit = 3;
 
         // Heal every target.
-        foreach (GameObject target in healTargets)
+        foreach (GameObject target in _healTargets)
         {
             Health targetScript = target.GetComponent<Health>();
 
@@ -157,7 +157,7 @@ public class HealerBehavior : MonoBehaviour
 
         if (enemyHealth.isDead == false)
         {
-            spriteAnimator.Play(afterHealAnimation);
+            _spriteAnimator.Play(afterHealAnimation);
         }
 
         enemyScript.attackTime += 1f;
@@ -165,10 +165,10 @@ public class HealerBehavior : MonoBehaviour
 
         // Resets cooldown timer. Increase cooldown based on how many targets were healed.
         cooldown = cooldownDefault;
-        cooldown += healTargets.Count;
+        cooldown += _healTargets.Count;
 
         // Clears healTargets list.
-        healTargets.Clear();
+        _healTargets.Clear();
     }
 
     #endregion

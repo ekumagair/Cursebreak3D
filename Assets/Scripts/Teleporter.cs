@@ -61,7 +61,7 @@ public class Teleporter : MonoBehaviour
     }
 
     // Some additional control scripts need to be disabled temporarily to make the teleportation work.
-    void SetControlScripts(GameObject obj, bool changeTo)
+    private void SetControlScripts(GameObject obj, bool changeTo)
     {
         if (obj.GetComponent<CharacterController>() != null)
         {

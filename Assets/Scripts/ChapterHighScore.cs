@@ -7,12 +7,12 @@ public class ChapterHighScore : MonoBehaviour
 {
     public int selectedChapter = 0;
 
-    Text txt;
+    private Text _txt;
 
     void Start()
     {
-        txt = GetComponent<Text>();
-        txt.text = "";
+        _txt = GetComponent<Text>();
+        _txt.text = "";
     }
 
     void Update()
@@ -20,11 +20,11 @@ public class ChapterHighScore : MonoBehaviour
         if (SaveSystem.GetSavedGlobal() != null && selectedChapter > 0)
         {
             // Get the saved global data as "selectedChapter - 1" because the array starts with index 0 and valid chapters start at 1.
-            txt.text = "Chapter " + selectedChapter.ToString() + " high score: " + SaveSystem.GetSavedGlobal().chapterHighScore[selectedChapter - 1];
+            _txt.text = "Chapter " + selectedChapter.ToString() + " high score: " + SaveSystem.GetSavedGlobal().chapterHighScore[selectedChapter - 1];
         }
         else
         {
-            txt.text = "";
+            _txt.text = "";
         }
     }
 

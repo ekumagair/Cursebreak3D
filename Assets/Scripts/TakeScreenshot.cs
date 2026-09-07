@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class TakeScreenshot : MonoBehaviour
 {
+#if UNITY_STANDALONE && !UNITY_WEBGL
     // Attach this component to any GameObject in the scene to allow screenshots to be taken.
     void Update()
     {
@@ -20,4 +21,5 @@ public class TakeScreenshot : MonoBehaviour
             }
         }
     }
+#endif
 }
