@@ -96,7 +96,7 @@ public class TitleScreen : MonoBehaviour
 
     void Update()
     {
-#if !UNITY_EDITOR && !UNITY_WEBGL
+#if !UNITY_EDITOR && !UNITY_WEBGL && UNITY_STANDALONE
         // Quit the game by pressing esc.
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -199,6 +199,7 @@ public class TitleScreen : MonoBehaviour
     {
         // Adds the save slot information to the button's text.
         int i = 0;
+
         foreach (Text preview in loadGameSlotsText)
         {
             // Must reset the button's text before adding the information.
@@ -464,6 +465,38 @@ public class TitleScreen : MonoBehaviour
         Application.Quit();
 #else
         EditorApplication.ExitPlaymode();
+#endif
+    }
+
+    #endregion
+
+    #region Cheats
+
+    public void CheatLockChapter()
+    {
+        if (StaticClass.unlockedChapter <= 1)
+        {
+            return;
+        }
+
+        // Web-specific cheat to undo chapter progress.
+#if UNITY_WEBGL
+        StaticClass.unlockedChapter -= 1;
+        SaveSystem.SaveGlobal();
+#endif
+    }
+
+    public void CheatUnlockChapter()
+    {
+        if (StaticClass.unlockedChapter >= 4)
+        {
+            return;
+        }
+
+        // Web-specific cheat to unlock a new chapter.
+#if UNITY_WEBGL
+        StaticClass.unlockedChapter += 1;
+        SaveSystem.SaveGlobal();
 #endif
     }
 

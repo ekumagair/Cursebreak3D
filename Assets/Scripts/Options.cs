@@ -9,6 +9,10 @@ public class Options : MonoBehaviour
 {
     #region Variables
 
+    [Header("Common")]
+    public ScrollRect scrollView;
+    public Scrollbar verticalScrollbar;
+
     [Header("Sound")]
     public AudioSource buttonSound;
 
@@ -70,6 +74,8 @@ public class Options : MonoBehaviour
         musicSlider.value = musicVolume * 100;
         soundSlider.value = soundVolume * 100;
         lowResToggle.isOn = gameplayLowRes;
+
+        verticalScrollbar.value = 1;
     }
 
     void Update()

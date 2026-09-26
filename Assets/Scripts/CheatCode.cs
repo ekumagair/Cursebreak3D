@@ -1,10 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 public class CheatCode : MonoBehaviour
 {
+    [Header("Cheat Properties")]
+    public bool once = true;
+    public bool playSound = false;
+    public bool debugOnly = false;
+
+    [Header("Input")]
+    public KeyCode[] buttons;
+    public int currentButton;
+
     [Header("Effects")]
     public int giveWeapon = 0;
     public int giveArmor = 0;
@@ -14,13 +24,7 @@ public class CheatCode : MonoBehaviour
     public bool giveFullAmmo = false;
     public bool giveLevelWin = false;
     public string goToScene = "";
-
-    [Header("Cheat Properties")]
-    public bool once = true;
-    public bool playSound = false;
-    public bool debugOnly = false;
-    public KeyCode[] buttons;
-    public int currentButton;
+    public UnityEvent onCheatTyped;
 
     private AudioSource _audioSource;
     private Player _playerScript;
@@ -35,6 +39,7 @@ public class CheatCode : MonoBehaviour
     void OnGUI()
     {
         Event e = Event.current;
+
         if (e.isKey && Event.current.type == EventType.KeyUp)
         {
             if (buttons[currentButton] == e.keyCode)
@@ -58,7 +63,7 @@ public class CheatCode : MonoBehaviour
         }
     }
 
-    void ExecuteEffect()
+    private void ExecuteEffect()
     {
         currentButton = 0;
 
@@ -101,14 +106,17 @@ public class CheatCode : MonoBehaviour
         if (giveLevelWin == true)
         {
             _playerScript.StartCoroutine(_playerScript.Exit(null));
-            //SceneManager.LoadScene("Intermission");
         }
         if (goToScene != "")
         {
             SceneManager.LoadScene(goToScene);
         }
+        if (_playerScript != null)
+        {
+            _playerScript.HealthScript.overallDamageMult = giveOverallMult;
+        }
 
-        _playerScript.HealthScript.overallDamageMult = giveOverallMult;
+        onCheatTyped?.Invoke();
 
         if (playSound == true && _audioSource != null)
         {
